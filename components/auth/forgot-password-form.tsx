@@ -159,7 +159,7 @@ export function ForgotPasswordForm() {
 
               <div className="text-center text-sm text-gray-600">
                 Already have an account?{" "}
-                <Link href="/login" className="text-blue-600 hover:underline">
+                <Link href="/auth/login" className="text-blue-600 hover:underline">
                   Sign In
                 </Link>
               </div>

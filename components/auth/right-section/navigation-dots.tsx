@@ -1,18 +1,17 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { type Dispatch, type SetStateAction } from "react";
 
-export default function NavigationDots() {
-  const [activeIndex, setActiveIndex] = useState(0);
+interface NavigationDotsProps {
+  activeIndex: number;
+  setActiveIndex: Dispatch<SetStateAction<number>>;
+}
+
+export default function NavigationDots({
+  activeIndex,
+  setActiveIndex,
+}: NavigationDotsProps) {
   const totalDots = 3;
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setActiveIndex((prev) => (prev + 1) % totalDots);
-    }, 5000);
-
-    return () => clearInterval(interval);
-  }, []);
 
   return (
     <div className="flex space-x-2 mt-4">

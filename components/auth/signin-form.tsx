@@ -127,7 +127,7 @@ export function LoginForm() {
                         Password *
                       </FormLabel>
                       <Link
-                        href="/forgot-password"
+                        href="/auth/forgot-password"
                         className="text-sm text-blue-600 hover:underline"
                       >
                         Forgot Password
@@ -210,7 +210,7 @@ export function LoginForm() {
 
               <div className="text-center text-sm text-gray-600">
                 Already have an account?{" "}
-                <Link href="/signup" className="text-blue-600 hover:underline">
+                <Link href="/auth/register" className="text-blue-600 hover:underline">
                   Sign Up
                 </Link>
               </div>

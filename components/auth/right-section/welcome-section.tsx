@@ -24,6 +24,7 @@ const slides = [
 export default function WelcomeSection() {
   const [activeIndex, setActiveIndex] = useState(0);
 
+  // Auto-advance slides
   useEffect(() => {
     const interval = setInterval(() => {
       setActiveIndex((prev) => (prev + 1) % slides.length);
@@ -33,7 +34,19 @@ export default function WelcomeSection() {
   }, []);
 
   return (
-    <div className="text-white mt-8 text-center max-w-lg">
+    <div className="text-white mt-8 text-left max-w-lg p-10">
+      <div className="flex space-x-2 mb-4">
+        {Array.from({ length: slides.length }).map((_, index) => (
+          <button
+            key={index}
+            className={`w-2 h-2 rounded-full transition-all duration-300 ${
+              index === activeIndex ? "bg-white w-6" : "bg-white/50"
+            }`}
+            onClick={() => setActiveIndex(index)}
+            aria-label={`Go to slide ${index + 1}`}
+          />
+        ))}
+      </div>
       <AnimatePresence mode="wait">
         <motion.div
           key={activeIndex}
