@@ -57,14 +57,14 @@ export function LoginForm() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
       <div className="flex justify-between items-center p-6">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-blue-600 rounded flex items-center justify-center">
-            <div className="w-4 h-4 bg-white rounded-sm"></div>
+          <div className="w-8 h-8 bg-primary rounded flex items-center justify-center">
+            <div className="w-4 h-4 bg-primary-foreground rounded-sm"></div>
           </div>
-          <span className="text-sm font-medium text-gray-600">
+          <span className="text-sm font-medium text-muted-foreground">
             SQUAREMETHODS
           </span>
         </div>
@@ -85,7 +85,7 @@ export function LoginForm() {
       <div className="flex-1 flex items-center justify-center px-6">
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            <h1 className="text-3xl font-bold text-foreground mb-2">
               Welcome back to squaremethods
             </h1>
           </div>
@@ -97,22 +97,22 @@ export function LoginForm() {
                 name="email"
                 render={({ field, fieldState }) => (
                   <FormItem>
-                    <FormLabel className="text-sm font-medium text-gray-700">
+                    <FormLabel className="text-sm font-medium text-foreground">
                       Email Address *
                     </FormLabel>
                     <FormControl>
                       <Input
                         type="email"
                         placeholder="s.m@gmail.com"
-                        className={`border-gray-300 focus:border-blue-500 focus:ring-blue-500 ${
+                        className={`border-input focus:border-ring focus:ring-ring ${
                           fieldState.error
-                            ? "border-red-500 focus:border-red-500 focus:ring-red-500"
+                            ? "border-destructive focus:border-destructive focus:ring-destructive"
                             : ""
                         }`}
                         {...field}
                       />
                     </FormControl>
-                    <FormMessage className="text-red-500 text-sm" />
+                    <FormMessage className="text-destructive text-sm" />
                   </FormItem>
                 )}
               />
@@ -123,28 +123,28 @@ export function LoginForm() {
                 render={({ field, fieldState }) => (
                   <FormItem>
                     <div className="flex justify-between items-center">
-                      <FormLabel className="text-sm font-medium text-gray-700">
+                      <FormLabel className="text-sm font-medium text-foreground">
                         Password *
                       </FormLabel>
                       <Link
                         href="/auth/forgot-password"
-                        className="text-sm text-blue-600 hover:underline"
+                        className="text-sm text-primary hover:underline"
                       >
-                        Forgot Password
+                        Forgot Password?
                       </Link>
                     </div>
                     <FormControl>
                       <div className="relative">
                         <div className="absolute left-3 top-1/2 transform -translate-y-1/2">
-                          <Lock className="h-4 w-4 text-gray-400" />
+                          <Lock className="h-4 w-4 text-muted-foreground" />
                         </div>
                         <Input
                           type={showPassword ? "text" : "password"}
                           placeholder="••••••••"
                           className={`pl-10 pr-12 h-12 border-2 rounded-xl ${
                             fieldState.error
-                              ? "border-red-500 focus:border-red-500"
-                              : "border-blue-200 focus:border-blue-500"
+                              ? "border-destructive focus:border-destructive"
+                              : "border-input focus:border-ring"
                           }`}
                           {...field}
                         />
@@ -156,14 +156,14 @@ export function LoginForm() {
                           onClick={() => setShowPassword(!showPassword)}
                         >
                           {showPassword ? (
-                            <EyeOff className="h-4 w-4 text-gray-400" />
+                            <EyeOff className="h-4 w-4 text-muted-foreground" />
                           ) : (
-                            <Eye className="h-4 w-4 text-gray-400" />
+                            <Eye className="h-4 w-4 text-muted-foreground" />
                           )}
                         </Button>
                       </div>
                     </FormControl>
-                    <FormMessage className="text-red-500 text-sm" />
+                    <FormMessage className="text-destructive text-sm" />
                   </FormItem>
                 )}
               />
@@ -177,11 +177,11 @@ export function LoginForm() {
                       <Checkbox
                         checked={field.value}
                         onCheckedChange={field.onChange}
-                        className="data-[state=checked]:bg-blue-600"
+                        className="data-[state=checked]:bg-primary"
                       />
                     </FormControl>
                     <div className="space-y-1 leading-none">
-                      <FormLabel className="text-sm font-normal text-gray-700">
+                      <FormLabel className="text-sm font-normal text-muted-foreground">
                         Keep me logged in
                       </FormLabel>
                     </div>
@@ -189,13 +189,13 @@ export function LoginForm() {
                 )}
               />
 
-              <div className="text-sm text-gray-600">
+              <div className="text-sm text-muted-foreground">
                 By clicking continue, you agree to accept Texture&apos;s{" "}
-                <Link href="#" className="text-blue-600 hover:underline">
+                <Link href="#" className="text-primary hover:underline">
                   Terms of Service
                 </Link>{" "}
                 and the{" "}
-                <Link href="#" className="text-blue-600 hover:underline">
+                <Link href="#" className="text-primary hover:underline">
                   Privacy Policy
                 </Link>
                 .
@@ -203,14 +203,17 @@ export function LoginForm() {
 
               <Button
                 type="submit"
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-medium"
+                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground py-3 rounded-lg font-medium"
               >
                 Continue
               </Button>
 
-              <div className="text-center text-sm text-gray-600">
+              <div className="text-center text-sm text-muted-foreground">
                 Already have an account?{" "}
-                <Link href="/auth/register" className="text-blue-600 hover:underline">
+                <Link
+                  href="/auth/register"
+                  className="text-primary hover:underline"
+                >
                   Sign Up
                 </Link>
               </div>
@@ -220,9 +223,12 @@ export function LoginForm() {
       </div>
 
       {/* Footer */}
-      <div className="flex justify-between items-center p-6 text-sm text-gray-500">
+      <div className="flex justify-between items-center p-6 text-sm text-muted-foreground">
         <span>© 2025 Squaremethods - All Rights Reserved</span>
-        <Link href="#" className="hover:text-gray-700 flex items-center gap-1">
+        <Link
+          href="#"
+          className="hover:text-foreground flex items-center gap-1"
+        >
           <span>Help Center</span>
         </Link>
       </div>

@@ -34,13 +34,15 @@ export default function WelcomeSection() {
   }, []);
 
   return (
-    <div className="text-white mt-8 text-left max-w-lg p-10">
+    <div className="text-primary-foreground mt-8 text-left max-w-lg p-10">
       <div className="flex space-x-2 mb-4">
         {Array.from({ length: slides.length }).map((_, index) => (
           <button
             key={index}
             className={`w-2 h-2 rounded-full transition-all duration-300 ${
-              index === activeIndex ? "bg-white w-6" : "bg-white/50"
+              index === activeIndex
+                ? "bg-primary-foreground w-6"
+                : "bg-primary-foreground/50"
             }`}
             onClick={() => setActiveIndex(index)}
             aria-label={`Go to slide ${index + 1}`}
@@ -58,7 +60,9 @@ export default function WelcomeSection() {
           <h1 className="text-3xl font-bold mb-2">
             {slides[activeIndex].title}
           </h1>
-          <p className="text-white/80">{slides[activeIndex].description}</p>
+          <p className="text-primary-foreground/80">
+            {slides[activeIndex].description}
+          </p>
         </motion.div>
       </AnimatePresence>
     </div>

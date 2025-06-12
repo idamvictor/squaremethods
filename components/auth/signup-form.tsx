@@ -85,14 +85,14 @@ export function SignUpForm() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
       <div className="flex justify-between items-center p-6">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-blue-600 rounded flex items-center justify-center">
-            <div className="w-4 h-4 bg-white rounded-sm"></div>
+          <div className="w-8 h-8 bg-primary rounded flex items-center justify-center">
+            <div className="w-4 h-4 bg-primary-foreground rounded-sm"></div>
           </div>
-          <span className="text-sm font-medium text-gray-600">
+          <span className="text-sm font-medium text-muted-foreground">
             SQUAREMETHODS
           </span>
         </div>
@@ -113,7 +113,7 @@ export function SignUpForm() {
       <div className="flex-1 flex items-center justify-center px-6">
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            <h1 className="text-3xl font-bold text-foreground mb-2">
               Turn Tribal Knowledge into Digital Standard Work
             </h1>
           </div>
@@ -126,21 +126,21 @@ export function SignUpForm() {
                   name="firstName"
                   render={({ field, fieldState }) => (
                     <FormItem>
-                      <FormLabel className="text-sm font-medium text-gray-700">
+                      <FormLabel className="text-sm font-medium text-foreground">
                         First name *
                       </FormLabel>
                       <FormControl>
                         <Input
                           placeholder="Square"
-                          className={`border-gray-300 focus:border-blue-500 focus:ring-blue-500 ${
+                          className={`border-input focus:border-ring focus:ring-ring ${
                             fieldState.error
-                              ? "border-red-500 focus:border-red-500 focus:ring-red-500"
+                              ? "border-destructive focus:border-destructive focus:ring-destructive"
                               : ""
                           }`}
                           {...field}
                         />
                       </FormControl>
-                      <FormMessage className="text-red-500 text-sm" />
+                      <FormMessage className="text-destructive text-sm" />
                     </FormItem>
                   )}
                 />
@@ -149,21 +149,21 @@ export function SignUpForm() {
                   name="lastName"
                   render={({ field, fieldState }) => (
                     <FormItem>
-                      <FormLabel className="text-sm font-medium text-gray-700">
+                      <FormLabel className="text-sm font-medium text-foreground">
                         Last Name *
                       </FormLabel>
                       <FormControl>
                         <Input
                           placeholder="Method"
-                          className={`border-gray-300 focus:border-blue-500 focus:ring-blue-500 ${
+                          className={`border-input focus:border-ring focus:ring-ring ${
                             fieldState.error
-                              ? "border-red-500 focus:border-red-500 focus:ring-red-500"
+                              ? "border-destructive focus:border-destructive focus:ring-destructive"
                               : ""
                           }`}
                           {...field}
                         />
                       </FormControl>
-                      <FormMessage className="text-red-500 text-sm" />
+                      <FormMessage className="text-destructive text-sm" />
                     </FormItem>
                   )}
                 />
@@ -174,21 +174,21 @@ export function SignUpForm() {
                 name="companyUserName"
                 render={({ field, fieldState }) => (
                   <FormItem>
-                    <FormLabel className="text-sm font-medium text-gray-700">
+                    <FormLabel className="text-sm font-medium text-foreground">
                       Company&apos;s User Name *
                     </FormLabel>
                     <FormControl>
                       <Input
                         placeholder="square.acme"
-                        className={`border-gray-300 focus:border-blue-500 focus:ring-blue-500 ${
+                        className={`border-input focus:border-ring focus:ring-ring ${
                           fieldState.error
-                            ? "border-red-500 focus:border-red-500 focus:ring-red-500"
+                            ? "border-destructive focus:border-destructive focus:ring-destructive"
                             : ""
                         }`}
                         {...field}
                       />
                     </FormControl>
-                    <FormMessage className="text-red-500 text-sm" />
+                    <FormMessage className="text-destructive text-sm" />
                   </FormItem>
                 )}
               />
@@ -198,22 +198,22 @@ export function SignUpForm() {
                 name="email"
                 render={({ field, fieldState }) => (
                   <FormItem>
-                    <FormLabel className="text-sm font-medium text-gray-700">
+                    <FormLabel className="text-sm font-medium text-foreground">
                       Email Address *
                     </FormLabel>
                     <FormControl>
                       <Input
                         type="email"
                         placeholder="s.m@gmail.com"
-                        className={`border-gray-300 focus:border-blue-500 focus:ring-blue-500 ${
+                        className={`border-input focus:border-ring focus:ring-ring ${
                           fieldState.error
-                            ? "border-red-500 focus:border-red-500 focus:ring-red-500"
+                            ? "border-destructive focus:border-destructive focus:ring-destructive"
                             : ""
                         }`}
                         {...field}
                       />
                     </FormControl>
-                    <FormMessage className="text-red-500 text-sm" />
+                    <FormMessage className="text-destructive text-sm" />
                   </FormItem>
                 )}
               />
@@ -223,22 +223,22 @@ export function SignUpForm() {
                 name="password"
                 render={({ field, fieldState }) => (
                   <FormItem>
-                    <FormLabel className="text-sm font-medium text-gray-700">
+                    <FormLabel className="text-sm font-medium text-foreground">
                       Password *
                     </FormLabel>
                     <FormControl>
                       <div className="space-y-3">
                         <div className="relative">
                           <div className="absolute left-3 top-1/2 transform -translate-y-1/2">
-                            <Lock className="h-4 w-4 text-gray-400" />
+                            <Lock className="h-4 w-4 text-muted-foreground" />
                           </div>
                           <Input
                             type={showPassword ? "text" : "password"}
                             placeholder="Squaremethod"
                             className={`pl-10 pr-12 h-12 border-2 rounded-xl ${
                               fieldState.error
-                                ? "border-red-500 focus:border-red-500"
-                                : "border-blue-200 focus:border-blue-500"
+                                ? "border-destructive focus:border-destructive"
+                                : "border-input focus:border-ring"
                             }`}
                             {...field}
                           />
@@ -250,9 +250,9 @@ export function SignUpForm() {
                             onClick={() => setShowPassword(!showPassword)}
                           >
                             {showPassword ? (
-                              <EyeOff className="h-4 w-4 text-gray-400" />
+                              <EyeOff className="h-4 w-4 text-muted-foreground" />
                             ) : (
-                              <Eye className="h-4 w-4 text-gray-400" />
+                              <Eye className="h-4 w-4 text-muted-foreground" />
                             )}
                           </Button>
                         </div>
@@ -270,14 +270,14 @@ export function SignUpForm() {
                                     6
                                 );
 
-                                let segmentColor = "bg-gray-200";
+                                let segmentColor = "bg-input";
                                 if (index < progressSegments) {
                                   if (metCriteria >= 4) {
-                                    segmentColor = "bg-green-500";
+                                    segmentColor = "bg-primary";
                                   } else if (metCriteria >= 2) {
-                                    segmentColor = "bg-yellow-500";
+                                    segmentColor = "bg-warning";
                                   } else {
-                                    segmentColor = "bg-red-500";
+                                    segmentColor = "bg-destructive";
                                   }
                                 }
 
@@ -294,18 +294,7 @@ export function SignUpForm() {
                               })}
                             </div>
 
-                            <div
-                              className={`text-sm font-medium ${
-                                passwordRequirements.filter((req) => req.met)
-                                  .length >= 4
-                                  ? "text-green-600"
-                                  : passwordRequirements.filter(
-                                      (req) => req.met
-                                    ).length >= 2
-                                  ? "text-yellow-600"
-                                  : "text-red-600"
-                              }`}
-                            >
+                            <div className="text-sm font-medium text-muted-foreground">
                               {passwordRequirements.filter((req) => req.met)
                                 .length >= 4
                                 ? "Strong password"
@@ -327,17 +316,19 @@ export function SignUpForm() {
                                 className="flex items-center space-x-2"
                               >
                                 {req.met ? (
-                                  <div className="flex items-center justify-center w-4 h-4 rounded-full bg-green-500">
-                                    <Check className="h-3 w-3 text-white" />
+                                  <div className="flex items-center justify-center w-4 h-4 rounded-full bg-primary">
+                                    <Check className="h-3 w-3 text-primary-foreground" />
                                   </div>
                                 ) : (
-                                  <div className="flex items-center justify-center w-4 h-4 rounded-full bg-gray-300">
-                                    <X className="h-3 w-3 text-gray-500" />
+                                  <div className="flex items-center justify-center w-4 h-4 rounded-full bg-input">
+                                    <X className="h-3 w-3 text-muted-foreground" />
                                   </div>
                                 )}
                                 <span
                                   className={`text-sm ${
-                                    req.met ? "text-green-600" : "text-gray-500"
+                                    req.met
+                                      ? "text-primary"
+                                      : "text-muted-foreground"
                                   }`}
                                 >
                                   {req.text}
@@ -348,7 +339,7 @@ export function SignUpForm() {
                         )}
 
                         {fieldState.error && (
-                          <p className="text-sm text-red-600" role="alert">
+                          <p className="text-sm text-destructive" role="alert">
                             {fieldState.error.message}
                           </p>
                         )}
@@ -358,13 +349,13 @@ export function SignUpForm() {
                 )}
               />
 
-              <div className="text-sm text-gray-600">
+              <div className="text-sm text-muted-foreground">
                 By clicking continue, you agree to accept Squaremethods{" "}
-                <Link href="#" className="text-blue-600 hover:underline">
+                <Link href="#" className="text-primary hover:underline">
                   Terms of Service
                 </Link>{" "}
                 and the{" "}
-                <Link href="#" className="text-blue-600 hover:underline">
+                <Link href="#" className="text-primary hover:underline">
                   Privacy Policy
                 </Link>
                 .
@@ -372,14 +363,17 @@ export function SignUpForm() {
 
               <Button
                 type="submit"
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-medium"
+                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground py-3 rounded-lg font-medium"
               >
                 Continue
               </Button>
 
-              <div className="text-center text-sm text-gray-600">
+              <div className="text-center text-sm text-muted-foreground">
                 Already have an account?{" "}
-                <Link href="/auth/login" className="text-blue-600 hover:underline">
+                <Link
+                  href="/auth/login"
+                  className="text-primary hover:underline"
+                >
                   Sign In
                 </Link>
               </div>
@@ -389,9 +383,9 @@ export function SignUpForm() {
       </div>
 
       {/* Footer */}
-      <div className="flex justify-between items-center p-6 text-sm text-gray-500">
+      <div className="flex justify-between items-center p-6 text-sm text-muted-foreground">
         <span>© 2025 Squaremethods - All Rights Reserved</span>
-        <Link href="#" className="hover:text-gray-700">
+        <Link href="#" className="hover:text-foreground">
           Help Center
         </Link>
       </div>
