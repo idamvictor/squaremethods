@@ -1,7 +1,5 @@
-import React from 'react'
+import { LoginForm } from "@/components/auth/signin-form";
 
-export default function page() {
-  return (
-    <div>page</div>
-  )
+export default function LoginPage() {
+  return <LoginForm />;
 }
