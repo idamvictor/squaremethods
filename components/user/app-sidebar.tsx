@@ -72,7 +72,7 @@ const mainNavItems = [
 const supportNavItems = [
   {
     title: "Setting",
-    url: "#",
+    url: "/settings",
     icon: Settings,
   },
   {
