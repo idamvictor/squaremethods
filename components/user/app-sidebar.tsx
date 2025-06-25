@@ -64,7 +64,7 @@ const mainNavItems = [
   },
   {
     title: "User Management",
-    url: "#",
+    url: "user-management",
     icon: UserCog,
   },
 ];
@@ -77,7 +77,7 @@ const supportNavItems = [
   },
   {
     title: "Help Center",
-    url: "#",
+    url: "/help-center",
     icon: HelpCircle,
   },
 ];
