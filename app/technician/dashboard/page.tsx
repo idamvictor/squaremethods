@@ -1,3 +1,5 @@
-export default function TechnicianDashoardPage() {
-  return <div>TechnicianDashoardPage</div>;
+import TechnicianDashboard from "@/components/technician/dashboard/technician-dashboard";
+
+export default function TechnicianDashboardPage() {
+  return <TechnicianDashboard />;
 }
