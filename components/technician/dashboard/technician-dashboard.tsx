@@ -13,6 +13,15 @@ import {
 } from "@/components/ui/table";
 import { useState } from "react";
 import { MetricCard } from "./components/metric-card";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 
 interface Task {
   id: number;
@@ -132,63 +141,56 @@ export default function TechnicianDashboard() {
           </Table>
         </div>
 
-        <div className="flex items-center justify-between py-4 px-4 border-t border-slate-200">
-          <div className="flex w-[100px] items-center justify-center text-sm font-medium">
-            Page {currentPage} of {totalPages}
-          </div>
-          <div className="flex items-center space-x-2">
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-8"
-              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-              disabled={currentPage === 1}
-            >
-              Previous
-            </Button>
-
-            <div className="flex items-center space-x-1">
-              {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
-                const page = i + 1;
-                const isActive = currentPage === page;
-                
-                return (
-                  <Button
-                    key={page}
-                    variant={isActive ? "secondary" : "ghost"}
-                    size="sm"
-                    className={`h-8 w-8 p-0 ${isActive ? 'bg-blue-50 text-blue-600' : 'text-slate-600'}`}
-                    onClick={() => setCurrentPage(page)}
-                  >
-                    {page}
-                  </Button>
-                );
-              })}
-
-              {totalPages > 5 && (
-                <>
-                  <span className="text-slate-400">...</span>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-8 w-8 p-0 text-slate-600"
-                    onClick={() => setCurrentPage(totalPages)}
-                  >
-                    {totalPages}
-                  </Button>
-                </>
-              )}
+        <div className="py-4 px-4 border-t border-slate-200">
+          <div className="flex items-center justify-between">
+            <div className="text-sm text-muted-foreground">
+              Page {currentPage} of {totalPages}
             </div>
-
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-8"
-              onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-              disabled={currentPage === totalPages}
-            >
-              Next
-            </Button>
+            <Pagination>
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious 
+                    onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                   
+                  />
+                </PaginationItem>
+                {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+                  const page = i + 1;
+                  const isActive = currentPage === page;
+                  
+                  return (
+                    <PaginationItem key={page}>
+                      <PaginationLink 
+                        onClick={() => setCurrentPage(page)}
+                        isActive={isActive}
+                      >
+                        {page}
+                      </PaginationLink>
+                    </PaginationItem>
+                  );
+                })}
+                {totalPages > 5 && (
+                  <>
+                    <PaginationItem>
+                      <PaginationEllipsis />
+                    </PaginationItem>
+                    <PaginationItem>
+                      <PaginationLink
+                        onClick={() => setCurrentPage(totalPages)}
+                      >
+                        {totalPages}
+                      </PaginationLink>
+                    </PaginationItem>
+                  </>
+                )}
+                <PaginationItem>
+                  <PaginationNext 
+                    onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                    
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
           </div>
         </div>
       </div>
