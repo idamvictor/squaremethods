@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { Button } from "@/components/ui/button";
 import { QrCode } from "lucide-react";
@@ -12,7 +12,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useState } from "react";
-import { MetricCard } from "./components/metric-card";
+import { MetricCard } from "./metric-card";
 import {
   Pagination,
   PaginationContent,
@@ -26,7 +26,7 @@ import {
 interface Task {
   id: number;
   job: string;
-  status: 'Pending' | 'Completed' | 'NEW';
+  status: "Pending" | "Completed" | "NEW";
   assignedBy: {
     name: string;
     avatar: string;
@@ -40,22 +40,26 @@ const ITEMS_PER_PAGE = 7;
 // Generate mock data
 const mockTasks: Task[] = Array.from({ length: 55 }, (_, index) => ({
   id: index + 1,
-  job: `${['Inspect pressure gauge', 'Check oil levels', 'Test valve operation'][index % 3]}`,
-  status: index === 0 ? 'NEW' : index % 3 === 0 ? 'Completed' : 'Pending',
+  job: `${
+    ["Inspect pressure gauge", "Check oil levels", "Test valve operation"][
+      index % 3
+    ]
+  }`,
+  status: index === 0 ? "NEW" : index % 3 === 0 ? "Completed" : "Pending",
   assignedBy: [
-    { name: 'Olivia Rhye', avatar: '/avatars/olivia.jpg' },
-    { name: 'Phoenix Baker', avatar: '/avatars/phoenix.jpg' },
-    { name: 'Lana Steiner', avatar: '/avatars/lana.jpg' }
+    { name: "Olivia Rhye", avatar: "/avatars/olivia.jpg" },
+    { name: "Phoenix Baker", avatar: "/avatars/phoenix.jpg" },
+    { name: "Lana Steiner", avatar: "/avatars/lana.jpg" },
   ][index % 3],
-  dueDate: 'May 24',
-  duration: '2hrs',
+  dueDate: "May 24",
+  duration: "2hrs",
 }));
 
 const metrics = [
-  { title: 'Total Task', value: '55' },
-  { title: 'Task Completed', value: '41' },
-  { title: 'Pending Tasks', value: '14' },
-  { title: 'Job Aid Created', value: '3' },
+  { title: "Total Task", value: "55" },
+  { title: "Task Completed", value: "41" },
+  { title: "Pending Tasks", value: "14" },
+  { title: "Job Aid Created", value: "3" },
 ];
 
 export default function TechnicianDashboard() {
@@ -91,11 +95,21 @@ export default function TechnicianDashboard() {
           <Table>
             <TableHeader>
               <TableRow className="hover:bg-transparent border-b bg-slate-50">
-                <TableHead className="w-[300px] text-slate-500 font-medium">Jobs</TableHead>
-                <TableHead className="text-slate-500 font-medium">Status</TableHead>
-                <TableHead className="text-slate-500 font-medium">Assigned by</TableHead>
-                <TableHead className="text-slate-500 font-medium">Due Date</TableHead>
-                <TableHead className="text-slate-500 font-medium">Duration (hrs)</TableHead>
+                <TableHead className="w-[300px] text-slate-500 font-medium">
+                  Jobs
+                </TableHead>
+                <TableHead className="text-slate-500 font-medium">
+                  Status
+                </TableHead>
+                <TableHead className="text-slate-500 font-medium">
+                  Assigned by
+                </TableHead>
+                <TableHead className="text-slate-500 font-medium">
+                  Due Date
+                </TableHead>
+                <TableHead className="text-slate-500 font-medium">
+                  Duration (hrs)
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -103,22 +117,29 @@ export default function TechnicianDashboard() {
                 <TableRow key={task.id} className="hover:bg-slate-50">
                   <TableCell className="py-3">
                     <div className="flex items-center gap-2">
-                      {task.status === 'NEW' && (
+                      {task.status === "NEW" && (
                         <span className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-xs font-medium">
                           NEW
                         </span>
                       )}
-                      <span className="font-medium text-slate-900">{task.job}</span>
+                      <span className="font-medium text-slate-900">
+                        {task.job}
+                      </span>
                     </div>
                   </TableCell>
                   <TableCell className="py-3">
                     <div className="flex items-center gap-2">
-                      <div className={`w-1.5 h-1.5 rounded-full ${
-                        task.status === 'Completed' ? 'bg-green-500' :
-                        task.status === 'Pending' ? 'bg-slate-300' : ''
-                      }`} />
+                      <div
+                        className={`w-1.5 h-1.5 rounded-full ${
+                          task.status === "Completed"
+                            ? "bg-green-500"
+                            : task.status === "Pending"
+                            ? "bg-slate-300"
+                            : ""
+                        }`}
+                      />
                       <span className="text-slate-600">
-                        {task.status !== 'NEW' && task.status}
+                        {task.status !== "NEW" && task.status}
                       </span>
                     </div>
                   </TableCell>
@@ -127,14 +148,23 @@ export default function TechnicianDashboard() {
                       <Avatar className="h-6 w-6">
                         <AvatarImage src={task.assignedBy.avatar} />
                         <AvatarFallback className="bg-slate-100 text-slate-500">
-                          {task.assignedBy.name.split(' ').map(n => n[0]).join('')}
+                          {task.assignedBy.name
+                            .split(" ")
+                            .map((n) => n[0])
+                            .join("")}
                         </AvatarFallback>
                       </Avatar>
-                      <span className="text-slate-600">{task.assignedBy.name}</span>
+                      <span className="text-slate-600">
+                        {task.assignedBy.name}
+                      </span>
                     </div>
                   </TableCell>
-                  <TableCell className="py-3 text-slate-600">{task.dueDate}</TableCell>
-                  <TableCell className="py-3 text-slate-600">{task.duration}</TableCell>
+                  <TableCell className="py-3 text-slate-600">
+                    {task.dueDate}
+                  </TableCell>
+                  <TableCell className="py-3 text-slate-600">
+                    {task.duration}
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -149,18 +179,19 @@ export default function TechnicianDashboard() {
             <Pagination>
               <PaginationContent>
                 <PaginationItem>
-                  <PaginationPrevious 
-                    onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                   
+                  <PaginationPrevious
+                    onClick={() =>
+                      setCurrentPage((prev) => Math.max(prev - 1, 1))
+                    }
                   />
                 </PaginationItem>
                 {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
                   const page = i + 1;
                   const isActive = currentPage === page;
-                  
+
                   return (
                     <PaginationItem key={page}>
-                      <PaginationLink 
+                      <PaginationLink
                         onClick={() => setCurrentPage(page)}
                         isActive={isActive}
                       >
@@ -184,9 +215,10 @@ export default function TechnicianDashboard() {
                   </>
                 )}
                 <PaginationItem>
-                  <PaginationNext 
-                    onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-                    
+                  <PaginationNext
+                    onClick={() =>
+                      setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                    }
                   />
                 </PaginationItem>
               </PaginationContent>

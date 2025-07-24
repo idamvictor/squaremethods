@@ -1,5 +1,5 @@
+import { TechnicianSidebar } from "@/components/technician/technician-sidebar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { AppSidebar } from "@/components/user/app-sidebar";
 import { Header } from "@/components/user/header";
 
 export default function UserLayout({
@@ -9,7 +9,7 @@ export default function UserLayout({
 }>) {
   return (
     <SidebarProvider>
-      <AppSidebar />
+      <TechnicianSidebar />
       <SidebarInset>
         <Header />
         <main>{children}</main>
