@@ -31,33 +31,33 @@ import {
 const mainNavItems = [
   {
     title: "Dashboard",
-    url: "/dashboard",
+    url: "/technician/dashboard",
     icon: LayoutDashboard,
     isActive: true,
   },
   {
     title: "Equipment Hierarchy",
-    url: "#",
+    url: "/technician/equipment-hierarchy",
     icon: Layers,
   },
   {
     title: "Job Aids",
-    url: "#",
+    url: "/technician/job-aids",
     icon: FileText,
   },
   {
     title: "Jobs",
-    url: "#",
+    url: "/technician/jobs",
     icon: Briefcase,
   },
   {
     title: "Calender",
-    url: "#",
+    url: "/technician/dashbaord",
     icon: Calendar,
   },
   {
     title: "Settings",
-    url: "#",
+    url: "/technician/settings",
     icon: Settings,
   },
   // {
