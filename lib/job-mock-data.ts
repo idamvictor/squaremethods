@@ -1,5 +1,5 @@
 // import type { Task } from "./types";
-export type TaskStatus = "pending" | "completed" | "declined";
+export type JobStatus = "pending" | "completed" | "declined";
 
 export type Team = "Operational" | "Sanitation" | "Maintenance" | "Automation";
 
@@ -8,10 +8,10 @@ export interface AssignedOwner {
   avatar: string;
 }
 
-export interface Task {
+export interface Job {
   id: string;
   title: string;
-  status: TaskStatus;
+  status: JobStatus;
   team: Team;
   assignedOwner: AssignedOwner;
   dueDate: string;
@@ -19,7 +19,7 @@ export interface Task {
   isNew?: boolean;
 }
 
-export const mockTasks: Task[] = [
+export const mockJobs: Job[] = [
   {
     id: "1",
     title: "Inspect pressure gauge",

@@ -1,7 +1,5 @@
 "use client";
 
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -10,7 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import {
   Pagination,
   PaginationContent,
@@ -19,15 +17,14 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-import { Edit, Trash2 } from "lucide-react";
-import { useTaskStore } from "@/store/task-store";
-import type { Task } from "@/lib/mock-data";
+import { useJobStore } from "@/store/job-store";
+import { Job } from "@/lib/job-mock-data";
 
-export function TaskTable() {
-  const { currentTasks, currentPage, totalPages, setCurrentPage, deleteTask } =
-    useTaskStore();
+export function JobTable() {
+  const { currentJobs, currentPage, totalPages, setCurrentPage } =
+    useJobStore();
 
-  const getStatusBadge = (status: Task["status"]) => {
+  const getStatusBadge = (status: Job["status"]) => {
     return (
       <div className="flex items-center gap-2">
         <div
@@ -89,67 +86,46 @@ export function TaskTable() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {currentTasks.map((task) => (
-              <TableRow key={task.id}>
+            {currentJobs.map((job) => (
+              <TableRow key={job.id}>
                 <TableCell>
                   <div className="flex items-center gap-2">
-                    {task.isNew && (
-                      <Badge
-                        variant="outline"
-                        className="bg-blue-50 text-blue-700 border-blue-200 text-xs"
-                      >
-                        NEW
-                      </Badge>
+                    {job.isNew && (
+                      <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
                     )}
-                    <span className="font-medium">{task.title}</span>
+                    <span className="font-medium">{job.title}</span>
                   </div>
                 </TableCell>
-                <TableCell>{getStatusBadge(task.status)}</TableCell>
+                <TableCell>{getStatusBadge(job.status)}</TableCell>
                 <TableCell>
                   <span className="text-sm text-muted-foreground">
-                    {task.team}
+                    {job.team}
                   </span>
                 </TableCell>
                 <TableCell>
                   <div className="flex items-center gap-2">
                     <Avatar className="h-8 w-8">
                       <AvatarImage
-                        src={task.assignedOwner.avatar || "/placeholder.svg"}
-                        alt={task.assignedOwner.name}
+                        src={job.assignedOwner.avatar || "/placeholder.svg"}
+                        alt={job.assignedOwner.name}
                       />
-                      <AvatarFallback>
-                        {task.assignedOwner.name
-                          .split(" ")
-                          .map((n) => n[0])
-                          .join("")}
-                      </AvatarFallback>
                     </Avatar>
-                    <span className="text-sm">{task.assignedOwner.name}</span>
+                    <span className="text-sm">{job.assignedOwner.name}</span>
                   </div>
                 </TableCell>
                 <TableCell>
                   <span className="text-sm text-muted-foreground">
-                    {task.dueDate}
+                    {job.dueDate}
                   </span>
                 </TableCell>
                 <TableCell>
                   <span className="text-sm text-muted-foreground">
-                    {task.duration}
+                    {job.duration}
                   </span>
                 </TableCell>
                 <TableCell>
                   <div className="flex items-center gap-2">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8"
-                      onClick={() => deleteTask(task.id)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                    <Button variant="ghost" size="icon" className="h-8 w-8">
-                      <Edit className="h-4 w-4" />
-                    </Button>
+                    {/* Edit and Delete buttons can be added here */}
                   </div>
                 </TableCell>
               </TableRow>

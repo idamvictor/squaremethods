@@ -7,29 +7,28 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Plus, Users, User, Calendar, Clock } from "lucide-react";
 import {
   Select,
   SelectContent,
-  SelectItem,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Calendar, Clock, Plus, Minus, User, Users } from "lucide-react";
-import { useTaskStore } from "@/store/task-store";
+import { useJobStore } from "@/store/job-store";
 
-export function AddTaskModal() {
+export function AddJobModal() {
   const {
     isAddModalOpen,
-    newTask,
+    newJob,
     closeAddModal,
-    updateNewTask,
+    updateNewJob,
     addTaskToList,
     removeTaskFromList,
-    createTask,
-  } = useTaskStore();
+    createJob,
+  } = useJobStore();
 
   const [newTaskInput, setNewTaskInput] = useState("");
 
@@ -40,8 +39,8 @@ export function AddTaskModal() {
     }
   };
 
-  const handleCreateTask = () => {
-    createTask();
+  const handleCreateJob = () => {
+    createJob();
     setNewTaskInput("");
   };
 
@@ -64,8 +63,8 @@ export function AddTaskModal() {
             <Input
               id="jobTitle"
               placeholder="Hydraulic press maintenance"
-              value={newTask.title}
-              onChange={(e) => updateNewTask("title", e.target.value)}
+              value={newJob.title}
+              onChange={(e) => updateNewJob("title", e.target.value)}
             />
           </div>
 
@@ -90,23 +89,17 @@ export function AddTaskModal() {
               </Button>
             </div>
 
-            {newTask.taskList.length > 0 && (
+            {newJob.taskList.length > 0 && (
               <div className="space-y-2">
-                {newTask.taskList.map((task, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center justify-between p-2 bg-gray-50 rounded"
-                  >
-                    <span className="text-sm">
-                      {index + 1}. {task}
-                    </span>
+                {newJob.taskList.map((task, index) => (
+                  <div key={index} className="flex items-center gap-2">
+                    <div className="flex-1 p-2 bg-gray-50 rounded">{task}</div>
                     <Button
                       size="icon"
                       variant="ghost"
                       onClick={() => removeTaskFromList(index)}
-                      className="h-6 w-6"
                     >
-                      <Minus className="h-3 w-3" />
+                      &times;
                     </Button>
                   </div>
                 ))}
@@ -117,23 +110,14 @@ export function AddTaskModal() {
           {/* Equipment/System */}
           <div className="space-y-2">
             <Label className="flex items-center gap-2">
-              <div className="w-4 h-4 bg-orange-100 rounded flex items-center justify-center">
-                <div className="w-2 h-2 bg-orange-500 rounded"></div>
-              </div>
+              <div className="w-4 h-4 bg-orange-100 rounded flex items-center justify-center"></div>
               Equipment/System
             </Label>
-            <Select
-              onValueChange={(value) => updateNewTask("equipment", value)}
-            >
+            <Select onValueChange={(value) => updateNewJob("equipment", value)}>
               <SelectTrigger>
                 <SelectValue placeholder="Hydraulic Press" />
               </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="hydraulic-press">Hydraulic Press</SelectItem>
-                <SelectItem value="conveyor-belt">Conveyor Belt</SelectItem>
-                <SelectItem value="air-compressor">Air Compressor</SelectItem>
-                <SelectItem value="cooling-system">Cooling System</SelectItem>
-              </SelectContent>
+              <SelectContent>{/* Equipment options */}</SelectContent>
             </Select>
           </div>
 
@@ -144,18 +128,13 @@ export function AddTaskModal() {
               Team
             </Label>
             <Select
-              value={newTask.team}
-              onValueChange={(value) => updateNewTask("team", value)}
+              value={newJob.team}
+              onValueChange={(value) => updateNewJob("team", value)}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Maintenance Team" />
               </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Maintenance">Maintenance Team</SelectItem>
-                <SelectItem value="Operational">Operational Team</SelectItem>
-                <SelectItem value="Sanitation">Sanitation Team</SelectItem>
-                <SelectItem value="Automation">Automation Team</SelectItem>
-              </SelectContent>
+              <SelectContent>{/* Team options */}</SelectContent>
             </Select>
           </div>
 
@@ -166,18 +145,10 @@ export function AddTaskModal() {
               Assigned Owner
             </Label>
             <Select
-              value={newTask.assignedOwner}
-              onValueChange={(value) => updateNewTask("assignedOwner", value)}
+              value={newJob.assignedOwner}
+              onValueChange={(value) => updateNewJob("assignedOwner", value)}
             >
-              <SelectTrigger>
-                <SelectValue placeholder="Savannah Nguyen" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Savannah Nguyen">Savannah Nguyen</SelectItem>
-                <SelectItem value="Phoenix Baker">Phoenix Baker</SelectItem>
-                <SelectItem value="Olivia Rhye">Olivia Rhye</SelectItem>
-                <SelectItem value="Lana Steiner">Lana Steiner</SelectItem>
-              </SelectContent>
+              {/* Owner options */}
             </Select>
           </div>
 
@@ -188,19 +159,10 @@ export function AddTaskModal() {
               Due Date
             </Label>
             <Select
-              value={newTask.dueDate}
-              onValueChange={(value) => updateNewTask("dueDate", value)}
+              value={newJob.dueDate}
+              onValueChange={(value) => updateNewJob("dueDate", value)}
             >
-              <SelectTrigger>
-                <SelectValue placeholder="13/05/2025" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="May 24">May 24</SelectItem>
-                <SelectItem value="May 25">May 25</SelectItem>
-                <SelectItem value="May 26">May 26</SelectItem>
-                <SelectItem value="May 27">May 27</SelectItem>
-                <SelectItem value="May 28">May 28</SelectItem>
-              </SelectContent>
+              {/* Date options */}
             </Select>
           </div>
 
@@ -211,32 +173,20 @@ export function AddTaskModal() {
               Duration
             </Label>
             <Select
-              value={newTask.duration}
-              onValueChange={(value) => updateNewTask("duration", value)}
+              value={newJob.duration}
+              onValueChange={(value) => updateNewJob("duration", value)}
             >
-              <SelectTrigger>
-                <SelectValue placeholder="7hrs" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="1hr">1hr</SelectItem>
-                <SelectItem value="2hrs">2hrs</SelectItem>
-                <SelectItem value="3hrs">3hrs</SelectItem>
-                <SelectItem value="4hrs">4hrs</SelectItem>
-                <SelectItem value="5hrs">5hrs</SelectItem>
-                <SelectItem value="6hrs">6hrs</SelectItem>
-                <SelectItem value="7hrs">7hrs</SelectItem>
-                <SelectItem value="8hrs">8hrs</SelectItem>
-              </SelectContent>
+              {/* Duration options */}
             </Select>
           </div>
 
-          {/* Create Task Button */}
+          {/* Create Job Button */}
           <Button
-            onClick={handleCreateTask}
+            onClick={handleCreateJob}
             className="w-full bg-blue-600 hover:bg-blue-700"
-            disabled={!newTask.title || !newTask.team || !newTask.assignedOwner}
+            disabled={!newJob.title || !newJob.team || !newJob.assignedOwner}
           >
-            Create Task
+            Create Job
           </Button>
         </div>
       </DialogContent>

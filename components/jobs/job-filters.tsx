@@ -8,16 +8,16 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { useTaskStore } from "@/store/task-store";
+import { useJobStore } from "@/store/job-store";
 
-export function TaskFilters() {
+export function JobFilters() {
   const {
     statusFilter,
     teamFilter,
     setStatusFilter,
     setTeamFilter,
     resetFilters,
-  } = useTaskStore();
+  } = useJobStore();
 
   return (
     <div className="flex gap-2">

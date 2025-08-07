@@ -1,14 +1,14 @@
 import { create } from "zustand";
-import type { Task, TaskStatus, Team } from "@/lib/mock-data";
-import { mockTasks } from "@/lib/mock-data";
+import { mockJobs } from "@/lib/job-mock-data";
+import { Job, Team, JobStatus } from "@/lib/job-mock-data";
 
-interface TaskStore {
+interface JobStore {
   // State
-  tasks: Task[];
-  filteredTasks: Task[];
-  currentTasks: Task[];
+  jobs: Job[];
+  filteredJobs: Job[];
+  currentJobs: Job[];
   searchQuery: string;
-  statusFilter: TaskStatus | "all";
+  statusFilter: JobStatus | "all";
   teamFilter: Team | "all";
   currentPage: number;
   itemsPerPage: number;
@@ -16,7 +16,7 @@ interface TaskStore {
 
   // Modal state
   isAddModalOpen: boolean;
-  newTask: {
+  newJob: {
     title: string;
     taskList: string[];
     team: Team | "";
@@ -27,25 +27,25 @@ interface TaskStore {
 
   // Actions
   setSearchQuery: (query: string) => void;
-  setStatusFilter: (status: TaskStatus | "all") => void;
+  setStatusFilter: (status: JobStatus | "all") => void;
   setTeamFilter: (team: Team | "all") => void;
   setCurrentPage: (page: number) => void;
   applyFilters: () => void;
   updatePagination: () => void;
-  deleteTask: (id: string) => void;
+  deleteJob: (id: string) => void;
   resetFilters: () => void;
 
   // Modal actions
   openAddModal: () => void;
   closeAddModal: () => void;
-  updateNewTask: (field: string, value: any) => void;
+  updateNewJob: (field: string, value: any) => void;
   addTaskToList: (task: string) => void;
   removeTaskFromList: (index: number) => void;
-  createTask: () => void;
-  resetNewTask: () => void;
+  createJob: () => void;
+  resetNewJob: () => void;
 }
 
-const initialNewTask = {
+const initialNewJob = {
   title: "",
   taskList: [],
   team: "" as Team | "",
@@ -54,21 +54,21 @@ const initialNewTask = {
   duration: "",
 };
 
-export const useTaskStore = create<TaskStore>((set, get) => ({
+export const useJobStore = create<JobStore>((set, get) => ({
   // Initial state
-  tasks: mockTasks,
-  filteredTasks: mockTasks,
-  currentTasks: mockTasks.slice(0, 8),
+  jobs: mockJobs,
+  filteredJobs: mockJobs,
+  currentJobs: mockJobs.slice(0, 8),
   searchQuery: "",
   statusFilter: "all",
   teamFilter: "all",
   currentPage: 1,
   itemsPerPage: 8,
-  totalPages: Math.ceil(mockTasks.length / 8),
+  totalPages: Math.ceil(mockJobs.length / 8),
 
   // Modal state
   isAddModalOpen: false,
-  newTask: initialNewTask,
+  newJob: initialNewJob,
 
   // Actions
   setSearchQuery: (query: string) => {
@@ -76,7 +76,7 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
     get().applyFilters();
   },
 
-  setStatusFilter: (status: TaskStatus | "all") => {
+  setStatusFilter: (status: JobStatus | "all") => {
     set({ statusFilter: status });
     get().applyFilters();
   },
@@ -92,15 +92,15 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
   },
 
   applyFilters: () => {
-    const { tasks, searchQuery, statusFilter, teamFilter } = get();
-    let filtered = [...tasks];
+    const { jobs, searchQuery, statusFilter, teamFilter } = get();
+    let filtered = [...jobs];
 
     // Apply search filter
     if (searchQuery.trim()) {
       filtered = filtered.filter(
-        (task) =>
-          task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          task.assignedOwner.name
+        (job) =>
+          job.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          job.assignedOwner.name
             .toLowerCase()
             .includes(searchQuery.toLowerCase())
       );
@@ -108,56 +108,56 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
 
     // Apply status filter
     if (statusFilter !== "all") {
-      filtered = filtered.filter((task) => task.status === statusFilter);
+      filtered = filtered.filter((job) => job.status === statusFilter);
     }
 
     // Apply team filter
     if (teamFilter !== "all") {
-      filtered = filtered.filter((task) => task.team === teamFilter);
+      filtered = filtered.filter((job) => job.team === teamFilter);
     }
 
     const totalPages = Math.ceil(filtered.length / get().itemsPerPage);
     const currentPage = 1; // Reset to first page when filters change
     const startIndex = (currentPage - 1) * get().itemsPerPage;
     const endIndex = startIndex + get().itemsPerPage;
-    const currentTasks = filtered.slice(startIndex, endIndex);
+    const currentJobs = filtered.slice(startIndex, endIndex);
 
     set({
-      filteredTasks: filtered,
+      filteredJobs: filtered,
       currentPage,
       totalPages,
-      currentTasks,
+      currentJobs,
     });
   },
 
   updatePagination: () => {
-    const { filteredTasks, currentPage, itemsPerPage } = get();
+    const { filteredJobs, currentPage, itemsPerPage } = get();
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
-    const currentTasks = filteredTasks.slice(startIndex, endIndex);
+    const currentJobs = filteredJobs.slice(startIndex, endIndex);
 
-    set({ currentTasks });
+    set({ currentJobs });
   },
 
-  deleteTask: (id: string) => {
-    const { tasks } = get();
-    const updatedTasks = tasks.filter((task) => task.id !== id);
-    set({ tasks: updatedTasks });
+  deleteJob: (id: string) => {
+    const { jobs } = get();
+    const updatedJobs = jobs.filter((job) => job.id !== id);
+    set({ jobs: updatedJobs });
     get().applyFilters();
   },
 
   resetFilters: () => {
-    const { tasks, itemsPerPage } = get();
-    const totalPages = Math.ceil(tasks.length / itemsPerPage);
-    const currentTasks = tasks.slice(0, itemsPerPage);
+    const { jobs, itemsPerPage } = get();
+    const totalPages = Math.ceil(jobs.length / itemsPerPage);
+    const currentJobs = jobs.slice(0, itemsPerPage);
 
     set({
       searchQuery: "",
       statusFilter: "all",
       teamFilter: "all",
       currentPage: 1,
-      filteredTasks: tasks,
-      currentTasks,
+      filteredJobs: jobs,
+      currentJobs,
       totalPages,
     });
   },
@@ -169,21 +169,21 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
 
   closeAddModal: () => {
     set({ isAddModalOpen: false });
-    get().resetNewTask();
+    get().resetNewJob();
   },
 
-  updateNewTask: (field: string, value: any) => {
+  updateNewJob: (field: string, value: any) => {
     set((state) => ({
-      newTask: { ...state.newTask, [field]: value },
+      newJob: { ...state.newJob, [field]: value },
     }));
   },
 
   addTaskToList: (task: string) => {
     if (task.trim()) {
       set((state) => ({
-        newTask: {
-          ...state.newTask,
-          taskList: [...state.newTask.taskList, task.trim()],
+        newJob: {
+          ...state.newJob,
+          taskList: [...state.newJob.taskList, task.trim()],
         },
       }));
     }
@@ -191,37 +191,38 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
 
   removeTaskFromList: (index: number) => {
     set((state) => ({
-      newTask: {
-        ...state.newTask,
-        taskList: state.newTask.taskList.filter((_, i) => i !== index),
+      newJob: {
+        ...state.newJob,
+        taskList: state.newJob.taskList.filter((_, i) => i !== index),
       },
     }));
   },
 
-  createTask: () => {
-    const { newTask, tasks } = get();
-    if (newTask.title && newTask.team && newTask.assignedOwner) {
-      const task: Task = {
-        id: Date.now().toString(),
-        title: newTask.title,
-        status: "pending",
-        team: newTask.team as Team,
+  createJob: () => {
+    const { newJob, jobs } = get();
+    if (newJob.title && newJob.team && newJob.assignedOwner) {
+      const newJobEntry = {
+        id: (jobs.length + 1).toString(),
+        title: newJob.title,
+        status: "pending" as JobStatus,
+        team: newJob.team as Team,
         assignedOwner: {
-          name: newTask.assignedOwner,
+          name: newJob.assignedOwner,
           avatar: "/placeholder.svg?height=32&width=32",
         },
-        dueDate: newTask.dueDate || "TBD",
-        duration: newTask.duration || "TBD",
+        dueDate: newJob.dueDate,
+        duration: newJob.duration,
         isNew: true,
       };
-
-      set({ tasks: [task, ...tasks] });
+      set((state) => ({
+        jobs: [newJobEntry, ...state.jobs],
+      }));
       get().applyFilters();
       get().closeAddModal();
     }
   },
 
-  resetNewTask: () => {
-    set({ newTask: initialNewTask });
+  resetNewJob: () => {
+    set({ newJob: initialNewJob });
   },
 }));
