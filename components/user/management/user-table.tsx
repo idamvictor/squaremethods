@@ -1,138 +1,108 @@
-"use client";
+"use client"
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Trash2, Edit, CheckCircle } from "lucide-react";
-import type { User } from "./user-management";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { Trash2, Pencil, CheckCircle } from 'lucide-react'
+import type { User } from "@/types/user"
+import { useUserStore } from "@/store/user-store"
 
 interface UserTableProps {
-  users: User[];
-  onDeleteUser: (userId: string) => void;
-  onEditUser: (userId: string) => void;
+  users: User[]
 }
 
-export function UserTable({ users, onDeleteUser, onEditUser }: UserTableProps) {
-  const getRoleBadgeVariant = (role: User["role"]) => {
+export function UserTable({ users }: UserTableProps) {
+  const { deleteUser, updateUser } = useUserStore()
+
+  const handleDeleteUser = (userId: string) => {
+    deleteUser(userId)
+  }
+
+  const handleEditUser = (userId: string) => {
+    // Placeholder for edit functionality
+    console.log("Edit user:", userId)
+  }
+
+  const getRoleBadgeVariant = (role: string) => {
     switch (role) {
       case "Super Admin":
-        return "default";
+        return "default"
       case "Admin":
-        return "secondary";
+        return "secondary"
       case "Editor":
-        return "outline";
+        return "outline"
       case "Viewer":
-        return "outline";
+        return "secondary"
       default:
-        return "secondary";
+        return "secondary"
     }
-  };
-
-  const getTeamBadgeVariant = (team: User["team"]) => {
-    switch (team) {
-      case "Operational":
-        return "default";
-      case "Sanitation":
-        return "secondary";
-      case "Maintenance":
-        return "outline";
-      case "Automation":
-        return "outline";
-      default:
-        return "secondary";
-    }
-  };
-
-  const getUserInitials = (name: string) => {
-    return name
-      .split(" ")
-      .map((n) => n[0])
-      .join("")
-      .toUpperCase();
-  };
+  }
 
   return (
-    <div className="rounded-md border">
+    <div className="rounded-lg border bg-white shadow-sm">
       <Table>
         <TableHeader>
-          <TableRow className="bg-gray-50/50">
-            <TableHead className="font-medium text-gray-700">USERS</TableHead>
-            <TableHead className="font-medium text-gray-700">ROLE</TableHead>
-            <TableHead className="font-medium text-gray-700">TEAM</TableHead>
-            <TableHead className="font-medium text-gray-700">
-              DATE ENTERED
-            </TableHead>
-            <TableHead className="font-medium text-gray-700">Edit</TableHead>
+          <TableRow>
+            <TableHead>USERS</TableHead>
+            <TableHead>ROLE</TableHead>
+            <TableHead>TEAM</TableHead>
+            <TableHead>DATE ENTERED</TableHead>
+            <TableHead className="text-right">Edit</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {users.map((user) => (
-            <TableRow key={user.id} className="hover:bg-gray-50/50">
+            <TableRow key={user.id}>
               <TableCell>
                 <div className="flex items-center gap-3">
                   <div className="relative">
-                    <Avatar className="h-10 w-10">
-                      <AvatarImage
-                        src={user.avatar || "/placeholder.svg"}
-                        alt={user.name}
-                      />
-                      <AvatarFallback className="bg-gray-100 text-gray-600">
-                        {getUserInitials(user.name)}
+                    <Avatar className="w-10 h-10">
+                      <AvatarImage src={user.avatar || "/placeholder.svg"} alt={user.name} />
+                      <AvatarFallback>
+                        {user.name
+                          .split(" ")
+                          .map((n) => n[0])
+                          .join("")}
                       </AvatarFallback>
                     </Avatar>
                     {user.isVerified && (
-                      <CheckCircle className="absolute -bottom-1 -right-1 h-4 w-4 text-blue-500 bg-white rounded-full" />
+                      <div className="absolute -bottom-1 -right-1 bg-blue-500 rounded-full p-1">
+                        <CheckCircle className="w-3 h-3 text-white" />
+                      </div>
                     )}
                   </div>
-                  <span className="font-medium text-gray-900">{user.name}</span>
+                  <span className="font-medium">{user.name}</span>
                 </div>
               </TableCell>
               <TableCell>
-                <Badge
-                  variant={getRoleBadgeVariant(user.role)}
-                  className="font-normal"
-                >
+                <Badge variant={getRoleBadgeVariant(user.role)} className="text-xs">
                   {user.role}
                 </Badge>
               </TableCell>
               <TableCell>
-                <Badge
-                  variant={getTeamBadgeVariant(user.team)}
-                  className="font-normal"
-                >
-                  {user.team}
-                </Badge>
-              </TableCell>
-              <TableCell className="text-gray-600">
-                {user.dateEntered}
+                <span className="text-gray-600">{user.team}</span>
               </TableCell>
               <TableCell>
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => onDeleteUser(user.id)}
-                    className="h-8 w-8 p-0 text-gray-400 hover:text-red-600"
+                <span className="text-gray-600">{user.dateEntered}</span>
+              </TableCell>
+              <TableCell className="text-right">
+                <div className="flex justify-end gap-2">
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className="h-8 w-8"
+                    onClick={() => handleDeleteUser(user.id)}
                   >
-                    <Trash2 className="h-4 w-4" />
-                    <span className="sr-only">Delete user</span>
+                    <Trash2 className="h-4 w-4 text-gray-500" />
                   </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => onEditUser(user.id)}
-                    className="h-8 w-8 p-0 text-gray-400 hover:text-gray-600"
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className="h-8 w-8"
+                    onClick={() => handleEditUser(user.id)}
                   >
-                    <Edit className="h-4 w-4" />
-                    <span className="sr-only">Edit user</span>
+                    <Pencil className="h-4 w-4 text-gray-500" />
                   </Button>
                 </div>
               </TableCell>
@@ -141,5 +111,5 @@ export function UserTable({ users, onDeleteUser, onEditUser }: UserTableProps) {
         </TableBody>
       </Table>
     </div>
-  );
+  )
 }

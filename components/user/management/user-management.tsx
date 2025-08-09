@@ -1,126 +1,70 @@
-"use client";
+"use client"
 
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { UserTable } from "./user-table";
-import { UserFilters } from "./user-filters";
-import { UserPlus } from "lucide-react";
-import { InviteUserModal } from "./invite-user-modal";
-
-export interface User {
-  id: string;
-  name: string;
-  avatar: string;
-  role: "Admin" | "Super Admin" | "Viewer" | "Editor";
-  team: "Operational" | "Sanitation" | "Maintenance" | "Automation";
-  dateEntered: string;
-  isVerified?: boolean;
-}
-
-const mockUsers: User[] = [
-  {
-    id: "1",
-    name: "Olivia Rhye",
-    avatar: "/placeholder.svg?height=40&width=40",
-    role: "Admin",
-    team: "Operational",
-    dateEntered: "05 / 12 / 2025",
-  },
-  {
-    id: "2",
-    name: "Phoenix Baker",
-    avatar: "/placeholder.svg?height=40&width=40",
-    role: "Super Admin",
-    team: "Sanitation",
-    dateEntered: "05 / 12 / 2025",
-    isVerified: true,
-  },
-  {
-    id: "3",
-    name: "Phoenix Baker",
-    avatar: "/placeholder.svg?height=40&width=40",
-    role: "Viewer",
-    team: "Maintenance",
-    dateEntered: "05 / 12 / 2025",
-  },
-  {
-    id: "4",
-    name: "Lana Steiner",
-    avatar: "/placeholder.svg?height=40&width=40",
-    role: "Editor",
-    team: "Maintenance",
-    dateEntered: "05 / 12 / 2025",
-  },
-  {
-    id: "5",
-    name: "Phoenix Baker",
-    avatar: "/placeholder.svg?height=40&width=40",
-    role: "Admin",
-    team: "Maintenance",
-    dateEntered: "05 / 12 / 2025",
-  },
-  {
-    id: "6",
-    name: "Phoenix Baker",
-    avatar: "/placeholder.svg?height=40&width=40",
-    role: "Viewer",
-    team: "Automation",
-    dateEntered: "05 / 12 / 2025",
-  },
-];
+import { Button } from "@/components/ui/button"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Badge } from "@/components/ui/badge"
+import { UserTable } from "./user-table"
+import { Filter, Plus } from 'lucide-react'
+import { useUserStore } from "@/store/user-store"
 
 export function UserManagement() {
-  const [users, setUsers] = useState<User[]>(mockUsers);
-  const [filteredUsers, setFilteredUsers] = useState<User[]>(mockUsers);
-  const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
+  const { users, filters, setFilter, resetFilters } = useUserStore()
 
-  const handleInviteUser = () => {
-    setIsInviteModalOpen(true);
-  };
+  const handleFilterChange = (key: keyof typeof filters, value: string) => {
+    setFilter(key, value)
+  }
 
-  const handleDeleteUser = (userId: string) => {
-    const updatedUsers = users.filter((user) => user.id !== userId);
-    setUsers(updatedUsers);
-    setFilteredUsers(updatedUsers);
-  };
-
-  const handleEditUser = (userId: string) => {
-    // Handle edit user logic
-    console.log("Edit user:", userId);
-  };
+  const handleResetFilters = () => {
+    resetFilters()
+  }
 
   return (
-    <div className="space-y-6">
+    <div className="p-6 max-w-7xl mx-auto">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between mb-8">
         <h1 className="text-2xl font-semibold text-gray-900">User List</h1>
-        <Button
-          onClick={handleInviteUser}
-          className="bg-blue-600 hover:bg-blue-700"
-        >
-          <UserPlus className="mr-2 h-4 w-4" />
+        <Button className="bg-slate-700 hover:bg-slate-800">
+          <Plus className="w-4 h-4 mr-2" />
           Invite User
         </Button>
       </div>
 
       {/* Filters */}
-      <UserFilters users={users} onFilterChange={setFilteredUsers} />
+      <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <Filter className="w-4 h-4 text-gray-500" />
+            <Select value={filters.count} onValueChange={(value) => handleFilterChange("count", value)}>
+              <SelectTrigger className="w-24">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All</SelectItem>
+                <SelectItem value="50">50</SelectItem>
+                <SelectItem value="25">25</SelectItem>
+                <SelectItem value="10">10</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Badge
+              variant={filters.category === "recent" ? "default" : "secondary"}
+              className="cursor-pointer"
+              onClick={() => handleFilterChange("category", "recent")}
+            >
+              Recent Added
+            </Badge>
+          </div>
+        </div>
+
+        <Button variant="ghost" className="text-gray-500 hover:text-gray-700" onClick={handleResetFilters}>
+          Reset Filter
+        </Button>
+      </div>
 
       {/* User Table */}
-      <UserTable
-        users={filteredUsers}
-        onDeleteUser={handleDeleteUser}
-        onEditUser={handleEditUser}
-      />
-
-      <InviteUserModal
-        open={isInviteModalOpen}
-        onOpenChange={setIsInviteModalOpen}
-        onInviteSuccess={(emails, role) => {
-          console.log("Invited users:", emails, "with role:", role);
-          // Handle successful invitation
-        }}
-      />
+      <UserTable users={users} />
     </div>
-  );
+  )
 }

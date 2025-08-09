@@ -1,4 +1,4 @@
-import { TeamDetails } from "@/components/teams/team-details";
+import { TeamDetails } from "@/components/user/teams/team-details";
 import { mockTeams } from "@/lib/mock-data";
 
 interface TeamDetailsPageProps {

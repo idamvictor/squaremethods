@@ -4,10 +4,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { useJobStore } from "@/store/job-store";
-import { SearchInput } from "@/components/jobs/search-input";
-import { JobFilters } from "@/components/jobs/job-filters";
-import { JobTable } from "@/components/jobs/job-table";
-import { AddJobModal } from "@/components/jobs/add-job-modal";
+import { SearchInput } from "@/components/user/jobs/search-input";
+import { JobFilters } from "@/components/user/jobs/job-filters";
+import { JobTable } from "@/components/user/jobs/job-table";
+import { AddJobModal } from "@/components/user/jobs/add-job-modal";
 
 export default function JobManagementPage() {
   const { openAddModal } = useJobStore();

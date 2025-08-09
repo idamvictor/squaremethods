@@ -1,14 +1,22 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
-import { UserTable } from "./user-table"
-import { Filter, Plus } from 'lucide-react'
-import { useUserStore } from "@/store/user-store"
+import { TaskList } from "./task-list"
+import { TaskPagination } from "./task-pagination"
+import { Filter, Plus, Search } from 'lucide-react'
+import { useTaskStore } from "@/store/task-store"
 
-export function UserManagement() {
-  const { users, filters, setFilter, resetFilters } = useUserStore()
+export function TaskManagement() {
+  const { 
+    filters, 
+    searchQuery, 
+    setFilter, 
+    resetFilters, 
+    setSearchQuery 
+  } = useTaskStore()
 
   const handleFilterChange = (key: keyof typeof filters, value: string) => {
     setFilter(key, value)
@@ -18,15 +26,30 @@ export function UserManagement() {
     resetFilters()
   }
 
+  const handleSearchChange = (value: string) => {
+    setSearchQuery(value)
+  }
+
   return (
     <div className="p-6 max-w-7xl mx-auto">
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
-        <h1 className="text-2xl font-semibold text-gray-900">User List</h1>
-        <Button className="bg-slate-700 hover:bg-slate-800">
-          <Plus className="w-4 h-4 mr-2" />
-          Invite User
-        </Button>
+        <h1 className="text-2xl font-semibold text-gray-900">Tasks</h1>
+        <div className="flex items-center gap-4">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <Input
+              placeholder="Search..."
+              value={searchQuery}
+              onChange={(e) => handleSearchChange(e.target.value)}
+              className="pl-10 w-64"
+            />
+          </div>
+          <Button className="bg-slate-700 hover:bg-slate-800">
+            <Plus className="w-4 h-4 mr-2" />
+            New Task
+          </Button>
+        </div>
       </div>
 
       {/* Filters */}
@@ -49,11 +72,18 @@ export function UserManagement() {
 
           <div className="flex items-center gap-2">
             <Badge
+              variant={filters.category === "equipment" ? "default" : "secondary"}
+              className="cursor-pointer"
+              onClick={() => handleFilterChange("category", "equipment")}
+            >
+              Equipment
+            </Badge>
+            <Badge
               variant={filters.category === "recent" ? "default" : "secondary"}
               className="cursor-pointer"
               onClick={() => handleFilterChange("category", "recent")}
             >
-              Recent Added
+              Recent
             </Badge>
           </div>
         </div>
@@ -63,8 +93,14 @@ export function UserManagement() {
         </Button>
       </div>
 
-      {/* User Table */}
-      <UserTable users={users} />
+      {/* Top Pagination */}
+      <TaskPagination />
+
+      {/* Task List */}
+      <TaskList />
+
+      {/* Bottom Pagination */}
+      <TaskPagination />
     </div>
   )
 }

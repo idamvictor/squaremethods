@@ -1,4 +1,4 @@
-import { TeamManagement } from "@/components/teams/team-management";
+import { TeamManagement } from "@/components/user/teams/team-management";
 
 export default function Home() {
   return (
