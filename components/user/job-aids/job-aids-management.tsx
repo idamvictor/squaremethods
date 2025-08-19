@@ -1,27 +1,43 @@
-"use client"
+"use client";
 
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Badge } from "@/components/ui/badge"
-import { JobAidGrid } from "./job-aid-grid"
-import { Filter, Grid3X3, List, Search } from "lucide-react"
-import { useJobAidStore } from "@/store/job-aid-store"
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { JobAidGrid } from "./job-aid-grid";
+import { Filter, Grid3X3, List, Search } from "lucide-react";
+import { useJobAidStore } from "@/store/job-aid-store";
+import { useRouter } from "next/navigation";
 
 export function JobAidsManagement() {
-  const { filters, searchQuery, viewMode, setFilter, resetFilters, setSearchQuery, setViewMode } = useJobAidStore()
+  const router = useRouter();
+  const {
+    filters,
+    searchQuery,
+    viewMode,
+    setFilter,
+    resetFilters,
+    setSearchQuery,
+    setViewMode,
+  } = useJobAidStore();
 
   const handleFilterChange = (key: keyof typeof filters, value: string) => {
-    setFilter(key, value)
-  }
+    setFilter(key, value);
+  };
 
   const handleResetFilters = () => {
-    resetFilters()
-  }
+    resetFilters();
+  };
 
   const handleSearchChange = (value: string) => {
-    setSearchQuery(value)
-  }
+    setSearchQuery(value);
+  };
 
   return (
     <div className="p-6 max-w-7xl mx-auto">
@@ -38,7 +54,12 @@ export function JobAidsManagement() {
               className="pl-10 w-64"
             />
           </div>
-          <Button className="bg-slate-700 hover:bg-slate-800">Create</Button>
+          <Button
+            className="bg-slate-700 hover:bg-slate-800"
+            onClick={() => router.push("/job-aids/create")}
+          >
+            Create
+          </Button>
         </div>
       </div>
 
@@ -67,7 +88,10 @@ export function JobAidsManagement() {
 
           <div className="flex items-center gap-2">
             <Filter className="w-4 h-4 text-gray-500" />
-            <Select value={filters.count} onValueChange={(value) => handleFilterChange("count", value)}>
+            <Select
+              value={filters.count}
+              onValueChange={(value) => handleFilterChange("count", value)}
+            >
               <SelectTrigger className="w-24">
                 <SelectValue />
               </SelectTrigger>
@@ -80,7 +104,10 @@ export function JobAidsManagement() {
             </Select>
           </div>
 
-          <Select value={filters.equipment} onValueChange={(value) => handleFilterChange("equipment", value)}>
+          <Select
+            value={filters.equipment}
+            onValueChange={(value) => handleFilterChange("equipment", value)}
+          >
             <SelectTrigger className="w-32">
               <SelectValue placeholder="Equipment" />
             </SelectTrigger>
@@ -101,7 +128,9 @@ export function JobAidsManagement() {
               Recent
             </Badge>
             <Badge
-              variant={filters.category === "most-viewed" ? "default" : "secondary"}
+              variant={
+                filters.category === "most-viewed" ? "default" : "secondary"
+              }
               className="cursor-pointer"
               onClick={() => handleFilterChange("category", "most-viewed")}
             >
@@ -110,7 +139,11 @@ export function JobAidsManagement() {
           </div>
         </div>
 
-        <Button variant="ghost" className="text-gray-500 hover:text-gray-700" onClick={handleResetFilters}>
+        <Button
+          variant="ghost"
+          className="text-gray-500 hover:text-gray-700"
+          onClick={handleResetFilters}
+        >
           Reset Filter
         </Button>
       </div>
@@ -118,5 +151,5 @@ export function JobAidsManagement() {
       {/* Job Aid Grid */}
       <JobAidGrid />
     </div>
-  )
+  );
 }
