@@ -1,0 +1,270 @@
+"use client";
+
+import type React from "react";
+
+import { useState } from "react";
+import Image from "next/image";
+import { Upload, Download } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { useEquipmentStore, type EquipmentType } from "@/store/equipment-store";
+import { toast } from "sonner";
+
+export function AddEquipmentModal() {
+  const [formData, setFormData] = useState({
+    name: "",
+    type: "" as EquipmentType,
+    referenceCode: "",
+    date: "",
+    notes: "",
+    image: "",
+  });
+  const [qrGenerated, setQrGenerated] = useState(false);
+
+  const {
+    setShowAddEquipmentModal,
+    addEquipment,
+    showFloatingButtons,
+    showAddEquipmentModal,
+  } = useEquipmentStore();
+
+  const handleInputChange = (field: string, value: string) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setFormData((prev) => ({ ...prev, image: e.target?.result as string }));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleRegister = () => {
+    if (
+      !formData.name ||
+      !formData.type ||
+      !formData.referenceCode ||
+      !formData.date
+    ) {
+      toast.error("Please fill in all required fields");
+      return;
+    }
+
+    if (showFloatingButtons) {
+      addEquipment(showFloatingButtons, formData);
+      setQrGenerated(true);
+      toast.success("QR Code generated successfully");
+    }
+  };
+
+  const handleCancel = () => {
+    setFormData({
+      name: "",
+      type: "" as EquipmentType,
+      referenceCode: "",
+      date: "",
+      notes: "",
+      image: "",
+    });
+    setQrGenerated(false);
+    setShowAddEquipmentModal(false);
+  };
+
+  const equipmentTypes = [
+    { value: "assembly", label: "Assembly", icon: "⚙️" },
+    { value: "pump", label: "Pump", icon: "🔧" },
+    { value: "conveyor", label: "Conveyor", icon: "📦" },
+    { value: "motor", label: "Motor", icon: "⚡" },
+    { value: "valve", label: "Valve", icon: "🔩" },
+    { value: "sensor", label: "Sensor", icon: "📡" },
+  ];
+
+  return (
+    <Dialog
+      open={showAddEquipmentModal}
+      onOpenChange={setShowAddEquipmentModal}
+    >
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Equipment Registration</DialogTitle>
+        </DialogHeader>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Left Column - Image Upload */}
+          <div className="space-y-4">
+            <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center bg-gray-50">
+              {formData.image ? (
+                <Image
+                  src={formData.image}
+                  alt="Equipment"
+                  width={400}
+                  height={192}
+                  className="w-full h-48 object-cover rounded-lg"
+                  unoptimized // Since we're using a data URL
+                />
+              ) : (
+                <div className="space-y-4">
+                  <Upload className="h-12 w-12 text-gray-400 mx-auto" />
+                  <div>
+                    <label htmlFor="image-upload" className="cursor-pointer">
+                      <span className="text-blue-600 hover:text-blue-700">
+                        Upload an image
+                      </span>
+                      <input
+                        id="image-upload"
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageUpload}
+                        className="hidden"
+                      />
+                    </label>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Middle Column - Form Fields */}
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="equipment-type">Equipment type</Label>
+                <Select
+                  value={formData.type}
+                  onValueChange={(value) => handleInputChange("type", value)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {equipmentTypes.map((type) => (
+                      <SelectItem key={type.value} value={type.value}>
+                        <div className="flex items-center gap-2">
+                          <span>{type.icon}</span>
+                          <span>{type.label}</span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label htmlFor="equipment-name">
+                  Equipment name <span className="text-red-500">*</span>
+                </Label>
+                <Input
+                  id="equipment-name"
+                  value={formData.name}
+                  onChange={(e) => handleInputChange("name", e.target.value)}
+                  placeholder="Cooling Pump #5"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="reference-code">
+                  Reference code <span className="text-red-500">*</span>
+                </Label>
+                <Input
+                  id="reference-code"
+                  value={formData.referenceCode}
+                  onChange={(e) =>
+                    handleInputChange("referenceCode", e.target.value)
+                  }
+                  placeholder="54635bd"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="date">
+                  Date <span className="text-red-500">*</span>
+                </Label>
+                <Input
+                  id="date"
+                  type="date"
+                  value={formData.date}
+                  onChange={(e) => handleInputChange("date", e.target.value)}
+                />
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="notes">Notes</Label>
+              <Textarea
+                id="notes"
+                value={formData.notes}
+                onChange={(e) => handleInputChange("notes", e.target.value)}
+                placeholder="Please Enter"
+                rows={4}
+              />
+            </div>
+
+            {qrGenerated && (
+              <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                <p className="text-green-800 text-sm">
+                  QR Code generated successfully
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* Right Column - QR Code */}
+          <div className="space-y-4">
+            <div className="border rounded-lg p-4 text-center">
+              <div className="w-32 h-32 mx-auto mb-4 bg-gray-100 rounded-lg flex items-center justify-center">
+                {qrGenerated ? (
+                  <div className="w-full h-full bg-black rounded-lg flex items-center justify-center">
+                    <div className="grid grid-cols-4 gap-1 p-2">
+                      {Array.from({ length: 16 }).map((_, i) => (
+                        <div
+                          key={i}
+                          className={`w-2 h-2 ${
+                            Math.random() > 0.5 ? "bg-white" : "bg-black"
+                          }`}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-gray-400">QR Code</div>
+                )}
+              </div>
+              <Button variant="outline" size="sm" disabled={!qrGenerated}>
+                <Download className="h-4 w-4 mr-2" />
+                Download QR (PNG)
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex gap-3 mt-6 justify-end">
+          <Button variant="outline" onClick={handleCancel}>
+            Cancel
+          </Button>
+          <Button onClick={handleRegister}>Register</Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
