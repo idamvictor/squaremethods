@@ -1,6 +1,7 @@
 "use client";
 
 import type * as React from "react";
+import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
   Layers,
@@ -33,7 +34,6 @@ const mainNavItems = [
     title: "Dashboard",
     url: "/technician/dashboard",
     icon: LayoutDashboard,
-    isActive: true,
   },
   {
     title: "Equipment Hierarchy",
@@ -83,6 +83,8 @@ const mainNavItems = [
 export function TechnicianSidebar({
   ...props
 }: React.ComponentProps<typeof Sidebar>) {
+  const pathname = usePathname();
+
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader className="border-b border-sidebar-border">
@@ -109,7 +111,7 @@ export function TechnicianSidebar({
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton
                     asChild
-                    isActive={item.isActive}
+                    isActive={pathname === item.url}
                     className="h-9"
                   >
                     <a href={item.url}>

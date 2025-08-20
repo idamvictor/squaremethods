@@ -1,6 +1,7 @@
 "use client";
 
 import type * as React from "react";
+import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
   Layers,
@@ -35,36 +36,35 @@ const mainNavItems = [
     title: "Dashboard",
     url: "/dashboard",
     icon: LayoutDashboard,
-    isActive: true,
   },
   {
     title: "Equipment Hierarchy",
-    url: "#",
+    url: "/equipment-hierarchy",
     icon: Layers,
   },
   {
     title: "Job Aids",
-    url: "#",
+    url: "/job-aids",
     icon: FileText,
   },
   {
     title: "Jobs",
-    url: "#",
+    url: "/jobs",
     icon: Briefcase,
   },
   {
     title: "Task",
-    url: "#",
+    url: "/tasks",
     icon: CheckSquare,
   },
   {
     title: "Team",
-    url: "#",
+    url: "/teams",
     icon: Users,
   },
   {
     title: "User Management",
-    url: "user-management",
+    url: "/user-management",
     icon: UserCog,
   },
 ];
@@ -83,6 +83,8 @@ const supportNavItems = [
 ];
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const pathname = usePathname();
+
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader className="border-b border-sidebar-border">
@@ -109,7 +111,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton
                     asChild
-                    isActive={item.isActive}
+                    isActive={pathname === item.url}
                     className="h-9"
                   >
                     <a href={item.url}>
@@ -131,7 +133,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <SidebarMenu>
               {supportNavItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild className="h-9">
+                  <SidebarMenuButton
+                    asChild
+                    isActive={pathname === item.url}
+                    className="h-9"
+                  >
                     <a href={item.url}>
                       <item.icon className="h-4 w-4" />
                       <span>{item.title}</span>
