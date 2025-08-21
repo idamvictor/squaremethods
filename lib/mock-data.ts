@@ -1,3 +1,5 @@
+import { avatarImage } from "@/constants/images";
+
 export interface TeamMember {
   id: string;
   name: string;
@@ -31,7 +33,7 @@ export const mockTeams: Team[] = [
       {
         id: "1",
         name: "Leslie Alexander",
-        avatar: "/placeholder.svg?height=32&width=32",
+        avatar: avatarImage.image1,
         role: "Admin",
         email: "jeremy001@mail.com",
         contact: "07067788432",
@@ -40,7 +42,7 @@ export const mockTeams: Team[] = [
       {
         id: "2",
         name: "Floyd Miles",
-        avatar: "/placeholder.svg?height=32&width=32",
+        avatar: avatarImage.image2,
         role: "Super Admin",
         email: "floydmiles@mail.com",
         contact: "07067788432",
@@ -49,7 +51,7 @@ export const mockTeams: Team[] = [
       {
         id: "3",
         name: "Jerome Bell",
-        avatar: "/placeholder.svg?height=32&width=32",
+        avatar: avatarImage.image3,
         role: "Viewer",
         email: "lesliealx01@mail.com",
         contact: "07067788432",
@@ -58,7 +60,7 @@ export const mockTeams: Team[] = [
       {
         id: "4",
         name: "Savannah Nguyen",
-        avatar: "/placeholder.svg?height=32&width=32",
+        avatar: avatarImage.image4,
         role: "Editor",
         email: "lesliealx01@mail.com",
         contact: "07067788432",
@@ -67,7 +69,7 @@ export const mockTeams: Team[] = [
       {
         id: "5",
         name: "Jenny Wilson",
-        avatar: "/placeholder.svg?height=32&width=32",
+        avatar: avatarImage.image1,
         role: "Admin",
         email: "lesliealx01@mail.com",
         contact: "07067788432",
@@ -76,7 +78,7 @@ export const mockTeams: Team[] = [
       {
         id: "6",
         name: "Jacob Jones",
-        avatar: "/placeholder.svg?height=32&width=32",
+        avatar: avatarImage.image2,
         role: "Viewer",
         email: "lesliealx01@mail.com",
         contact: "07067788432",
@@ -93,7 +95,7 @@ export const mockTeams: Team[] = [
       {
         id: "7",
         name: "Alex Brown",
-        avatar: "/placeholder.svg?height=32&width=32",
+        avatar: avatarImage.image3,
         role: "Admin",
         email: "alex.b@mail.com",
         contact: "07067788433",
@@ -102,7 +104,7 @@ export const mockTeams: Team[] = [
       {
         id: "8",
         name: "Emily Davis",
-        avatar: "/placeholder.svg?height=32&width=32",
+        avatar: avatarImage.image4,
         role: "Viewer",
         email: "emily.d@mail.com",
         contact: "07067788434",
@@ -111,7 +113,7 @@ export const mockTeams: Team[] = [
       {
         id: "9",
         name: "Chris Miller",
-        avatar: "/placeholder.svg?height=32&width=32",
+        avatar: avatarImage.image1,
         role: "Editor",
         email: "chris.m@mail.com",
         contact: "07067788435",
@@ -128,7 +130,7 @@ export const mockTeams: Team[] = [
       {
         id: "10",
         name: "David Lee",
-        avatar: "/placeholder.svg?height=32&width=32",
+        avatar: avatarImage.image2,
         role: "Admin",
         email: "david.l@mail.com",
         contact: "07067788436",
@@ -137,7 +139,7 @@ export const mockTeams: Team[] = [
       {
         id: "11",
         name: "Anna Taylor",
-        avatar: "/placeholder.svg?height=32&width=32",
+        avatar: avatarImage.image3,
         role: "Viewer",
         email: "anna.t@mail.com",
         contact: "07067788437",
@@ -154,7 +156,7 @@ export const mockTeams: Team[] = [
       {
         id: "12",
         name: "Kevin White",
-        avatar: "/placeholder.svg?height=32&width=32",
+        avatar: avatarImage.image1,
         role: "Admin",
         email: "kevin.w@mail.com",
         contact: "07067788438",
@@ -163,7 +165,7 @@ export const mockTeams: Team[] = [
       {
         id: "13",
         name: "Rachel Green",
-        avatar: "/placeholder.svg?height=32&width=32",
+        avatar: avatarImage.image1,
         role: "Editor",
         email: "rachel.g@mail.com",
         contact: "07067788439",

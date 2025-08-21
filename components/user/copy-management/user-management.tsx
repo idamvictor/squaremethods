@@ -6,6 +6,7 @@ import { UserTable } from "./user-table";
 import { UserFilters } from "./user-filters";
 import { UserPlus } from "lucide-react";
 import { InviteUserModal } from "./invite-user-modal";
+import { avatarImage } from "@/constants/images";
 
 export interface User {
   id: string;
@@ -21,7 +22,7 @@ const mockUsers: User[] = [
   {
     id: "1",
     name: "Olivia Rhye",
-    avatar: "/placeholder.svg?height=40&width=40",
+    avatar: avatarImage.image1,
     role: "Admin",
     team: "Operational",
     dateEntered: "05 / 12 / 2025",
@@ -29,7 +30,7 @@ const mockUsers: User[] = [
   {
     id: "2",
     name: "Phoenix Baker",
-    avatar: "/placeholder.svg?height=40&width=40",
+    avatar: avatarImage.image2,
     role: "Super Admin",
     team: "Sanitation",
     dateEntered: "05 / 12 / 2025",
@@ -38,7 +39,7 @@ const mockUsers: User[] = [
   {
     id: "3",
     name: "Phoenix Baker",
-    avatar: "/placeholder.svg?height=40&width=40",
+    avatar: avatarImage.image3,
     role: "Viewer",
     team: "Maintenance",
     dateEntered: "05 / 12 / 2025",
@@ -46,7 +47,7 @@ const mockUsers: User[] = [
   {
     id: "4",
     name: "Lana Steiner",
-    avatar: "/placeholder.svg?height=40&width=40",
+    avatar: avatarImage.image4,
     role: "Editor",
     team: "Maintenance",
     dateEntered: "05 / 12 / 2025",
@@ -54,7 +55,7 @@ const mockUsers: User[] = [
   {
     id: "5",
     name: "Phoenix Baker",
-    avatar: "/placeholder.svg?height=40&width=40",
+    avatar: avatarImage.image1,
     role: "Admin",
     team: "Maintenance",
     dateEntered: "05 / 12 / 2025",
@@ -62,7 +63,7 @@ const mockUsers: User[] = [
   {
     id: "6",
     name: "Phoenix Baker",
-    avatar: "/placeholder.svg?height=40&width=40",
+    avatar: avatarImage.image2,
     role: "Viewer",
     team: "Automation",
     dateEntered: "05 / 12 / 2025",
