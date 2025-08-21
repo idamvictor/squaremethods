@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { mockJobs } from "@/lib/job-mock-data";
 import { Job, Team, JobStatus } from "@/lib/job-mock-data";
+import { avatarImage } from "@/constants/images";
 
 interface JobStore {
   // State
@@ -208,7 +209,7 @@ export const useJobStore = create<JobStore>((set, get) => ({
         team: newJob.team as Team,
         assignedOwner: {
           name: newJob.assignedOwner,
-          avatar: "/placeholder.svg?height=32&width=32",
+          avatar: avatarImage.image1,
         },
         dueDate: newJob.dueDate,
         duration: newJob.duration,

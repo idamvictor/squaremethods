@@ -106,8 +106,11 @@ export function JobTable() {
                   <div className="flex items-center gap-2">
                     <Avatar className="h-8 w-8">
                       <AvatarImage
-                        src={job.assignedOwner.avatar || "/placeholder.svg"}
+                        src={job.assignedOwner.avatar}
                         alt={job.assignedOwner.name}
+                        onError={(e) => {
+                          e.currentTarget.src = "/avatars/phoenix.jpg";
+                        }}
                       />
                     </Avatar>
                     <span className="text-sm">{job.assignedOwner.name}</span>

@@ -1,3 +1,5 @@
+import { avatarImage } from "@/constants/images";
+
 // import type { Task } from "./types";
 export type JobStatus = "pending" | "completed" | "declined";
 
@@ -27,7 +29,7 @@ export const mockJobs: Job[] = [
     team: "Operational",
     assignedOwner: {
       name: "Olivia Rhye",
-      avatar: "/placeholder.svg?height=32&width=32",
+      avatar: avatarImage.image1,
     },
     dueDate: "May 24",
     duration: "2hrs",
@@ -40,7 +42,7 @@ export const mockJobs: Job[] = [
     team: "Sanitation",
     assignedOwner: {
       name: "Phoenix Baker",
-      avatar: "/placeholder.svg?height=32&width=32",
+      avatar: avatarImage.image2,
     },
     dueDate: "May 24",
     duration: "2hrs",
@@ -52,7 +54,7 @@ export const mockJobs: Job[] = [
     team: "Maintenance",
     assignedOwner: {
       name: "Phoenix Baker",
-      avatar: "/placeholder.svg?height=32&width=32",
+      avatar: avatarImage.image3,
     },
     dueDate: "May 24",
     duration: "2hrs",
@@ -64,7 +66,7 @@ export const mockJobs: Job[] = [
     team: "Maintenance",
     assignedOwner: {
       name: "Lana Steiner",
-      avatar: "/placeholder.svg?height=32&width=32",
+      avatar: avatarImage.image4,
     },
     dueDate: "May 24",
     duration: "2hrs",
@@ -76,7 +78,7 @@ export const mockJobs: Job[] = [
     team: "Maintenance",
     assignedOwner: {
       name: "Phoenix Baker",
-      avatar: "/placeholder.svg?height=32&width=32",
+      avatar: avatarImage.image1,
     },
     dueDate: "May 24",
     duration: "2hrs",
@@ -88,7 +90,7 @@ export const mockJobs: Job[] = [
     team: "Automation",
     assignedOwner: {
       name: "Olivia Rhye",
-      avatar: "/placeholder.svg?height=32&width=32",
+      avatar: avatarImage.image2,
     },
     dueDate: "May 24",
     duration: "2hrs",
@@ -100,7 +102,7 @@ export const mockJobs: Job[] = [
     team: "Automation",
     assignedOwner: {
       name: "Phoenix Baker",
-      avatar: "/placeholder.svg?height=32&width=32",
+      avatar: avatarImage.image3,
     },
     dueDate: "May 24",
     duration: "2hrs",
@@ -112,7 +114,7 @@ export const mockJobs: Job[] = [
     team: "Maintenance",
     assignedOwner: {
       name: "Phoenix Baker",
-      avatar: "/placeholder.svg?height=32&width=32",
+      avatar: avatarImage.image4,
     },
     dueDate: "May 24",
     duration: "2hrs",
@@ -124,7 +126,7 @@ export const mockJobs: Job[] = [
     team: "Automation",
     assignedOwner: {
       name: "Lana Steiner",
-      avatar: "/placeholder.svg?height=32&width=32",
+      avatar: avatarImage.image1,
     },
     dueDate: "May 25",
     duration: "3hrs",
@@ -136,7 +138,7 @@ export const mockJobs: Job[] = [
     team: "Sanitation",
     assignedOwner: {
       name: "Olivia Rhye",
-      avatar: "/placeholder.svg?height=32&width=32",
+      avatar: avatarImage.image2,
     },
     dueDate: "May 25",
     duration: "1hr",
@@ -148,7 +150,7 @@ export const mockJobs: Job[] = [
     team: "Operational",
     assignedOwner: {
       name: "Phoenix Baker",
-      avatar: "/placeholder.svg?height=32&width=32",
+      avatar: avatarImage.image3,
     },
     dueDate: "May 25",
     duration: "4hrs",
@@ -160,7 +162,7 @@ export const mockJobs: Job[] = [
     team: "Maintenance",
     assignedOwner: {
       name: "Lana Steiner",
-      avatar: "/placeholder.svg?height=32&width=32",
+      avatar: avatarImage.image4,
     },
     dueDate: "May 26",
     duration: "2hrs",
@@ -172,7 +174,7 @@ export const mockJobs: Job[] = [
     team: "Operational",
     assignedOwner: {
       name: "Olivia Rhye",
-      avatar: "/placeholder.svg?height=32&width=32",
+      avatar: avatarImage.image1,
     },
     dueDate: "May 26",
     duration: "1hr",
@@ -184,7 +186,7 @@ export const mockJobs: Job[] = [
     team: "Automation",
     assignedOwner: {
       name: "Phoenix Baker",
-      avatar: "/placeholder.svg?height=32&width=32",
+      avatar: avatarImage.image2,
     },
     dueDate: "May 26",
     duration: "2hrs",
@@ -196,7 +198,7 @@ export const mockJobs: Job[] = [
     team: "Sanitation",
     assignedOwner: {
       name: "Lana Steiner",
-      avatar: "/placeholder.svg?height=32&width=32",
+      avatar: avatarImage.image3,
     },
     dueDate: "May 27",
     duration: "1hr",
@@ -208,7 +210,7 @@ export const mockJobs: Job[] = [
     team: "Operational",
     assignedOwner: {
       name: "Olivia Rhye",
-      avatar: "/placeholder.svg?height=32&width=32",
+      avatar: avatarImage.image4,
     },
     dueDate: "May 27",
     duration: "3hrs",
@@ -220,7 +222,7 @@ export const mockJobs: Job[] = [
     team: "Maintenance",
     assignedOwner: {
       name: "Phoenix Baker",
-      avatar: "/placeholder.svg?height=32&width=32",
+      avatar: avatarImage.image1,
     },
     dueDate: "May 27",
     duration: "4hrs",
@@ -232,7 +234,7 @@ export const mockJobs: Job[] = [
     team: "Operational",
     assignedOwner: {
       name: "Lana Steiner",
-      avatar: "/placeholder.svg?height=32&width=32",
+      avatar: avatarImage.image2,
     },
     dueDate: "May 28",
     duration: "2hrs",
@@ -244,7 +246,7 @@ export const mockJobs: Job[] = [
     team: "Automation",
     assignedOwner: {
       name: "Olivia Rhye",
-      avatar: "/placeholder.svg?height=32&width=32",
+      avatar: avatarImage.image3,
     },
     dueDate: "May 28",
     duration: "3hrs",
@@ -256,7 +258,7 @@ export const mockJobs: Job[] = [
     team: "Sanitation",
     assignedOwner: {
       name: "Phoenix Baker",
-      avatar: "/placeholder.svg?height=32&width=32",
+      avatar: avatarImage.image4,
     },
     dueDate: "May 28",
     duration: "1hr",

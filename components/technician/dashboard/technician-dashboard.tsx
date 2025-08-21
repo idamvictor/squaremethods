@@ -22,6 +22,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import { avatarImage } from "@/constants/images";
 
 interface Task {
   id: number;
@@ -47,9 +48,9 @@ const mockTasks: Task[] = Array.from({ length: 55 }, (_, index) => ({
   }`,
   status: index === 0 ? "NEW" : index % 3 === 0 ? "Completed" : "Pending",
   assignedBy: [
-    { name: "Olivia Rhye", avatar: "/avatars/olivia.jpg" },
-    { name: "Phoenix Baker", avatar: "/avatars/phoenix.jpg" },
-    { name: "Lana Steiner", avatar: "/avatars/lana.jpg" },
+    { name: "Olivia Rhye", avatar: avatarImage.image1 },
+    { name: "Phoenix Baker", avatar: avatarImage.image2 },
+    { name: "Lana Steiner", avatar: avatarImage.image3 },
   ][index % 3],
   dueDate: "May 24",
   duration: "2hrs",
