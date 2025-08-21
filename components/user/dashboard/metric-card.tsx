@@ -15,7 +15,7 @@ export function MetricCard({
   icon: Icon,
 }: MetricCardProps) {
   return (
-    <Card className={className}>
+    <Card className={`${className} py-0 h-32`}>
       <CardContent className="p-4 sm:p-6">
         <div className="space-y-2">
           <div className="flex items-center justify-between">
