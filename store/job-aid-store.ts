@@ -1,27 +1,28 @@
-import { create } from "zustand"
-import type { JobAid, JobAidFilters, JobAidProcedure } from "@/types/job-aid"
+import { create } from "zustand";
+import type { JobAid, JobAidFilters, JobAidProcedure } from "@/types/job-aid";
+import { Images } from "@/constants/images";
 
 interface JobAidStore {
-  jobAids: JobAid[]
-  filters: JobAidFilters
-  searchQuery: string
-  viewMode: "grid" | "list"
-  setFilter: (key: keyof JobAidFilters, value: string) => void
-  resetFilters: () => void
-  setSearchQuery: (query: string) => void
-  setViewMode: (mode: "grid" | "list") => void
-  addJobAid: (jobAid: JobAid) => void
-  updateJobAid: (id: string, updates: Partial<JobAid>) => void
-  deleteJobAid: (id: string) => void
-  getJobAidById: (id: string) => JobAid | undefined
-  getFilteredJobAids: () => JobAid[]
+  jobAids: JobAid[];
+  filters: JobAidFilters;
+  searchQuery: string;
+  viewMode: "grid" | "list";
+  setFilter: (key: keyof JobAidFilters, value: string) => void;
+  resetFilters: () => void;
+  setSearchQuery: (query: string) => void;
+  setViewMode: (mode: "grid" | "list") => void;
+  addJobAid: (jobAid: JobAid) => void;
+  updateJobAid: (id: string, updates: Partial<JobAid>) => void;
+  deleteJobAid: (id: string) => void;
+  getJobAidById: (id: string) => JobAid | undefined;
+  getFilteredJobAids: () => JobAid[];
 }
 
 const initialFilters: JobAidFilters = {
   count: "50",
   equipment: "all",
   category: "all",
-}
+};
 
 // Generate comprehensive mock data
 const generateMockJobAids = (): JobAid[] => {
@@ -34,7 +35,7 @@ const generateMockJobAids = (): JobAid[] => {
     "Safety Protocol Review",
     "Equipment Calibration",
     "Operational Safety Check",
-  ]
+  ];
 
   const equipmentTypes = [
     "Hydraulic Press",
@@ -45,7 +46,7 @@ const generateMockJobAids = (): JobAid[] => {
     "Motor Assembly",
     "Electrical Panel",
     "Pressure Gauge",
-  ]
+  ];
 
   const categories = [
     "Monthly Maintenance",
@@ -53,9 +54,16 @@ const generateMockJobAids = (): JobAid[] => {
     "Emergency Procedures",
     "Quality Control",
     "Equipment Setup",
-  ]
+  ];
 
-  const authors = ["Andy Miracle", "Sarah Johnson", "Mike Chen", "Lisa Rodriguez", "David Kim", "Emma Wilson"]
+  const authors = [
+    "Andy Miracle",
+    "Sarah Johnson",
+    "Mike Chen",
+    "Lisa Rodriguez",
+    "David Kim",
+    "Emma Wilson",
+  ];
 
   const locations = [
     "Manufacturing plant",
@@ -64,16 +72,16 @@ const generateMockJobAids = (): JobAid[] => {
     "Maintenance shop",
     "Production floor",
     "Testing facility",
-  ]
+  ];
 
   const images = [
-    "/placeholder.svg?height=200&width=300",
-    "/placeholder.svg?height=200&width=300",
-    "/placeholder.svg?height=200&width=300",
-    "/placeholder.svg?height=200&width=300",
-    "/placeholder.svg?height=200&width=300",
-    "/placeholder.svg?height=200&width=300",
-  ]
+    Images.slide1,
+    Images.slide2,
+    Images.slide3,
+    Images.slide4,
+    Images.slide5,
+    Images.slide1,
+  ];
 
   return Array.from({ length: 24 }, (_, index) => {
     const procedures: JobAidProcedure[] = [
@@ -83,7 +91,9 @@ const generateMockJobAids = (): JobAid[] => {
         steps: Array.from({ length: 11 }, (_, stepIndex) => ({
           id: `step-${index}-${stepIndex}`,
           title: `Step ${stepIndex + 1}`,
-          description: `Detailed instruction for step ${stepIndex + 1} of the procedure`,
+          description: `Detailed instruction for step ${
+            stepIndex + 1
+          } of the procedure`,
           order: stepIndex + 1,
         })),
       },
@@ -93,11 +103,13 @@ const generateMockJobAids = (): JobAid[] => {
         steps: Array.from({ length: 11 }, (_, stepIndex) => ({
           id: `step-${index}-${stepIndex + 11}`,
           title: `Step ${stepIndex + 1}`,
-          description: `Detailed instruction for step ${stepIndex + 1} of the reboot procedure`,
+          description: `Detailed instruction for step ${
+            stepIndex + 1
+          } of the reboot procedure`,
           order: stepIndex + 1,
         })),
       },
-    ]
+    ];
 
     return {
       id: `job-aid-${index + 1}`,
@@ -105,7 +117,9 @@ const generateMockJobAids = (): JobAid[] => {
       subtitle: equipmentTypes[index % equipmentTypes.length],
       category: categories[index % categories.length],
       author: authors[index % authors.length],
-      dateCreated: new Date(Date.now() - index * 24 * 60 * 60 * 1000).toLocaleDateString(),
+      dateCreated: new Date(
+        Date.now() - index * 24 * 60 * 60 * 1000
+      ).toLocaleDateString(),
       image: images[index % images.length],
       assignedEquipment: {
         name: `${equipmentTypes[index % equipmentTypes.length]} engine`,
@@ -122,9 +136,9 @@ const generateMockJobAids = (): JobAid[] => {
       procedures,
       viewCount: Math.floor(Math.random() * 1000) + 50,
       isRecent: index < 8,
-    }
-  })
-}
+    };
+  });
+};
 
 export const useJobAidStore = create<JobAidStore>((set, get) => ({
   jobAids: generateMockJobAids(),
@@ -154,7 +168,9 @@ export const useJobAidStore = create<JobAidStore>((set, get) => ({
 
   updateJobAid: (id, updates) =>
     set((state) => ({
-      jobAids: state.jobAids.map((jobAid) => (jobAid.id === id ? { ...jobAid, ...updates } : jobAid)),
+      jobAids: state.jobAids.map((jobAid) =>
+        jobAid.id === id ? { ...jobAid, ...updates } : jobAid
+      ),
     })),
 
   deleteJobAid: (id) =>
@@ -163,12 +179,12 @@ export const useJobAidStore = create<JobAidStore>((set, get) => ({
     })),
 
   getJobAidById: (id) => {
-    const { jobAids } = get()
-    return jobAids.find((jobAid) => jobAid.id === id)
+    const { jobAids } = get();
+    return jobAids.find((jobAid) => jobAid.id === id);
   },
 
   getFilteredJobAids: () => {
-    const { jobAids, filters, searchQuery } = get()
+    const { jobAids, filters, searchQuery } = get();
 
     return jobAids.filter((jobAid) => {
       // Search filter
@@ -177,24 +193,26 @@ export const useJobAidStore = create<JobAidStore>((set, get) => ({
         !jobAid.title.toLowerCase().includes(searchQuery.toLowerCase()) &&
         !jobAid.subtitle.toLowerCase().includes(searchQuery.toLowerCase())
       ) {
-        return false
+        return false;
       }
 
       // Equipment filter
       if (
         filters.equipment !== "all" &&
-        jobAid.assignedEquipment.type.toLowerCase() !== filters.equipment.toLowerCase()
+        jobAid.assignedEquipment.type.toLowerCase() !==
+          filters.equipment.toLowerCase()
       ) {
-        return false
+        return false;
       }
 
       // Category filter
       if (filters.category !== "all") {
-        if (filters.category === "recent" && !jobAid.isRecent) return false
-        if (filters.category === "most-viewed" && jobAid.viewCount < 500) return false
+        if (filters.category === "recent" && !jobAid.isRecent) return false;
+        if (filters.category === "most-viewed" && jobAid.viewCount < 500)
+          return false;
       }
 
-      return true
-    })
+      return true;
+    });
   },
-}))
+}));

@@ -1,0 +1,127 @@
+"use client";
+
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
+import { MoreHorizontal } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import type { JobAid } from "@/types/job-aid";
+
+interface JobAidsTableProps {
+  jobAids: JobAid[];
+}
+
+export function JobAidsTable({ jobAids }: JobAidsTableProps) {
+  if (jobAids.length === 0) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-gray-500">
+          No job aids found matching your criteria.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="border rounded-lg bg-white">
+      <Table>
+        <TableHeader>
+          <TableRow className="bg-gray-50">
+            <TableHead className="font-medium text-gray-700 py-4">
+              JOB AID
+            </TableHead>
+            <TableHead className="font-medium text-gray-700">TITLE</TableHead>
+            <TableHead className="font-medium text-gray-700">
+              CATEGORY
+            </TableHead>
+            <TableHead className="font-medium text-gray-700">
+              EQUIPMENT
+            </TableHead>
+            <TableHead className="font-medium text-gray-700">
+              DATE ENTERED
+            </TableHead>
+            <TableHead className="font-medium text-gray-700 w-16">
+              Edit
+            </TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {jobAids.map((jobAid) => (
+            <TableRow key={jobAid.id} className="hover:bg-gray-50">
+              <TableCell className="py-4">
+                <Link href={`/job-aids/${jobAid.id}`} className="block">
+                  <div className="w-24 h-16 relative rounded overflow-hidden">
+                    <Image
+                      src={
+                        jobAid.image || "/placeholder.svg?height=64&width=96"
+                      }
+                      alt={jobAid.title}
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                </Link>
+              </TableCell>
+              <TableCell>
+                <Link
+                  href={`/job-aids/${jobAid.id}`}
+                  className="block hover:text-blue-600"
+                >
+                  <div className="font-medium text-gray-900">
+                    {jobAid.subtitle}
+                  </div>
+                </Link>
+              </TableCell>
+              <TableCell>
+                <span className="text-gray-600">{jobAid.category}</span>
+              </TableCell>
+              <TableCell>
+                <span className="text-gray-600">
+                  {jobAid.assignedEquipment.name}
+                </span>
+              </TableCell>
+              <TableCell>
+                <span className="text-gray-600">{jobAid.dateCreated}</span>
+              </TableCell>
+              <TableCell>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 text-gray-400 hover:text-gray-600"
+                    >
+                      <MoreHorizontal className="h-4 w-4" />
+                      <span className="sr-only">Open menu</span>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem>Edit Job Aid</DropdownMenuItem>
+                    <DropdownMenuItem>Duplicate</DropdownMenuItem>
+                    <DropdownMenuItem>Share</DropdownMenuItem>
+                    <DropdownMenuItem className="text-red-600">
+                      Delete
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
+  );
+}
