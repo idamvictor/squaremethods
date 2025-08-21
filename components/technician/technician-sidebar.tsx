@@ -27,6 +27,7 @@ import {
   SidebarMenuItem,
   SidebarRail,
 } from "@/components/ui/sidebar";
+import Image from "next/image";
 
 // Navigation data
 const mainNavItems = [
@@ -51,8 +52,8 @@ const mainNavItems = [
     icon: Briefcase,
   },
   {
-    title: "Calender",
-    url: "/technician/dashbaord",
+    title: "Calendar",
+    url: "/technician/calendar",
     icon: Calendar,
   },
   {
@@ -89,9 +90,13 @@ export function TechnicianSidebar({
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader className="border-b border-sidebar-border">
         <div className="flex items-center gap-2 px-2 py-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded bg-blue-600">
-            <div className="h-4 w-4 rounded-sm bg-white" />
-          </div>
+          <Image
+            src="https://res.cloudinary.com/dyp8gtllq/image/upload/v1749653962/image-removebg-preview_p37kee.png"
+            alt="Squaremethods Logo"
+            width={32}
+            height={32}
+            className="h-8 w-8"
+          />
           <div className="flex flex-col group-data-[collapsible=icon]:hidden">
             <span className="text-sm font-semibold text-sidebar-foreground">
               SQUAREMETHODS
