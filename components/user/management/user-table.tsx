@@ -1,43 +1,50 @@
-"use client"
+"use client";
 
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Trash2, Pencil, CheckCircle } from 'lucide-react'
-import type { User } from "@/types/user"
-import { useUserStore } from "@/store/user-store"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Trash2, Pencil, CheckCircle } from "lucide-react";
+import type { User } from "@/types/user";
+import { useUserStore } from "@/store/user-store";
 
 interface UserTableProps {
-  users: User[]
+  users: User[];
 }
 
 export function UserTable({ users }: UserTableProps) {
-  const { deleteUser, updateUser } = useUserStore()
+  const { deleteUser } = useUserStore();
 
   const handleDeleteUser = (userId: string) => {
-    deleteUser(userId)
-  }
+    deleteUser(userId);
+  };
 
   const handleEditUser = (userId: string) => {
     // Placeholder for edit functionality
-    console.log("Edit user:", userId)
-  }
+    console.log("Edit user:", userId);
+  };
 
   const getRoleBadgeVariant = (role: string) => {
     switch (role) {
       case "Super Admin":
-        return "default"
+        return "default";
       case "Admin":
-        return "secondary"
+        return "secondary";
       case "Editor":
-        return "outline"
+        return "outline";
       case "Viewer":
-        return "secondary"
+        return "secondary";
       default:
-        return "secondary"
+        return "secondary";
     }
-  }
+  };
 
   return (
     <div className="rounded-lg border bg-white shadow-sm">
@@ -58,7 +65,10 @@ export function UserTable({ users }: UserTableProps) {
                 <div className="flex items-center gap-3">
                   <div className="relative">
                     <Avatar className="w-10 h-10">
-                      <AvatarImage src={user.avatar || "/placeholder.svg"} alt={user.name} />
+                      <AvatarImage
+                        src={user.avatar || "/placeholder.svg"}
+                        alt={user.name}
+                      />
                       <AvatarFallback>
                         {user.name
                           .split(" ")
@@ -76,7 +86,10 @@ export function UserTable({ users }: UserTableProps) {
                 </div>
               </TableCell>
               <TableCell>
-                <Badge variant={getRoleBadgeVariant(user.role)} className="text-xs">
+                <Badge
+                  variant={getRoleBadgeVariant(user.role)}
+                  className="text-xs"
+                >
                   {user.role}
                 </Badge>
               </TableCell>
@@ -88,17 +101,17 @@ export function UserTable({ users }: UserTableProps) {
               </TableCell>
               <TableCell className="text-right">
                 <div className="flex justify-end gap-2">
-                  <Button 
-                    variant="ghost" 
-                    size="icon" 
+                  <Button
+                    variant="ghost"
+                    size="icon"
                     className="h-8 w-8"
                     onClick={() => handleDeleteUser(user.id)}
                   >
                     <Trash2 className="h-4 w-4 text-gray-500" />
                   </Button>
-                  <Button 
-                    variant="ghost" 
-                    size="icon" 
+                  <Button
+                    variant="ghost"
+                    size="icon"
                     className="h-8 w-8"
                     onClick={() => handleEditUser(user.id)}
                   >
@@ -111,5 +124,5 @@ export function UserTable({ users }: UserTableProps) {
         </TableBody>
       </Table>
     </div>
-  )
+  );
 }
