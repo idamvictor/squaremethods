@@ -116,15 +116,16 @@ export function AddEquipmentModal() {
       open={showAddEquipmentModal}
       onOpenChange={setShowAddEquipmentModal}
     >
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-5xl sm:max-w-[60vw] w-full max-h-[90vh] overflow-y-auto p-6">
         <DialogHeader>
-          <DialogTitle>Equipment Registration</DialogTitle>
+          <DialogTitle className="text-xl">Equipment Registration</DialogTitle>
         </DialogHeader>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left Column - Image Upload */}
-          <div className="space-y-4">
-            <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center bg-gray-50">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-4 w-full">
+          {/* Left Column - Image Upload and Form Fields */}
+          <div className="flex flex-col gap-6 lg:col-span-2">
+            {/* Image Upload */}
+            <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center bg-gray-50 w-full">
               {formData.image ? (
                 <Image
                   src={formData.image}
@@ -163,125 +164,125 @@ export function AddEquipmentModal() {
                 </div>
               )}
             </div>
-          </div>
 
-          {/* Middle Column - Form Fields */}
-          <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="equipment-type">Equipment type</Label>
-                <Select
-                  value={formData.type}
-                  onValueChange={(value) => handleInputChange("type", value)}
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue>
-                      {formData.type ? (
-                        <div className="flex items-center gap-2">
-                          <span
-                            className={cn(
-                              "text-lg",
-                              getEquipmentColor(formData.type)
-                            )}
-                          >
-                            {
-                              equipmentTypes.find(
-                                (t) => t.value === formData.type
-                              )?.icon
-                            }
-                          </span>
-                          <span>
-                            {
-                              equipmentTypes.find(
-                                (t) => t.value === formData.type
-                              )?.label
-                            }
-                          </span>
-                        </div>
-                      ) : (
-                        "Select type"
-                      )}
-                    </SelectValue>
-                  </SelectTrigger>
-                  <SelectContent>
-                    {equipmentTypes.map((type) => (
-                      <SelectItem key={type.value} value={type.value}>
-                        <div className="flex items-center gap-2">
-                          <span
-                            className={cn(
-                              "text-lg",
-                              getEquipmentColor(type.value)
-                            )}
-                          >
-                            {type.icon}
-                          </span>
-                          <span>{type.label}</span>
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+            {/* Form Fields */}
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="equipment-type">Equipment type</Label>
+                  <Select
+                    value={formData.type}
+                    onValueChange={(value) => handleInputChange("type", value)}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue>
+                        {formData.type ? (
+                          <div className="flex items-center gap-2">
+                            <span
+                              className={cn(
+                                "text-lg",
+                                getEquipmentColor(formData.type)
+                              )}
+                            >
+                              {
+                                equipmentTypes.find(
+                                  (t) => t.value === formData.type
+                                )?.icon
+                              }
+                            </span>
+                            <span>
+                              {
+                                equipmentTypes.find(
+                                  (t) => t.value === formData.type
+                                )?.label
+                              }
+                            </span>
+                          </div>
+                        ) : (
+                          "Select type"
+                        )}
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {equipmentTypes.map((type) => (
+                        <SelectItem key={type.value} value={type.value}>
+                          <div className="flex items-center gap-2">
+                            <span
+                              className={cn(
+                                "text-lg",
+                                getEquipmentColor(type.value)
+                              )}
+                            >
+                              {type.icon}
+                            </span>
+                            <span>{type.label}</span>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <Label htmlFor="equipment-name">
+                    Equipment name <span className="text-red-500">*</span>
+                  </Label>
+                  <Input
+                    id="equipment-name"
+                    value={formData.name}
+                    onChange={(e) => handleInputChange("name", e.target.value)}
+                    placeholder="Cooling Pump #5"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="reference-code">
+                    Reference code <span className="text-red-500">*</span>
+                  </Label>
+                  <Input
+                    id="reference-code"
+                    value={formData.referenceCode}
+                    onChange={(e) =>
+                      handleInputChange("referenceCode", e.target.value)
+                    }
+                    placeholder="54635bd"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="date">
+                    Date <span className="text-red-500">*</span>
+                  </Label>
+                  <Input
+                    id="date"
+                    type="date"
+                    value={formData.date}
+                    onChange={(e) => handleInputChange("date", e.target.value)}
+                  />
+                </div>
               </div>
 
               <div>
-                <Label htmlFor="equipment-name">
-                  Equipment name <span className="text-red-500">*</span>
-                </Label>
-                <Input
-                  id="equipment-name"
-                  value={formData.name}
-                  onChange={(e) => handleInputChange("name", e.target.value)}
-                  placeholder="Cooling Pump #5"
+                <Label htmlFor="notes">Notes</Label>
+                <Textarea
+                  id="notes"
+                  value={formData.notes}
+                  onChange={(e) => handleInputChange("notes", e.target.value)}
+                  placeholder="Please Enter"
+                  rows={4}
                 />
               </div>
+
+              {qrGenerated && (
+                <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                  <p className="text-green-800 text-sm">
+                    QR Code generated successfully
+                  </p>
+                </div>
+              )}
             </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="reference-code">
-                  Reference code <span className="text-red-500">*</span>
-                </Label>
-                <Input
-                  id="reference-code"
-                  value={formData.referenceCode}
-                  onChange={(e) =>
-                    handleInputChange("referenceCode", e.target.value)
-                  }
-                  placeholder="54635bd"
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="date">
-                  Date <span className="text-red-500">*</span>
-                </Label>
-                <Input
-                  id="date"
-                  type="date"
-                  value={formData.date}
-                  onChange={(e) => handleInputChange("date", e.target.value)}
-                />
-              </div>
-            </div>
-
-            <div>
-              <Label htmlFor="notes">Notes</Label>
-              <Textarea
-                id="notes"
-                value={formData.notes}
-                onChange={(e) => handleInputChange("notes", e.target.value)}
-                placeholder="Please Enter"
-                rows={4}
-              />
-            </div>
-
-            {qrGenerated && (
-              <div className="bg-green-50 border border-green-200 rounded-lg p-3">
-                <p className="text-green-800 text-sm">
-                  QR Code generated successfully
-                </p>
-              </div>
-            )}
           </div>
 
           {/* Right Column - QR Code */}

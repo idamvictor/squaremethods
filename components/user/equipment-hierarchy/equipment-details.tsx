@@ -64,9 +64,10 @@ export function EquipmentDetails({ node }: EquipmentDetailsProps) {
         </TabsList>
 
         <TabsContent value="equipment-details" className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-4">
-            {/* Left Column - Image */}
-            <div className="space-y-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-4">
+            {/* Left Column: Image on top, Form below */}
+            <div className="flex flex-col gap-6">
+              {/* Image */}
               <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center bg-gray-50">
                 {node.image ? (
                   <Image
@@ -94,112 +95,107 @@ export function EquipmentDetails({ node }: EquipmentDetailsProps) {
                   </div>
                 )}
               </div>
-            </div>
-
-            {/* Middle Column - Form Fields */}
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="equipment-type">Equipment type</Label>
-                  <Select value={node.type} disabled>
-                    <SelectTrigger className="w-full">
-                      <SelectValue>
-                        <div className="flex items-center gap-2">
-                          <span
-                            className={cn(
-                              "text-lg",
-                              getEquipmentColor(node.type)
-                            )}
-                          >
-                            {
-                              equipmentTypes.find((t) => t.value === node.type)
-                                ?.icon
-                            }
-                          </span>
-                          <span>
-                            {
-                              equipmentTypes.find((t) => t.value === node.type)
-                                ?.label
-                            }
-                          </span>
-                        </div>
-                      </SelectValue>
-                    </SelectTrigger>
-                    <SelectContent>
-                      {equipmentTypes.map((type) => (
-                        <SelectItem key={type.value} value={type.value}>
+              {/* Form Fields */}
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="equipment-type">Equipment type</Label>
+                    <Select value={node.type} disabled>
+                      <SelectTrigger className="w-full">
+                        <SelectValue>
                           <div className="flex items-center gap-2">
                             <span
                               className={cn(
                                 "text-lg",
-                                getEquipmentColor(type.value)
+                                getEquipmentColor(node.type)
                               )}
                             >
-                              {type.icon}
+                              {
+                                equipmentTypes.find(
+                                  (t) => t.value === node.type
+                                )?.icon
+                              }
                             </span>
-                            <span>{type.label}</span>
+                            <span>
+                              {
+                                equipmentTypes.find(
+                                  (t) => t.value === node.type
+                                )?.label
+                              }
+                            </span>
                           </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                        </SelectValue>
+                      </SelectTrigger>
+                      <SelectContent>
+                        {equipmentTypes.map((type) => (
+                          <SelectItem key={type.value} value={type.value}>
+                            <div className="flex items-center gap-2">
+                              <span
+                                className={cn(
+                                  "text-lg",
+                                  getEquipmentColor(type.value)
+                                )}
+                              >
+                                {type.icon}
+                              </span>
+                              <span>{type.label}</span>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label htmlFor="equipment-name">
+                      Equipment name <span className="text-red-500">*</span>
+                    </Label>
+                    <Input id="equipment-name" value={node.name} readOnly />
+                  </div>
                 </div>
-
-                <div>
-                  <Label htmlFor="equipment-name">
-                    Equipment name <span className="text-red-500">*</span>
-                  </Label>
-                  <Input id="equipment-name" value={node.name} readOnly />
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="reference-code">
+                      Reference code <span className="text-red-500">*</span>
+                    </Label>
+                    <Input
+                      id="reference-code"
+                      value={node.referenceCode || ""}
+                      readOnly
+                      placeholder="54635bd"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="date">
+                      Date <span className="text-red-500">*</span>
+                    </Label>
+                    <Input
+                      id="date"
+                      type="date"
+                      value={node.date || ""}
+                      readOnly
+                    />
+                  </div>
                 </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="reference-code">
-                    Reference code <span className="text-red-500">*</span>
-                  </Label>
-                  <Input
-                    id="reference-code"
-                    value={node.referenceCode || ""}
+                  <Label htmlFor="notes">Notes</Label>
+                  <Textarea
+                    id="notes"
+                    value={node.notes || ""}
                     readOnly
-                    placeholder="54635bd"
+                    rows={4}
+                    placeholder="Please Enter"
                   />
                 </div>
-
-                <div>
-                  <Label htmlFor="date">
-                    Date <span className="text-red-500">*</span>
-                  </Label>
-                  <Input
-                    id="date"
-                    type="date"
-                    value={node.date || ""}
-                    readOnly
-                  />
-                </div>
+                {node.qrCode && (
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                    <p className="text-green-700 text-sm">
+                      QR Code generated successfully
+                    </p>
+                  </div>
+                )}
               </div>
-
-              <div>
-                <Label htmlFor="notes">Notes</Label>
-                <Textarea
-                  id="notes"
-                  value={node.notes || ""}
-                  readOnly
-                  rows={4}
-                  placeholder="Please Enter"
-                />
-              </div>
-
-              {node.qrCode && (
-                <div className="bg-green-50 border border-green-200 rounded-lg p-3">
-                  <p className="text-green-700 text-sm">
-                    QR Code generated successfully
-                  </p>
-                </div>
-              )}
             </div>
-
-            {/* Right Column - QR Code */}
+            {/* Right Column: QR Code */}
             <div className="space-y-4">
               <div className="border rounded-lg p-4 text-center">
                 <div className="w-32 h-32 mx-auto mb-4">

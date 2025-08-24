@@ -146,7 +146,7 @@ function Breadcrumbs() {
   if (breadcrumbs.length === 0) return null;
 
   return (
-    <div className="flex items-center gap-2 text-sm text-gray-600 mb-4">
+    <div className="flex items-center gap-2 text-sm text-gray-600 mb-4 bg-blue-100 p-2 rounded-md">
       {breadcrumbs.map((crumb, index) => (
         <div key={crumb.id} className="flex items-center gap-2">
           {index > 0 && <span>/</span>}
@@ -168,63 +168,75 @@ export function EquipmentHierarchy() {
   } = useEquipmentStore();
 
   return (
-    <div className="flex h-screen bg-white">
-      {/* Sidebar */}
-      <div className="w-80 border-r border-gray-200 flex flex-col">
-        <div className="p-4 border-b border-gray-200">
-          <h1 className="text-xl font-semibold text-gray-900 mb-4">
+    <div className="flex flex-col h-screen bg-white p-4">
+      {/* Header */}
+      <div className="p-3 ">
+        <div className="flex items-center justify-between ">
+          <h1 className="text-2xl font-semibold text-gray-900">
             Equipment Hierarchy
           </h1>
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-            <Input
-              placeholder="Search..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
-            />
-          </div>
-        </div>
-
-        <div className="flex-1 overflow-auto">
-          <div className="p-2">
-            <div className="flex items-center gap-2 mb-2">
-              <span className="text-sm text-blue-600">Location</span>
-              <Plus className="h-4 w-4 text-blue-600" />
-            </div>
-
-            <div className="space-y-1">
-              {hierarchy.map((node) => (
-                <TreeNode key={node.id} node={node} level={0} />
-              ))}
+          <div className="flex items-center gap-4">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+              <Input
+                placeholder="Search..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 w-64"
+              />
             </div>
           </div>
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col">
-        <div className="p-6">
-          <Breadcrumbs />
+      <div className="flex flex-1">
+        {/* Sidebar */}
+        <div className="w-80 flex flex-col">
+          <div className="flex-1 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
+            <div className="flex-1 overflow-auto">
+              <div className="p-4">
+                <div className="flex items-center gap-2 mb-4">
+                  <span className="text-sm font-medium text-blue-600">
+                    Location
+                  </span>
+                  <Plus className="h-4 w-4 text-blue-600" />
+                </div>
 
-          {selectedNode ? (
-            <EquipmentDetails node={selectedNode} />
-          ) : (
-            <div className="text-center text-gray-500 mt-20">
-              <h2 className="text-xl font-semibold mb-2">
-                Equipment Hierarchy
-              </h2>
-              <p>
-                Select a location or equipment from the sidebar to view details
-              </p>
+                <div className="space-y-1">
+                  {hierarchy.map((node) => (
+                    <TreeNode key={node.id} node={node} level={0} />
+                  ))}
+                </div>
+              </div>
             </div>
-          )}
+          </div>
         </div>
-      </div>
 
-      {/* Modals */}
-      {showAddLocationModal && <AddLocationModal />}
-      {showAddEquipmentModal && <AddEquipmentModal />}
+        {/* Main Content */}
+        <div className="flex-1 flex flex-col">
+          <div className="px-6">
+            <Breadcrumbs />
+
+            {selectedNode ? (
+              <EquipmentDetails node={selectedNode} />
+            ) : (
+              <div className="text-center text-gray-500 mt-20">
+                <h2 className="text-xl font-semibold mb-2">
+                  Equipment Hierarchy
+                </h2>
+                <p>
+                  Select a location or equipment from the sidebar to view
+                  details
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Modals */}
+        {showAddLocationModal && <AddLocationModal />}
+        {showAddEquipmentModal && <AddEquipmentModal />}
+      </div>
     </div>
   );
 }
