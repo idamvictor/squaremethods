@@ -54,10 +54,7 @@ export function JobAidsManagement() {
               className="pl-10 w-64"
             />
           </div>
-          <Button
-            className="bg-slate-700 hover:bg-slate-800"
-            onClick={() => router.push("/job-aids/create")}
-          >
+          <Button onClick={() => router.push("/job-aids/create")}>
             Create
           </Button>
         </div>
