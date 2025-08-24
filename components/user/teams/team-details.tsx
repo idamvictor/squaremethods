@@ -1,60 +1,72 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Badge } from "@/components/ui/badge"
-import { MemberTable } from "./member-table"
-import { ArrowLeft, Filter, Plus } from 'lucide-react'
-import type { Team, TeamFilters } from "@/types/team"
-import Link from "next/link"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { MoreHorizontal } from 'lucide-react'
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { MemberTable } from "./member-table";
+import { ArrowLeft, Plus, SlidersHorizontal } from "lucide-react";
+import type { Team, TeamFilters } from "@/types/team";
+import Link from "next/link";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { MoreHorizontal } from "lucide-react";
 
 interface TeamDetailsProps {
-  team: Team
+  team: Team;
 }
 
 export function TeamDetails({ team }: TeamDetailsProps) {
   const [filters, setFilters] = useState<TeamFilters>({
     count: "50",
     category: "all", // This will be 'declined', 'pending', 'recent' for this page
-  })
+  });
 
   const handleFilterChange = (key: keyof TeamFilters, value: string) => {
-    setFilters((prev) => ({ ...prev, [key]: value }))
-  }
+    setFilters((prev) => ({ ...prev, [key]: value }));
+  };
 
   const resetFilters = () => {
     setFilters({
       count: "50",
       category: "all",
-    })
-  }
+    });
+  };
 
   // Filter members based on the 'category' filter (Declined, Pending, Recent)
   const filteredMembers = team.members.filter((member) => {
-    if (filters.category === "all") return true
+    if (filters.category === "all") return true;
 
-    const today = new Date()
-    const memberDate = new Date(member.dateEntered)
-    const daysDifference = Math.floor((today.getTime() - memberDate.getTime()) / (1000 * 60 * 60 * 24))
+    const today = new Date();
+    const memberDate = new Date(member.dateEntered);
+    const daysDifference = Math.floor(
+      (today.getTime() - memberDate.getTime()) / (1000 * 60 * 60 * 24)
+    );
 
     switch (filters.category) {
       case "recent":
         // Members who joined in the last 30 days
-        return daysDifference <= 30
+        return daysDifference <= 30;
       case "pending":
         // Members who joined between 31-90 days ago
-        return daysDifference > 30 && daysDifference <= 90
+        return daysDifference > 30 && daysDifference <= 90;
       case "declined":
         // Members who joined more than 90 days ago
-        return daysDifference > 90
+        return daysDifference > 90;
       default:
-        return true
+        return true;
     }
-  })
+  });
 
   return (
     <div className="p-6 max-w-7xl mx-auto">
@@ -70,7 +82,10 @@ export function TeamDetails({ team }: TeamDetailsProps) {
           <div className="flex -space-x-2">
             {team.members.slice(0, 3).map((member) => (
               <Avatar key={member.id} className="w-8 h-8 border-2 border-white">
-                <AvatarImage src={member.avatar || "/placeholder.svg"} alt={member.name} />
+                <AvatarImage
+                  src={member.avatar || "/placeholder.svg"}
+                  alt={member.name}
+                />
                 <AvatarFallback className="text-xs">
                   {member.name
                     .split(" ")
@@ -81,7 +96,9 @@ export function TeamDetails({ team }: TeamDetailsProps) {
             ))}
             {team.members.length > 3 && (
               <div className="w-8 h-8 rounded-full bg-gray-100 border-2 border-white flex items-center justify-center">
-                <span className="text-xs text-gray-600">+{team.members.length - 3}</span>
+                <span className="text-xs text-gray-600">
+                  +{team.members.length - 3}
+                </span>
               </div>
             )}
           </div>
@@ -97,7 +114,9 @@ export function TeamDetails({ team }: TeamDetailsProps) {
             <DropdownMenuContent align="end">
               <DropdownMenuItem>Edit Team</DropdownMenuItem>
               <DropdownMenuItem>Team Settings</DropdownMenuItem>
-              <DropdownMenuItem className="text-red-600">Delete Team</DropdownMenuItem>
+              <DropdownMenuItem className="text-red-600">
+                Delete Team
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
@@ -107,8 +126,11 @@ export function TeamDetails({ team }: TeamDetailsProps) {
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
-            <Filter className="w-4 h-4 text-gray-500" />
-            <Select value={filters.count} onValueChange={(value) => handleFilterChange("count", value)}>
+            <SlidersHorizontal />
+            <Select
+              value={filters.count}
+              onValueChange={(value) => handleFilterChange("count", value)}
+            >
               <SelectTrigger className="w-24">
                 <SelectValue />
               </SelectTrigger>
@@ -122,31 +144,35 @@ export function TeamDetails({ team }: TeamDetailsProps) {
           </div>
 
           <div className="flex items-center gap-2">
-            <Badge
-              variant={filters.category === "declined" ? "default" : "secondary"}
-              className="cursor-pointer"
+            <Button
+              variant={filters.category === "declined" ? "default" : "outline"}
+              size="sm"
               onClick={() => handleFilterChange("category", "declined")}
             >
               Declined
-            </Badge>
-            <Badge
-              variant={filters.category === "pending" ? "default" : "secondary"}
-              className="cursor-pointer"
+            </Button>
+            <Button
+              variant={filters.category === "pending" ? "default" : "outline"}
+              size="sm"
               onClick={() => handleFilterChange("category", "pending")}
             >
               Pending
-            </Badge>
-            <Badge
-              variant={filters.category === "recent" ? "default" : "secondary"}
-              className="cursor-pointer"
+            </Button>
+            <Button
+              variant={filters.category === "recent" ? "default" : "outline"}
+              size="sm"
               onClick={() => handleFilterChange("category", "recent")}
             >
               Recent
-            </Badge>
+            </Button>
           </div>
         </div>
 
-        <Button variant="ghost" className="text-gray-500 hover:text-gray-700" onClick={resetFilters}>
+        <Button
+          variant="ghost"
+          className="text-gray-500 hover:text-gray-700"
+          onClick={resetFilters}
+        >
           Reset Filter
         </Button>
       </div>
@@ -154,5 +180,5 @@ export function TeamDetails({ team }: TeamDetailsProps) {
       {/* Member Table */}
       <MemberTable members={filteredMembers} />
     </div>
-  )
+  );
 }
