@@ -1,14 +1,21 @@
-"use client"
+"use client";
 
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Button } from "@/components/ui/button"
-import { Trash2, Pencil } from 'lucide-react'
-import type { TeamMember } from "@/types/team"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Trash2, Pencil } from "lucide-react";
+import type { TeamMember } from "@/types/team";
 
 interface MemberTableProps {
-  members: TeamMember[]
+  members: TeamMember[];
 }
 
 export function MemberTable({ members }: MemberTableProps) {
@@ -37,7 +44,10 @@ export function MemberTable({ members }: MemberTableProps) {
               <TableCell>
                 <div className="flex items-center gap-3">
                   <Avatar className="w-8 h-8">
-                    <AvatarImage src={member.avatar || "/placeholder.svg"} alt={member.name} />
+                    <AvatarImage
+                      src={member.avatar || "/placeholder.svg"}
+                      alt={member.name}
+                    />
                     <AvatarFallback>
                       {member.name
                         .split(" ")
@@ -67,5 +77,5 @@ export function MemberTable({ members }: MemberTableProps) {
         </TableBody>
       </Table>
     </div>
-  )
+  );
 }

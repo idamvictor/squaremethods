@@ -10,10 +10,11 @@ import {
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Plus, Users, User, Calendar, Clock } from "lucide-react";
+import { Plus } from "lucide-react";
 import {
   Select,
   SelectContent,
+  SelectItem,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
@@ -46,40 +47,36 @@ export function AddJobModal() {
 
   return (
     <Dialog open={isAddModalOpen} onOpenChange={closeAddModal}>
-      <DialogContent className="max-w-md mx-auto max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-md mx-auto">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <div className="w-5 h-5 border border-gray-400 rounded"></div>
-            Add New Job
-          </DialogTitle>
+          <DialogTitle>Add New Job</DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-6">
+        <div className="space-y-4">
           {/* Job Title */}
           <div className="space-y-2">
-            <Label htmlFor="jobTitle">
+            <Label htmlFor="jobTitle" className="text-sm font-medium">
               Job Title <span className="text-red-500">*</span>
             </Label>
             <Input
               id="jobTitle"
-              placeholder="Hydraulic press maintenance"
+              placeholder="Enter job title"
               value={newJob.title}
               onChange={(e) => updateNewJob("title", e.target.value)}
             />
           </div>
 
           {/* Task List */}
-          <div className="space-y-3">
+          <div className="space-y-2">
             <div className="flex items-center justify-between">
               <Label className="text-sm font-medium">Task List</Label>
-              <span className="text-xs text-gray-500">
-                Click + To task from your task list
+              <span className="text-xs text-gray-400">
+                Click + to task from your task list
               </span>
             </div>
-
             <div className="flex gap-2">
               <Input
-                placeholder="Add new task..."
+                placeholder="Add task"
                 value={newTaskInput}
                 onChange={(e) => setNewTaskInput(e.target.value)}
                 onKeyPress={(e) => e.key === "Enter" && handleAddTask()}
@@ -107,86 +104,124 @@ export function AddJobModal() {
             )}
           </div>
 
-          {/* Equipment/System */}
+          {/* Attached Equipment */}
           <div className="space-y-2">
-            <Label className="flex items-center gap-2">
-              <div className="w-4 h-4 bg-orange-100 rounded flex items-center justify-center"></div>
-              Equipment/System
-            </Label>
+            <div className="flex items-center gap-2">
+              <Label className="text-sm font-medium">Attached Equipment</Label>
+            </div>
             <Select onValueChange={(value) => updateNewJob("equipment", value)}>
               <SelectTrigger>
-                <SelectValue placeholder="Hydraulic Press" />
+                <SelectValue placeholder="Select equipment" />
               </SelectTrigger>
-              <SelectContent>{/* Equipment options */}</SelectContent>
+              <SelectContent>
+                <SelectItem value="hydraulic-press">Hydraulic Press</SelectItem>
+                <SelectItem value="cnc-machine">CNC Machine</SelectItem>
+                <SelectItem value="conveyor-belt">Conveyor Belt</SelectItem>
+                <SelectItem value="industrial-robot">
+                  Industrial Robot
+                </SelectItem>
+                <SelectItem value="packaging-machine">
+                  Packaging Machine
+                </SelectItem>
+              </SelectContent>
             </Select>
           </div>
 
           {/* Team */}
           <div className="space-y-2">
-            <Label className="flex items-center gap-2">
-              <Users className="w-4 h-4 text-gray-500" />
-              Team
-            </Label>
+            <div className="flex items-center gap-2">
+              <Label className="text-sm font-medium">Team</Label>
+            </div>
             <Select
               value={newJob.team}
               onValueChange={(value) => updateNewJob("team", value)}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Maintenance Team" />
+                <SelectValue placeholder="Select team" />
               </SelectTrigger>
-              <SelectContent>{/* Team options */}</SelectContent>
+              <SelectContent>
+                <SelectItem value="maintenance">Maintenance Team</SelectItem>
+                <SelectItem value="operations">Operations Team</SelectItem>
+                <SelectItem value="quality">Quality Control Team</SelectItem>
+                <SelectItem value="production">Production Team</SelectItem>
+                <SelectItem value="engineering">Engineering Team</SelectItem>
+              </SelectContent>
             </Select>
           </div>
 
           {/* Assigned Owner */}
           <div className="space-y-2">
-            <Label className="flex items-center gap-2">
-              <User className="w-4 h-4 text-gray-500" />
-              Assigned Owner
-            </Label>
+            <div className="flex items-center gap-2">
+              <Label className="text-sm font-medium">Assigned Owner</Label>
+            </div>
             <Select
               value={newJob.assignedOwner}
               onValueChange={(value) => updateNewJob("assignedOwner", value)}
             >
-              {/* Owner options */}
+              <SelectTrigger>
+                <SelectValue placeholder="Select owner" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="john-doe">John Doe</SelectItem>
+                <SelectItem value="jane-smith">Jane Smith</SelectItem>
+                <SelectItem value="mike-johnson">Mike Johnson</SelectItem>
+                <SelectItem value="sarah-williams">Sarah Williams</SelectItem>
+                <SelectItem value="david-brown">David Brown</SelectItem>
+              </SelectContent>
             </Select>
           </div>
 
           {/* Due Date */}
           <div className="space-y-2">
-            <Label className="flex items-center gap-2">
-              <Calendar className="w-4 h-4 text-gray-500" />
-              Due Date
-            </Label>
+            <div className="flex items-center gap-2">
+              <Label className="text-sm font-medium">Due date</Label>
+            </div>
             <Select
               value={newJob.dueDate}
               onValueChange={(value) => updateNewJob("dueDate", value)}
             >
-              {/* Date options */}
+              <SelectTrigger>
+                <SelectValue placeholder="Select date" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="today">Today</SelectItem>
+                <SelectItem value="tomorrow">Tomorrow</SelectItem>
+                <SelectItem value="next-week">Next Week</SelectItem>
+                <SelectItem value="two-weeks">In 2 Weeks</SelectItem>
+                <SelectItem value="month">In a Month</SelectItem>
+              </SelectContent>
             </Select>
           </div>
 
           {/* Duration */}
           <div className="space-y-2">
-            <Label className="flex items-center gap-2">
-              <Clock className="w-4 h-4 text-gray-500" />
-              Duration
-            </Label>
+            <div className="flex items-center gap-2">
+              <Label className="text-sm font-medium">Duration</Label>
+            </div>
             <Select
               value={newJob.duration}
               onValueChange={(value) => updateNewJob("duration", value)}
             >
-              {/* Duration options */}
+              <SelectTrigger>
+                <SelectValue placeholder="4hrs" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="1">1 hour</SelectItem>
+                <SelectItem value="2">2 hours</SelectItem>
+                <SelectItem value="4">4 hours</SelectItem>
+                <SelectItem value="8">8 hours</SelectItem>
+                <SelectItem value="custom">Custom</SelectItem>
+              </SelectContent>
             </Select>
           </div>
 
-          {/* Create Job Button */}
+          {/* Create Task Button */}
           <Button
             onClick={handleCreateJob}
-            className="w-full bg-blue-600 hover:bg-blue-700"
+            className="w-full bg-[#39447A] hover:bg-[#2d355f] text-white"
             disabled={!newJob.title || !newJob.team || !newJob.assignedOwner}
           >
-            Create Job
+            Create Task
           </Button>
         </div>
       </DialogContent>

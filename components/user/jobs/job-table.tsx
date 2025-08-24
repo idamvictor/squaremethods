@@ -8,6 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Pencil, Trash2 } from "lucide-react";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import {
   Pagination,
@@ -128,7 +129,22 @@ export function JobTable() {
                 </TableCell>
                 <TableCell>
                   <div className="flex items-center gap-2">
-                    {/* Edit and Delete buttons can be added here */}
+                    <button
+                      onClick={() => {
+                        /* Handle edit */
+                      }}
+                      className="h-8 w-8 p-2 hover:bg-gray-100 rounded-full transition-colors"
+                    >
+                      <Pencil className="h-4 w-4 text-gray-500" />
+                    </button>
+                    <button
+                      onClick={() => {
+                        /* Handle delete */
+                      }}
+                      className="h-8 w-8 p-2 hover:bg-gray-100 rounded-full transition-colors"
+                    >
+                      <Trash2 className="h-4 w-4 text-gray-500" />
+                    </button>
                   </div>
                 </TableCell>
               </TableRow>
