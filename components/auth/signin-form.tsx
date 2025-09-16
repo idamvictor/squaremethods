@@ -6,6 +6,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import Link from "next/link";
 import { Eye, EyeOff, Globe, Lock } from "lucide-react";
+import { useLogin } from "@/lib/api/auth";
+import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -40,6 +42,8 @@ type FormData = z.infer<typeof formSchema>;
 export function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [language, setLanguage] = useState("en-US");
+  const router = useRouter();
+  const { mutate: login, isPending: isLoading } = useLogin();
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -52,8 +56,17 @@ export function LoginForm() {
   });
 
   const onSubmit = async (data: FormData) => {
-    console.log("Form submitted:", data);
-    // Handle login submission here
+    login(
+      {
+        email: data.email,
+        password: data.password,
+      },
+      {
+        onSuccess: () => {
+          router.push("/dashboard");
+        },
+      }
+    );
   };
 
   return (
@@ -204,8 +217,9 @@ export function LoginForm() {
               <Button
                 type="submit"
                 className="w-full bg-primary hover:bg-primary/90 text-primary-foreground py-3 rounded-lg font-medium"
+                disabled={isLoading}
               >
-                Continue
+                {isLoading ? "Signing in..." : "Continue"}
               </Button>
 
               <div className="text-center text-sm text-muted-foreground">
