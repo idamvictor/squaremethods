@@ -2,6 +2,7 @@ import { useMutation } from "@tanstack/react-query";
 import axiosInstance from "@/lib/api/axios";
 import { AuthResponse } from "@/types/auth";
 import { useAuthStore } from "@/store/auth-store";
+import { useRouter } from "next/navigation";
 
 interface LoginInput {
   email: string;
@@ -49,6 +50,11 @@ const AuthAPI = {
     const response = await axiosInstance.post("/auth/verify-otp", data);
     return response.data;
   },
+
+  logout: async (): Promise<{ success: boolean; message: string }> => {
+    const response = await axiosInstance.post("/auth/logout");
+    return response.data;
+  },
 };
 
 // Custom hooks using TanStack Query
@@ -91,5 +97,22 @@ export const useSendOtp = () => {
 export const useVerifyOtp = () => {
   return useMutation({
     mutationFn: AuthAPI.verifyOtp,
+  });
+};
+
+export const useLogout = () => {
+  const { logout: clearAuth } = useAuthStore();
+  const router = useRouter();
+
+  return useMutation({
+    mutationFn: AuthAPI.logout,
+    onSuccess: () => {
+      // Clear auth store
+      clearAuth();
+      // Remove token from localStorage
+      localStorage.removeItem("auth_token");
+      // Redirect to login
+      router.push("/auth/login");
+    },
   });
 };

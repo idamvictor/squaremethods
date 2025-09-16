@@ -1,10 +1,35 @@
-import { Search, Bell, RefreshCw } from "lucide-react";
+import {
+  Search,
+  Bell,
+  RefreshCw,
+  LogOut,
+  User as UserIcon,
+} from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useLogout } from "@/lib/api/auth";
+import { useAuthStore } from "@/store/auth-store";
 
 export function Header() {
+  const user = useAuthStore((state) => state.user);
+  const { mutate: logout, isPending: isLoggingOut } = useLogout();
+
+  // Get user initials for avatar fallback
+  const getInitials = () => {
+    if (!user) return "SM";
+    return `${user.first_name[0]}${user.last_name[0]}`.toUpperCase();
+  };
+
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="flex h-16 items-center justify-between px-4">
@@ -31,12 +56,47 @@ export function Header() {
             <Bell className="h-4 w-4" />
             <span className="sr-only">Notifications</span>
           </Button>
-          <Avatar className="h-8 w-8">
-            <AvatarImage src="/placeholder.svg?height=32&width=32" alt="User" />
-            <AvatarFallback className="bg-blue-600 text-white text-xs">
-              SM
-            </AvatarFallback>
-          </Avatar>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Avatar className="h-8 w-8 cursor-pointer">
+                <AvatarImage
+                  src={
+                    user?.avatar_url || "/placeholder.svg?height=32&width=32"
+                  }
+                  alt={user?.first_name || "User"}
+                />
+                <AvatarFallback className="bg-blue-600 text-white text-xs">
+                  {getInitials()}
+                </AvatarFallback>
+              </Avatar>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuLabel>
+                <div className="flex flex-col space-y-1">
+                  <p className="text-sm font-medium leading-none">
+                    {user?.first_name} {user?.last_name}
+                  </p>
+                  <p className="text-xs leading-none text-muted-foreground">
+                    {user?.email}
+                  </p>
+                </div>
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem>
+                <UserIcon className="mr-2 h-4 w-4" />
+                <span>Profile</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => logout()}
+                disabled={isLoggingOut}
+                className="text-destructive focus:text-destructive"
+              >
+                <LogOut className="mr-2 h-4 w-4" />
+                <span>{isLoggingOut ? "Logging out..." : "Log out"}</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
     </header>
