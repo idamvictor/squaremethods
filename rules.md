@@ -1,0 +1,5 @@
+- make use of best frontend practices
+- makes use of tansstackquery for all your fetching needs
+- make use of global axios, and axios instance
+- always make use of api response messages and not hard coded messages
+- always make use of the shadcn sonner for your feed back
