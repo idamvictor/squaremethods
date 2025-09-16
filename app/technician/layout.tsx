@@ -1,3 +1,5 @@
+"use client";
+
 import { TechnicianSidebar } from "@/components/technician/technician-sidebar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { Header } from "@/components/user/header";
@@ -10,11 +12,16 @@ export default function TechnicianLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const { isAuthenticated } = useAuthProtection();
+  const { isAuthenticated, isValidating } = useAuthProtection();
   const user = useAuthStore((state) => state.user);
 
+  // Don't render anything while validating or if not authenticated
+  if (isValidating || !isAuthenticated) {
+    return null;
+  }
+
   // Additional role-based protection
-  if (isAuthenticated && (user?.role === "owner" || user?.role === "admin")) {
+  if (user?.role === "owner" || user?.role === "admin") {
     redirect("/dashboard");
   }
   return (

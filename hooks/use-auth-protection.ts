@@ -1,4 +1,6 @@
-import { useEffect } from "react";
+"use client";
+
+import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { useAuthStore } from "@/store/auth-store";
 
@@ -8,8 +10,11 @@ export const useAuthProtection = () => {
   const router = useRouter();
   const pathname = usePathname();
   const { isAuthenticated } = useAuthStore();
+  const [isValidating, setIsValidating] = useState(true);
 
   useEffect(() => {
+    setIsValidating(true);
+    
     // If on a public route and authenticated, redirect to dashboard
     if (isAuthenticated && publicRoutes.includes(pathname)) {
       router.replace("/dashboard");
@@ -21,7 +26,10 @@ export const useAuthProtection = () => {
       router.replace("/auth/login");
       return;
     }
+
+    setIsValidating(false);
   }, [isAuthenticated, pathname, router]);
 
-  return { isAuthenticated };
+  // Return both authentication state and validation state
+  return { isAuthenticated, isValidating };
 };

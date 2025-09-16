@@ -1,3 +1,5 @@
+"use client";
+
 import RightSection from "@/components/auth/right-section/right-section";
 import { useAuthProtection } from "@/hooks/use-auth-protection";
 
@@ -6,8 +8,13 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // This will automatically redirect to dashboard if user is authenticated
-  useAuthProtection();
+  const { isValidating, isAuthenticated } = useAuthProtection();
+
+  // Don't show anything while validating or if authenticated
+  if (isValidating || isAuthenticated) {
+    return null;
+  }
+
   return (
     <div className="flex min-h-screen bg-accent">
       <div className="flex-1/2 ">{children}</div>

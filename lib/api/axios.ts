@@ -5,10 +5,10 @@ import axios, {
 } from "axios";
 import { toast } from "sonner";
 
-interface APIResponse {
+interface APIResponse<T = unknown> {
   success: boolean;
   message: string;
-  data?: any;
+  data?: T;
 }
 
 // Create axios instance with default config
@@ -46,10 +46,11 @@ axiosInstance.interceptors.response.use(
     }
     return response;
   },
-  (error: AxiosError<APIResponse>) => {
+  (error: AxiosError<APIResponse<unknown>>) => {
     // Handle errors
     const message =
-      (error.response?.data as APIResponse)?.message || "An error occurred";
+      (error.response?.data as APIResponse<unknown>)?.message ||
+      "An error occurred";
     toast.error(message);
 
     // If unauthorized (401), clear local storage and reload
