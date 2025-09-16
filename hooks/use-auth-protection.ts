@@ -14,7 +14,7 @@ export const useAuthProtection = () => {
 
   useEffect(() => {
     setIsValidating(true);
-    
+
     // If on a public route and authenticated, redirect to dashboard
     if (isAuthenticated && publicRoutes.includes(pathname)) {
       router.replace("/dashboard");
