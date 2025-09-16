@@ -28,12 +28,10 @@ import { cn } from "@/lib/utils";
 
 const getEquipmentColor = (type: string) => {
   const colors = {
-    pump: "text-blue-600",
     assembly: "text-orange-600",
-    conveyor: "text-green-600",
-    motor: "text-purple-600",
-    valve: "text-red-600",
-    sensor: "text-yellow-600",
+    machine: "text-blue-600",
+    component: "text-green-600",
+    "sub-assembly": "text-purple-600",
   };
   return colors[type as keyof typeof colors] || "text-gray-600";
 };
@@ -41,7 +39,7 @@ const getEquipmentColor = (type: string) => {
 export function AddEquipmentModal() {
   const [formData, setFormData] = useState({
     name: "",
-    type: "" as EquipmentType,
+    type: "assembly" as EquipmentType,
     referenceCode: "",
     date: "",
     notes: "",
@@ -92,7 +90,7 @@ export function AddEquipmentModal() {
   const handleCancel = () => {
     setFormData({
       name: "",
-      type: "" as EquipmentType,
+      type: "assembly" as EquipmentType,
       referenceCode: "",
       date: "",
       notes: "",
@@ -103,12 +101,18 @@ export function AddEquipmentModal() {
   };
 
   const equipmentTypes = [
-    { value: "assembly", label: "Assembly", icon: "⚙️" },
-    { value: "pump", label: "Pump", icon: "🔧" },
-    { value: "conveyor", label: "Conveyor", icon: "📦" },
-    { value: "motor", label: "Motor", icon: "⚡" },
-    { value: "valve", label: "Valve", icon: "🔩" },
-    { value: "sensor", label: "Sensor", icon: "📡" },
+    { value: "assembly", label: "Assembly", icon: "/equipment/assembly.svg" },
+    { value: "machine", label: "Machine", icon: "/equipment/machine.svg" },
+    {
+      value: "component",
+      label: "Component",
+      icon: "/equipment/component.svg",
+    },
+    {
+      value: "sub-assembly",
+      label: "Sub Assembly",
+      icon: "/equipment/sub-assembly.svg",
+    },
   ];
 
   return (
@@ -178,18 +182,20 @@ export function AddEquipmentModal() {
                       <SelectValue>
                         {formData.type ? (
                           <div className="flex items-center gap-2">
-                            <span
-                              className={cn(
-                                "text-lg",
-                                getEquipmentColor(formData.type)
-                              )}
-                            >
-                              {
+                            <Image
+                              src={
                                 equipmentTypes.find(
                                   (t) => t.value === formData.type
-                                )?.icon
+                                )?.icon || ""
                               }
-                            </span>
+                              alt=""
+                              width={20}
+                              height={20}
+                              className={cn(
+                                "w-5 h-5",
+                                getEquipmentColor(formData.type)
+                              )}
+                            />
                             <span>
                               {
                                 equipmentTypes.find(
@@ -207,14 +213,16 @@ export function AddEquipmentModal() {
                       {equipmentTypes.map((type) => (
                         <SelectItem key={type.value} value={type.value}>
                           <div className="flex items-center gap-2">
-                            <span
+                            <Image
+                              src={type.icon}
+                              alt=""
+                              width={20}
+                              height={20}
                               className={cn(
-                                "text-lg",
+                                "w-5 h-5",
                                 getEquipmentColor(type.value)
                               )}
-                            >
-                              {type.icon}
-                            </span>
+                            />
                             <span>{type.label}</span>
                           </div>
                         </SelectItem>
