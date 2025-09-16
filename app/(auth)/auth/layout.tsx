@@ -11,7 +11,9 @@ export default function RootLayout({
   return (
     <div className="flex min-h-screen bg-accent">
       <div className="flex-1/2 ">{children}</div>
-      <div className="flex-1/2"><RightSection /></div>
+      <div className="flex-1/2">
+        <RightSection />
+      </div>
     </div>
   );
 }
