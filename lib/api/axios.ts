@@ -13,7 +13,7 @@ interface APIResponse<T = unknown> {
 
 // Create axios instance with default config
 const axiosInstance = axios.create({
-  baseURL: "https://api.squaremethods.com",
+  baseURL: "https://api.squaremethods.com/api",
   headers: {
     "Content-Type": "application/json",
   },

@@ -8,6 +8,7 @@ import Link from "next/link";
 import { Eye, EyeOff, Check, X, Globe, Lock } from "lucide-react";
 import { useRegister, useSendOtp } from "@/lib/api/auth";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { OTPDialog } from "./otp-dialog";
 
 import { Button } from "@/components/ui/button";
@@ -47,9 +48,6 @@ const formSchema = z.object({
       /[^A-Za-z0-9]/,
       "Password must contain at least 1 special character"
     ),
-  agreeToTerms: z
-    .boolean()
-    .refine((val) => val === true, "You must agree to the terms"),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -73,7 +71,6 @@ export function SignUpForm() {
       companyUserName: "",
       email: "",
       password: "",
-      agreeToTerms: false,
     },
   });
 
@@ -88,32 +85,58 @@ export function SignUpForm() {
     { text: "1 special character", met: /[^A-Za-z0-9]/.test(password) },
   ];
 
+  // Debug form state
+  console.log("Form State:", {
+    isValid: form.formState.isValid,
+    isDirty: form.formState.isDirty,
+    errors: form.formState.errors,
+    values: form.getValues(),
+  });
+
   const onSubmit = async (data: FormData) => {
-    register(
-      {
-        first_name: data.firstName,
-        last_name: data.lastName,
-        company_name: data.companyUserName,
-        company_email: data.email,
-        company_address: "Not provided", // You might want to add this to the form
-        email: data.email,
-        password: data.password,
-        phone: "Not provided", // You might want to add this to the form
-      },
-      {
-        onSuccess: () => {
-          // After successful registration, send OTP
-          sendOtp(
-            { email: data.email },
-            {
-              onSuccess: () => {
-                setShowOtpDialog(true);
-              },
-            }
-          );
+    try {
+      register(
+        {
+          first_name: data.firstName,
+          last_name: data.lastName,
+          company_name: data.companyUserName,
+          company_email: data.email,
+          company_address: "Not provided", // You might want to add this to the form
+          email: data.email,
+          password: data.password,
+          phone: "Not provided", // You might want to add this to the form
         },
-      }
-    );
+        {
+          onSuccess: () => {
+            // After successful registration, send OTP
+            sendOtp(
+              { email: data.email },
+              {
+                onSuccess: () => {
+                  setShowOtpDialog(true);
+                },
+                onError: () => {
+                  toast.error(
+                    "Failed to send verification code. Please try again."
+                  );
+                },
+              }
+            );
+          },
+          onError: (
+            error: Error & { response?: { data?: { message?: string } } }
+          ) => {
+            const message =
+              error?.response?.data?.message ||
+              "Registration failed. Please try again.";
+            toast.error(message);
+          },
+        }
+      );
+    } catch (error) {
+      console.error("Registration error:", error);
+      toast.error("An unexpected error occurred. Please try again.");
+    }
   };
 
   return (
@@ -396,7 +419,9 @@ export function SignUpForm() {
               <Button
                 type="submit"
                 className="w-full bg-primary hover:bg-primary/90 text-primary-foreground py-3 rounded-lg font-medium"
-                disabled={isRegistering || isSendingOtp}
+                disabled={
+                  isRegistering || isSendingOtp || !form.formState.isValid
+                }
               >
                 {isRegistering
                   ? "Creating account..."

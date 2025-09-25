@@ -26,8 +26,10 @@ export function Header() {
 
   // Get user initials for avatar fallback
   const getInitials = () => {
-    if (!user) return "SM";
-    return `${user.first_name[0]}${user.last_name[0]}`.toUpperCase();
+    if (!user?.first_name || !user?.last_name) return "SM";
+    const firstInitial = user.first_name.charAt(0);
+    const lastInitial = user.last_name.charAt(0);
+    return `${firstInitial}${lastInitial}`.toUpperCase();
   };
 
   return (
@@ -75,10 +77,10 @@ export function Header() {
               <DropdownMenuLabel>
                 <div className="flex flex-col space-y-1">
                   <p className="text-sm font-medium leading-none">
-                    {user?.first_name} {user?.last_name}
+                    {user?.first_name || "Guest"} {user?.last_name || ""}
                   </p>
                   <p className="text-xs leading-none text-muted-foreground">
-                    {user?.email}
+                    {user?.email || "No email"}
                   </p>
                 </div>
               </DropdownMenuLabel>
