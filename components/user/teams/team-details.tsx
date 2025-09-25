@@ -11,7 +11,6 @@ import {
 } from "@/components/ui/select";
 import { MemberTable } from "./member-table";
 import { ArrowLeft, Plus, SlidersHorizontal } from "lucide-react";
-import type { Team, TeamFilters } from "@/types/team";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -21,12 +20,22 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { MoreHorizontal } from "lucide-react";
+import { useTeamDetails, useTeamMembers } from "@/services/teams/teams";
 
-interface TeamDetailsProps {
-  team: Team;
+interface TeamFilters {
+  count: string;
+  category: string;
 }
 
-export function TeamDetails({ team }: TeamDetailsProps) {
+interface TeamDetailsProps {
+  teamId: string;
+}
+
+export function TeamDetails({ teamId }: TeamDetailsProps) {
+  const { data: teamDetails, isLoading: isLoadingTeam } =
+    useTeamDetails(teamId);
+  const { data: membersData, isLoading: isLoadingMembers } =
+    useTeamMembers(teamId);
   const [filters, setFilters] = useState<TeamFilters>({
     count: "50",
     category: "all", // This will be 'declined', 'pending', 'recent' for this page
@@ -44,60 +53,76 @@ export function TeamDetails({ team }: TeamDetailsProps) {
   };
 
   // Filter members based on the 'category' filter (Declined, Pending, Recent)
-  const filteredMembers = team.members.filter((member) => {
-    if (filters.category === "all") return true;
+  const filteredMembers =
+    membersData?.data.filter((member) => {
+      if (filters.category === "all") return true;
 
-    const today = new Date();
-    const memberDate = new Date(member.dateEntered);
-    const daysDifference = Math.floor(
-      (today.getTime() - memberDate.getTime()) / (1000 * 60 * 60 * 24)
+      const today = new Date();
+      const memberDate = new Date(member.joined_at);
+      const daysDifference = Math.floor(
+        (today.getTime() - memberDate.getTime()) / (1000 * 60 * 60 * 24)
+      );
+
+      switch (filters.category) {
+        case "recent":
+          // Members who joined in the last 30 days
+          return daysDifference <= 30;
+        case "pending":
+          // Members who joined between 31-90 days ago
+          return daysDifference > 30 && daysDifference <= 90;
+        case "declined":
+          // Members who joined more than 90 days ago
+          return daysDifference > 90;
+        default:
+          return true;
+      }
+    }) ?? [];
+
+  if (isLoadingTeam || isLoadingMembers) {
+    return (
+      <div className="p-6 max-w-7xl mx-auto">
+        <div className="animate-pulse">
+          <div className="h-8 w-48 bg-gray-200 rounded mb-8" />
+          <div className="h-64 bg-gray-200 rounded" />
+        </div>
+      </div>
     );
+  }
 
-    switch (filters.category) {
-      case "recent":
-        // Members who joined in the last 30 days
-        return daysDifference <= 30;
-      case "pending":
-        // Members who joined between 31-90 days ago
-        return daysDifference > 30 && daysDifference <= 90;
-      case "declined":
-        // Members who joined more than 90 days ago
-        return daysDifference > 90;
-      default:
-        return true;
-    }
-  });
+  if (!teamDetails?.data) {
+    return <div className="p-6 text-center text-gray-600">Team not found.</div>;
+  }
 
   return (
     <div className="p-6 max-w-7xl mx-auto">
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-4">
-          <Link href="/" className="text-gray-500 hover:text-gray-700">
+          <Link href="/teams" className="text-gray-500 hover:text-gray-700">
             <ArrowLeft className="w-5 h-5" />
           </Link>
-          <h1 className="text-2xl font-semibold text-gray-900">{team.name}</h1>
+          <h1 className="text-2xl font-semibold text-gray-900">
+            {teamDetails.data.name}
+          </h1>
         </div>
         <div className="flex items-center gap-2">
           <div className="flex -space-x-2">
-            {team.members.slice(0, 3).map((member) => (
+            {teamDetails.data.members.slice(0, 3).map((member) => (
               <Avatar key={member.id} className="w-8 h-8 border-2 border-white">
                 <AvatarImage
-                  src={member.avatar || "/placeholder.svg"}
-                  alt={member.name}
+                  src={member.user.avatar_url || "/placeholder.svg"}
+                  alt={`${member.user.first_name} ${member.user.last_name}`}
                 />
                 <AvatarFallback className="text-xs">
-                  {member.name
-                    .split(" ")
-                    .map((n) => n[0])
-                    .join("")}
+                  {member.user.first_name[0]}
+                  {member.user.last_name[0]}
                 </AvatarFallback>
               </Avatar>
             ))}
-            {team.members.length > 3 && (
+            {teamDetails.data.members.length > 3 && (
               <div className="w-8 h-8 rounded-full bg-gray-100 border-2 border-white flex items-center justify-center">
                 <span className="text-xs text-gray-600">
-                  +{team.members.length - 3}
+                  +{teamDetails.data.members.length - 3}
                 </span>
               </div>
             )}

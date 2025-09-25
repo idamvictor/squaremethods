@@ -1,31 +1,45 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Badge } from "@/components/ui/badge"
-import { TeamCard } from "./team-card"
-import { Filter, Plus } from 'lucide-react'
-import type { TeamFilters } from "@/types/team"
-import { mockTeams } from "@/lib/mock-data"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { TeamCard } from "./team-card";
+import { Filter, Plus } from "lucide-react";
+import { useTeams } from "@/services/teams/teams";
+
+interface TeamFilters {
+  count: string;
+  category: string;
+}
 
 export function TeamManagement() {
-  const [teams] = useState(mockTeams)
   const [filters, setFilters] = useState<TeamFilters>({
     count: "50",
     category: "all",
-  })
+  });
+
+  const { data: teamsData, isLoading } = useTeams({
+    limit: parseInt(filters.count === "all" ? "50" : filters.count),
+    page: 1,
+  });
 
   const handleFilterChange = (key: keyof TeamFilters, value: string) => {
-    setFilters((prev) => ({ ...prev, [key]: value }))
-  }
+    setFilters((prev) => ({ ...prev, [key]: value }));
+  };
 
   const resetFilters = () => {
     setFilters({
       count: "50",
       category: "all",
-    })
-  }
+    });
+  };
 
   return (
     <div className="p-6 max-w-7xl mx-auto">
@@ -43,7 +57,10 @@ export function TeamManagement() {
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
             <Filter className="w-4 h-4 text-gray-500" />
-            <Select value={filters.count} onValueChange={(value) => handleFilterChange("count", value)}>
+            <Select
+              value={filters.count}
+              onValueChange={(value) => handleFilterChange("count", value)}
+            >
               <SelectTrigger className="w-24">
                 <SelectValue />
               </SelectTrigger>
@@ -58,7 +75,9 @@ export function TeamManagement() {
 
           <div className="flex items-center gap-2">
             <Badge
-              variant={filters.category === "equipment" ? "default" : "secondary"}
+              variant={
+                filters.category === "equipment" ? "default" : "secondary"
+              }
               className="cursor-pointer"
               onClick={() => handleFilterChange("category", "equipment")}
             >
@@ -74,17 +93,32 @@ export function TeamManagement() {
           </div>
         </div>
 
-        <Button variant="ghost" className="text-gray-500 hover:text-gray-700" onClick={resetFilters}>
+        <Button
+          variant="ghost"
+          className="text-gray-500 hover:text-gray-700"
+          onClick={resetFilters}
+        >
           Reset Filter
         </Button>
       </div>
 
       {/* Team Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {teams.map((team) => (
-          <TeamCard key={team.id} team={team} />
-        ))}
-      </div>
+      {isLoading ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {[...Array(4)].map((_, index) => (
+            <div
+              key={index}
+              className="h-48 bg-gray-100 rounded-lg animate-pulse"
+            />
+          ))}
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {teamsData?.data.map((team) => (
+            <TeamCard key={team.id} team={team} />
+          ))}
+        </div>
+      )}
     </div>
-  )
+  );
 }

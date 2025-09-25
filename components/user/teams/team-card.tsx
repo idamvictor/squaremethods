@@ -10,7 +10,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Calendar, MoreHorizontal, Plus, Users } from "lucide-react";
-import type { Team } from "@/types/team";
+import { Team } from "@/services/teams/teams-types";
+import { useTeamDetails } from "@/services/teams/teams";
 import Link from "next/link";
 
 interface TeamCardProps {
@@ -18,6 +19,7 @@ interface TeamCardProps {
 }
 
 export function TeamCard({ team }: TeamCardProps) {
+  const { data: teamDetails } = useTeamDetails(team.id);
   return (
     <Link href={`/teams/${team.id}`} className="block">
       <Card className="relative group hover:shadow-md transition-shadow">
@@ -51,27 +53,25 @@ export function TeamCard({ team }: TeamCardProps) {
           {/* Avatar Group */}
           <div className="flex items-center justify-between">
             <div className="flex -space-x-2">
-              {team.members.slice(0, 4).map((member) => (
+              {teamDetails?.data.members.slice(0, 4).map((member) => (
                 <Avatar
                   key={member.id}
                   className="w-8 h-8 border-2 border-white"
                 >
                   <AvatarImage
-                    src={member.avatar || "/placeholder.svg"}
-                    alt={member.name}
+                    src={member.user.avatar_url || "/placeholder.svg"}
+                    alt={`${member.user.first_name} ${member.user.last_name}`}
                   />
                   <AvatarFallback className="text-xs">
-                    {member.name
-                      .split(" ")
-                      .map((n) => n[0])
-                      .join("")}
+                    {member.user.first_name[0]}
+                    {member.user.last_name[0]}
                   </AvatarFallback>
                 </Avatar>
               ))}
-              {team.members.length > 4 && (
+              {(teamDetails?.data.members.length ?? 0) > 4 && (
                 <div className="w-8 h-8 rounded-full bg-gray-100 border-2 border-white flex items-center justify-center">
                   <span className="text-xs text-gray-600">
-                    +{team.members.length - 4}
+                    +{(teamDetails?.data.members.length ?? 0) - 4}
                   </span>
                 </div>
               )}
@@ -79,14 +79,14 @@ export function TeamCard({ team }: TeamCardProps) {
 
             <div className="flex items-center gap-1 text-sm text-gray-500">
               <Users className="w-3 h-3" />
-              <span>{team.memberCount}</span>
+              <span>{teamDetails?.data.members.length ?? 0}</span>
             </div>
           </div>
 
           {/* Date */}
           <div className="flex items-center gap-1 text-sm text-gray-500">
             <Calendar className="w-3 h-3" />
-            <span>{team.lastActivity}</span>
+            <span>{new Date(team.created_at).toLocaleDateString()}</span>
           </div>
         </CardContent>
       </Card>
