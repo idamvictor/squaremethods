@@ -16,6 +16,7 @@ const axiosInstance = axios.create({
   baseURL: "https://api.squaremethods.com/api",
   headers: {
     "Content-Type": "application/json",
+    "X-Company-ID": process.env.NEXT_PUBLIC_COMPANY_ID,
   },
 });
 
