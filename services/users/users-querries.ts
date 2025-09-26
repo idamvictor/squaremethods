@@ -6,6 +6,10 @@ import {
   ProfileResponse,
   UpdateProfileRequest,
   DashboardResponse,
+  ChangePasswordRequest,
+  ChangePasswordResponse,
+  UserActivityResponse,
+  ActivityFilters,
 } from "./users-types";
 
 const USERS_QUERY_KEY = "users";
@@ -88,3 +92,50 @@ export const useDashboard = () => {
     queryFn: getDashboard,
   });
 };
+
+//================= Users/{id} =======================
+
+// Change user Password
+const changePassword = async (
+  userId: string,
+  data: ChangePasswordRequest
+): Promise<ChangePasswordResponse> => {
+  const response = await axios.put(`/users/${userId}/password`, data);
+  return response.data;
+};
+
+export const useChangePassword = (userId: string) => {
+  return useMutation({
+    mutationFn: (data: ChangePasswordRequest) => changePassword(userId, data),
+  });
+};
+
+// Get User Activity
+const getUserActivity = async (
+  userId: string,
+  filters: ActivityFilters = { page: 1, limit: 20 }
+): Promise<UserActivityResponse> => {
+  const queryParams = new URLSearchParams();
+
+  // Add pagination params
+  if (filters.page) queryParams.append("page", filters.page.toString());
+  if (filters.limit) queryParams.append("limit", filters.limit.toString());
+
+  const response = await axios.get(
+    `/users/${userId}/activity?${queryParams.toString()}`
+  );
+  return response.data;
+};
+
+export const useUserActivity = (
+  userId: string,
+  filters: ActivityFilters = { page: 1, limit: 20 }
+) => {
+  return useQuery({
+    queryKey: ["userActivity", userId, filters],
+    queryFn: () => getUserActivity(userId, filters),
+    placeholderData: (previousData) => previousData,
+  });
+};
+
+//Get User Activity

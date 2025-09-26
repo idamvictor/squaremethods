@@ -103,3 +103,32 @@ export interface DashboardResponse {
   success: boolean;
   data: DashboardData;
 }
+
+export interface ChangePasswordRequest {
+  current_password: string;
+  new_password: string;
+}
+
+export interface ChangePasswordResponse {
+  success: boolean;
+  message: string;
+  data: Record<string, never>;
+}
+
+export interface ActivityMeta {
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+export interface UserActivityResponse {
+  success: boolean;
+  data: ActivityLog[];
+  meta: ActivityMeta;
+}
+
+export interface ActivityFilters {
+  page?: number;
+  limit?: number;
+}
