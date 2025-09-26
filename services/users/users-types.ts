@@ -1,11 +1,15 @@
 export interface Company {
   id: string;
   name: string;
+  slug: string;
+  logo_url: string;
 }
 
 export interface Team {
   id: string;
   name: string;
+  slug: string;
+  description: string;
 }
 
 export interface User {
@@ -50,4 +54,52 @@ export interface UserFilters {
   role?: string;
   status?: string;
   team_id?: string;
+}
+
+export interface UserProfile extends Omit<User, "team"> {
+  teams: Team[];
+}
+
+export interface ProfileResponse {
+  success: boolean;
+  message: string;
+  data: UserProfile;
+}
+
+export interface UpdateProfileRequest {
+  first_name?: string;
+  last_name?: string;
+  phone?: string;
+  current_password?: string;
+  new_password?: string;
+}
+
+export interface DashboardStats {
+  assignedJobs: number;
+  completedJobs: number;
+  overdueJobs: number;
+  totalJobAids: number;
+}
+
+export interface ActivityLog {
+  id: string;
+  user_id: string;
+  action: string;
+  resource_type: string;
+  resource_id: string;
+  details: Record<string, any>;
+  ip_address: string;
+  user_agent: string;
+  created_at: string;
+}
+
+export interface DashboardData {
+  user: Omit<User, "company" | "team">;
+  stats: DashboardStats;
+  recentActivity: ActivityLog[];
+}
+
+export interface DashboardResponse {
+  success: boolean;
+  data: DashboardData;
 }
