@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { TeamCard } from "./team-card";
 import { Filter, Plus } from "lucide-react";
 import { useTeams } from "@/services/teams/teams";
+import { NewTeamDialog } from "./new-team-dialog";
 
 interface TeamFilters {
   count: string;
@@ -20,6 +21,8 @@ interface TeamFilters {
 }
 
 export function TeamManagement() {
+  const [isNewTeamDialogOpen, setIsNewTeamDialogOpen] = useState(false);
+
   const [filters, setFilters] = useState<TeamFilters>({
     count: "50",
     category: "all",
@@ -46,11 +49,20 @@ export function TeamManagement() {
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-2xl font-semibold text-gray-900">Team</h1>
-        <Button className="bg-slate-700 hover:bg-slate-800">
+        <Button
+          className="bg-slate-700 hover:bg-slate-800"
+          onClick={() => setIsNewTeamDialogOpen(true)}
+        >
           <Plus className="w-4 h-4 mr-2" />
           Add New Team
         </Button>
       </div>
+
+      {/* New Team Dialog */}
+      <NewTeamDialog
+        open={isNewTeamDialogOpen}
+        onOpenChange={setIsNewTeamDialogOpen}
+      />
 
       {/* Filters */}
       <div className="flex items-center justify-between mb-8">

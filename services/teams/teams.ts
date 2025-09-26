@@ -16,9 +16,18 @@ import {
   TeamStatsResponse,
   TeamJobsResponse,
   TeamJobsParams,
+  CreateTeamParams,
+  CreateTeamResponse,
 } from "./teams-types";
 
 const TEAMS_QUERY_KEY = "teams";
+
+export const createTeam = async (
+  data: CreateTeamParams
+): Promise<CreateTeamResponse> => {
+  const response = await axiosInstance.post<CreateTeamResponse>("/teams", data);
+  return response.data;
+};
 
 export const fetchTeams = async (
   params: TeamListParams
@@ -66,6 +75,18 @@ export const useTeams = (params: TeamListParams = {}) => {
   return useQuery({
     queryKey: [TEAMS_QUERY_KEY, "list", params],
     queryFn: () => fetchTeams(params),
+  });
+};
+
+export const useCreateTeam = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: CreateTeamParams) => createTeam(data),
+    onSuccess: () => {
+      // Invalidate teams list query to refresh the data
+      queryClient.invalidateQueries({ queryKey: [TEAMS_QUERY_KEY, "list"] });
+    },
   });
 };
 

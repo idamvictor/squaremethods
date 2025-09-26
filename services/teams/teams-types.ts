@@ -35,6 +35,17 @@ export interface Team {
   deleted_at?: string;
 }
 
+export interface CreateTeamParams {
+  name: string;
+  description: string;
+}
+
+export interface CreateTeamResponse {
+  success: boolean;
+  message: string;
+  data: TeamDetail;
+}
+
 export interface TeamDetail extends Team {
   members: TeamMember[];
   jobs: any[]; // Keeping the jobs array as requested
