@@ -49,10 +49,7 @@ export function TeamManagement() {
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-2xl font-semibold text-gray-900">Team</h1>
-        <Button
-          className="bg-slate-700 hover:bg-slate-800"
-          onClick={() => setIsNewTeamDialogOpen(true)}
-        >
+        <Button onClick={() => setIsNewTeamDialogOpen(true)}>
           <Plus className="w-4 h-4 mr-2" />
           Add New Team
         </Button>

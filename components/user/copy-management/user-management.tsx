@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { UserTable } from "./user-table";
 import { UserFilters } from "./user-filters";
 import { UserPlus } from "lucide-react";
-import { InviteUserModal } from "./invite-user-modal";
+import { InviteUserModal } from "../teams/invite-user-modal";
 import { avatarImage } from "@/constants/images";
 
 export interface User {

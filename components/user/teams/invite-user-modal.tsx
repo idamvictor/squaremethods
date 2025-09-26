@@ -123,11 +123,7 @@ export function InviteUserModal({
                   className="w-full"
                 />
               </div>
-              <Button
-                onClick={handleSendInvites}
-                disabled={isLoading}
-                className="bg-blue-600 hover:bg-blue-700"
-              >
+              <Button onClick={handleSendInvites} disabled={isLoading}>
                 <Send className="h-4 w-4 mr-2" />
                 {isLoading ? "Sending..." : "Send"}
               </Button>
@@ -175,12 +171,7 @@ export function InviteUserModal({
 
           {/* Done Button */}
           <div className="flex justify-end pt-4">
-            <Button
-              onClick={handleDone}
-              className="bg-blue-600 hover:bg-blue-700 px-8"
-            >
-              Done
-            </Button>
+            <Button onClick={handleDone}>Done</Button>
           </div>
         </div>
       </DialogContent>
