@@ -99,6 +99,12 @@ export interface DashboardData {
   recentActivity: ActivityLog[];
 }
 
+export interface ActivateUserResponse {
+  success: boolean;
+  message: string;
+  data: Omit<User, "company" | "team">;
+}
+
 export interface DashboardResponse {
   success: boolean;
   data: DashboardData;
@@ -131,4 +137,68 @@ export interface UserActivityResponse {
 export interface ActivityFilters {
   page?: number;
   limit?: number;
+}
+
+export interface Job {
+  id: string;
+  company_id: string;
+  job_aid_id: string;
+  team_id: string;
+  created_by: string;
+  title: string;
+  priority: "urgent" | "high" | "medium" | "low";
+  status: "pending" | "in_progress" | "completed" | "on_hold";
+  assigned_to: string;
+  description: string;
+  due_date: string;
+  started_at: string | null;
+  completed_at: string | null;
+  estimated_duration: number;
+  actual_duration: number;
+  safety_notes: string;
+  completion_notes: string;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
+}
+
+export interface UserJobsResponse {
+  success: boolean;
+  data: Job[];
+  meta: ActivityMeta; // Reusing the same meta interface as it has the same structure
+}
+
+export interface UserJobsFilters extends ActivityFilters {
+  status?: Job["status"];
+  priority?: Job["priority"];
+}
+
+export interface UserDetailsResponse {
+  success: boolean;
+  message: string;
+  data: Omit<User, "company" | "team">;
+}
+
+export interface UpdateUserRequest {
+  first_name?: string;
+  last_name?: string;
+  phone?: string;
+  role?: string;
+}
+
+export interface CreateUserRequest {
+  first_name: string;
+  last_name: string;
+  username: string;
+  email: string;
+  phone: string;
+  role: string;
+  team_id: string;
+  password: string;
+}
+
+export interface CreateUserResponse {
+  status: string;
+  message: string;
+  data: User;
 }
