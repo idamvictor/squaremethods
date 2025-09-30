@@ -63,15 +63,7 @@ export function UserManagement() {
           Loading users...
         </div>
       ) : (
-        <UserTable
-          users={usersData?.data || []}
-          onEditUser={(userId) => {
-            console.log("Edit user:", userId);
-          }}
-          onDeleteUser={(userId) => {
-            console.log("Delete user:", userId);
-          }}
-        />
+        <UserTable users={usersData?.data || []} />
       )}
 
       <InviteUserModal

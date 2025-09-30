@@ -12,15 +12,59 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Trash2, Edit, CheckCircle } from "lucide-react";
+import { useState } from "react";
 import type { User } from "@/services/users/users-types";
+import { DeleteUserModal } from "./delete-user-modal";
+import { EditUserForm } from "./edit-user-form";
+import { useDeleteUser, useUpdateUser } from "@/services/users/users-querries";
+import { toast } from "sonner";
 
 interface UserTableProps {
   users: User[];
-  onDeleteUser: (userId: string) => void;
-  onEditUser: (userId: string) => void;
 }
 
-export function UserTable({ users, onDeleteUser, onEditUser }: UserTableProps) {
+export function UserTable({ users }: UserTableProps) {
+  const [userToDelete, setUserToDelete] = useState<User | null>(null);
+  const [userToEdit, setUserToEdit] = useState<User | null>(null);
+  const deleteUser = useDeleteUser(userToDelete?.id || "");
+  const updateUser = useUpdateUser(userToEdit?.id || "");
+
+  const handleDeleteClick = (user: User) => {
+    setUserToDelete(user);
+  };
+
+  const handleEditClick = (user: User) => {
+    setUserToEdit(user);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!userToDelete) return;
+
+    try {
+      await deleteUser.mutateAsync();
+      toast.success("User deleted successfully");
+    } catch {
+      toast.error("Failed to delete user");
+    } finally {
+      setUserToDelete(null);
+    }
+  };
+
+  const handleUpdateSubmit = async (data: {
+    first_name: string;
+    last_name: string;
+    phone?: string;
+    role: string;
+  }) => {
+    if (!userToEdit) return;
+
+    try {
+      await updateUser.mutateAsync(data);
+      setUserToEdit(null);
+    } catch {
+      throw new Error("Failed to update user");
+    }
+  };
   const getRoleBadgeVariant = (role: string) => {
     switch (role.toLowerCase()) {
       case "admin":
@@ -108,7 +152,7 @@ export function UserTable({ users, onDeleteUser, onEditUser }: UserTableProps) {
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => onDeleteUser(user.id)}
+                    onClick={() => handleDeleteClick(user)}
                     className="h-8 w-8 p-0 text-gray-400 hover:text-red-600"
                   >
                     <Trash2 className="h-4 w-4" />
@@ -117,7 +161,7 @@ export function UserTable({ users, onDeleteUser, onEditUser }: UserTableProps) {
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => onEditUser(user.id)}
+                    onClick={() => handleEditClick(user)}
                     className="h-8 w-8 p-0 text-gray-400 hover:text-gray-600"
                   >
                     <Edit className="h-4 w-4" />
@@ -129,6 +173,26 @@ export function UserTable({ users, onDeleteUser, onEditUser }: UserTableProps) {
           ))}
         </TableBody>
       </Table>
+
+      {/* Delete Confirmation Modal */}
+      {userToDelete && (
+        <DeleteUserModal
+          isOpen={!!userToDelete}
+          onClose={() => setUserToDelete(null)}
+          onConfirm={handleDeleteConfirm}
+          userName={`${userToDelete.first_name} ${userToDelete.last_name}`}
+        />
+      )}
+
+      {/* Edit User Form */}
+      {userToEdit && (
+        <EditUserForm
+          user={userToEdit}
+          isOpen={!!userToEdit}
+          onClose={() => setUserToEdit(null)}
+          onSubmit={handleUpdateSubmit}
+        />
+      )}
     </div>
   );
 }
