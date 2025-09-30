@@ -34,16 +34,10 @@ export function DeleteUserModal({
           </DialogDescription>
         </DialogHeader>
         <DialogFooter className="gap-2 sm:gap-0">
-          <Button
-            variant="outline"
-            onClick={onClose}
-          >
+          <Button variant="outline" onClick={onClose}>
             Cancel
           </Button>
-          <Button
-            variant="destructive"
-            onClick={onConfirm}
-          >
+          <Button variant="destructive" onClick={onConfirm}>
             Delete
           </Button>
         </DialogFooter>
