@@ -12,7 +12,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Trash2, Edit, CheckCircle } from "lucide-react";
-import type { User } from "./user-management";
+import type { User } from "@/services/users/users-types";
 
 interface UserTableProps {
   users: User[];
@@ -21,42 +21,29 @@ interface UserTableProps {
 }
 
 export function UserTable({ users, onDeleteUser, onEditUser }: UserTableProps) {
-  const getRoleBadgeVariant = (role: User["role"]) => {
-    switch (role) {
-      case "Super Admin":
+  const getRoleBadgeVariant = (role: string) => {
+    switch (role.toLowerCase()) {
+      case "admin":
         return "default";
-      case "Admin":
-        return "secondary";
-      case "Editor":
+      case "editor":
         return "outline";
-      case "Viewer":
+      case "viewer":
         return "outline";
       default:
         return "secondary";
     }
   };
 
-  const getTeamBadgeVariant = (team: User["team"]) => {
-    switch (team) {
-      case "Operational":
-        return "default";
-      case "Sanitation":
-        return "secondary";
-      case "Maintenance":
-        return "outline";
-      case "Automation":
-        return "outline";
-      default:
-        return "secondary";
-    }
+  const getUserInitials = (firstName: string, lastName: string) => {
+    return (firstName[0] + lastName[0]).toUpperCase();
   };
 
-  const getUserInitials = (name: string) => {
-    return name
-      .split(" ")
-      .map((n) => n[0])
-      .join("")
-      .toUpperCase();
+  const formatDate = (date: string) => {
+    return new Date(date).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
   };
 
   return (
@@ -68,9 +55,9 @@ export function UserTable({ users, onDeleteUser, onEditUser }: UserTableProps) {
             <TableHead className="font-medium text-gray-700">ROLE</TableHead>
             <TableHead className="font-medium text-gray-700">TEAM</TableHead>
             <TableHead className="font-medium text-gray-700">
-              DATE ENTERED
+              DATE JOINED
             </TableHead>
-            <TableHead className="font-medium text-gray-700">Edit</TableHead>
+            <TableHead className="font-medium text-gray-700">ACTIONS</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -81,18 +68,23 @@ export function UserTable({ users, onDeleteUser, onEditUser }: UserTableProps) {
                   <div className="relative">
                     <Avatar className="h-10 w-10">
                       <AvatarImage
-                        src={user.avatar || "/placeholder.svg"}
-                        alt={user.name}
+                        src={user.avatar_url || "/placeholder.svg"}
+                        alt={`${user.first_name} ${user.last_name}`}
                       />
                       <AvatarFallback className="bg-gray-100 text-gray-600">
-                        {getUserInitials(user.name)}
+                        {getUserInitials(user.first_name, user.last_name)}
                       </AvatarFallback>
                     </Avatar>
-                    {user.isVerified && (
+                    {user.email_verified && (
                       <CheckCircle className="absolute -bottom-1 -right-1 h-4 w-4 text-blue-500 bg-white rounded-full" />
                     )}
                   </div>
-                  <span className="font-medium text-gray-900">{user.name}</span>
+                  <div className="flex flex-col">
+                    <span className="font-medium text-gray-900">
+                      {`${user.first_name} ${user.last_name}`}
+                    </span>
+                    <span className="text-sm text-gray-500">{user.email}</span>
+                  </div>
                 </div>
               </TableCell>
               <TableCell>
@@ -104,15 +96,12 @@ export function UserTable({ users, onDeleteUser, onEditUser }: UserTableProps) {
                 </Badge>
               </TableCell>
               <TableCell>
-                <Badge
-                  variant={getTeamBadgeVariant(user.team)}
-                  className="font-normal"
-                >
-                  {user.team}
-                </Badge>
+                <span className="text-gray-600">
+                  {user.team?.name || "No Team"}
+                </span>
               </TableCell>
               <TableCell className="text-gray-600">
-                {user.dateEntered}
+                {formatDate(user.created_at)}
               </TableCell>
               <TableCell>
                 <div className="flex items-center gap-2">

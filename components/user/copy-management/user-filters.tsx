@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -10,104 +10,120 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Filter } from "lucide-react";
-import { User } from "./user-management";
+import { Filter, Search } from "lucide-react";
+import type { UserFilters as APIUserFilters } from "@/services/users/users-types";
 
 interface UserFiltersProps {
-  users: User[];
-  onFilterChange: (filteredUsers: User[]) => void;
+  filters: APIUserFilters;
+  onFilterChange: (filters: Partial<APIUserFilters>) => void;
+  totalUsers: number;
 }
 
-export function UserFilters({ users, onFilterChange }: UserFiltersProps) {
-  const [selectedFilter, setSelectedFilter] = useState<string>("all");
-  const [sortBy, setSortBy] = useState<string>("recent");
-
-  const handleFilterChange = (value: string) => {
-    setSelectedFilter(value);
-    applyFilters(value, sortBy);
-  };
-
-  const handleSortChange = (value: string) => {
-    setSortBy(value);
-    applyFilters(selectedFilter, value);
-  };
-
-  const applyFilters = (filter: string, sort: string) => {
-    let filtered = [...users];
-
-    // Apply filters
-    if (filter !== "all") {
-      filtered = filtered.filter(
-        (user) =>
-          user.role.toLowerCase().includes(filter.toLowerCase()) ||
-          user.team.toLowerCase().includes(filter.toLowerCase())
-      );
-    }
-
-    // Apply sorting
-    if (sort === "recent") {
-      // Sort by most recent (in this case, all dates are the same)
-      filtered.sort(
-        (a, b) =>
-          new Date(b.dateEntered).getTime() - new Date(a.dateEntered).getTime()
-      );
-    } else if (sort === "name") {
-      filtered.sort((a, b) => a.name.localeCompare(b.name));
-    }
-
-    onFilterChange(filtered);
+export function UserFilters({
+  filters,
+  onFilterChange,
+  totalUsers,
+}: UserFiltersProps) {
+  const handleFilterChange = (
+    key: keyof APIUserFilters,
+    value: string | number
+  ) => {
+    onFilterChange({ [key]: value });
   };
 
   const resetFilters = () => {
-    setSelectedFilter("all");
-    setSortBy("recent");
-    onFilterChange(users);
+    onFilterChange({
+      search: "",
+      role: "",
+      status: "",
+      team_id: "",
+      page: 1,
+      limit: 20,
+    });
   };
 
   return (
-    <div className="flex items-center justify-between">
+    <div className="space-y-4">
       <div className="flex items-center gap-4">
+        <div className="flex-1 relative">
+          <Input
+            placeholder="Search users..."
+            value={filters.search}
+            onChange={(e) => handleFilterChange("search", e.target.value)}
+            className="w-full pl-10"
+          />
+          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
+        </div>
         <div className="flex items-center gap-2">
           <Filter className="h-4 w-4 text-gray-500" />
-          <Select value={selectedFilter} onValueChange={handleFilterChange}>
+          <Select
+            value={filters.limit?.toString()}
+            onValueChange={(value) =>
+              handleFilterChange("limit", parseInt(value))
+            }
+          >
             <SelectTrigger className="w-32">
-              <SelectValue />
+              <SelectValue placeholder="Page Size" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">
-                <div className="flex items-center gap-2">
-                  All{" "}
-                  <Badge variant="secondary" className="text-xs">
-                    {users.length}
-                  </Badge>
-                </div>
-              </SelectItem>
-              <SelectItem value="admin">Admin</SelectItem>
-              <SelectItem value="viewer">Viewer</SelectItem>
-              <SelectItem value="editor">Editor</SelectItem>
+              <SelectItem value="10">10 per page</SelectItem>
+              <SelectItem value="20">20 per page</SelectItem>
+              <SelectItem value="50">50 per page</SelectItem>
+              <SelectItem value="100">100 per page</SelectItem>
             </SelectContent>
           </Select>
         </div>
-
-        <Select value={sortBy} onValueChange={handleSortChange}>
-          <SelectTrigger className="w-40">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="recent">Recent Added</SelectItem>
-            <SelectItem value="name">Name</SelectItem>
-            <SelectItem value="role">Role</SelectItem>
-          </SelectContent>
-        </Select>
       </div>
 
-      <Button
-        variant="ghost"
-        onClick={resetFilters}
-        className="text-gray-600 hover:text-gray-900"
-      >
-        Reset Filter
-      </Button>
+      <div className="flex items-center gap-4">
+        <Select
+          value={filters.role || "all"}
+          onValueChange={(value) =>
+            handleFilterChange("role", value === "all" ? "" : value)
+          }
+        >
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Filter by role" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">
+              <div className="flex items-center gap-2">
+                All Roles
+                <Badge variant="secondary" className="text-xs">
+                  {totalUsers}
+                </Badge>
+              </div>
+            </SelectItem>
+            <SelectItem value="admin">Admin</SelectItem>
+            <SelectItem value="editor">Editor</SelectItem>
+            <SelectItem value="viewer">Viewer</SelectItem>
+          </SelectContent>
+        </Select>
+
+        <Select
+          value={filters.status || "all"}
+          onValueChange={(value) =>
+            handleFilterChange("status", value === "all" ? "" : value)
+          }
+        >
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Filter by status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Status</SelectItem>
+            <SelectItem value="active">Active</SelectItem>
+            <SelectItem value="inactive">Inactive</SelectItem>
+          </SelectContent>
+        </Select>
+
+        <Button
+          variant="ghost"
+          onClick={resetFilters}
+          className="text-gray-600 hover:text-gray-900 ml-auto"
+        >
+          Reset Filters
+        </Button>
+      </div>
     </div>
   );
 }

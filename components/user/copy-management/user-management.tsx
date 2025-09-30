@@ -6,88 +6,34 @@ import { UserTable } from "./user-table";
 import { UserFilters } from "./user-filters";
 import { UserPlus } from "lucide-react";
 import { InviteUserModal } from "../teams/invite-user-modal";
-import { avatarImage } from "@/constants/images";
-
-export interface User {
-  id: string;
-  name: string;
-  avatar: string;
-  role: "Admin" | "Super Admin" | "Viewer" | "Editor";
-  team: "Operational" | "Sanitation" | "Maintenance" | "Automation";
-  dateEntered: string;
-  isVerified?: boolean;
-}
-
-const mockUsers: User[] = [
-  {
-    id: "1",
-    name: "Olivia Rhye",
-    avatar: avatarImage.image1,
-    role: "Admin",
-    team: "Operational",
-    dateEntered: "05 / 12 / 2025",
-  },
-  {
-    id: "2",
-    name: "Phoenix Baker",
-    avatar: avatarImage.image2,
-    role: "Super Admin",
-    team: "Sanitation",
-    dateEntered: "05 / 12 / 2025",
-    isVerified: true,
-  },
-  {
-    id: "3",
-    name: "Phoenix Baker",
-    avatar: avatarImage.image3,
-    role: "Viewer",
-    team: "Maintenance",
-    dateEntered: "05 / 12 / 2025",
-  },
-  {
-    id: "4",
-    name: "Lana Steiner",
-    avatar: avatarImage.image4,
-    role: "Editor",
-    team: "Maintenance",
-    dateEntered: "05 / 12 / 2025",
-  },
-  {
-    id: "5",
-    name: "Phoenix Baker",
-    avatar: avatarImage.image1,
-    role: "Admin",
-    team: "Maintenance",
-    dateEntered: "05 / 12 / 2025",
-  },
-  {
-    id: "6",
-    name: "Phoenix Baker",
-    avatar: avatarImage.image2,
-    role: "Viewer",
-    team: "Automation",
-    dateEntered: "05 / 12 / 2025",
-  },
-];
+import { useUsers } from "@/services/users/users-querries";
+import type { UserFilters as APIUserFilters } from "@/services/users/users-types";
 
 export function UserManagement() {
-  const [users, setUsers] = useState<User[]>(mockUsers);
-  const [filteredUsers, setFilteredUsers] = useState<User[]>(mockUsers);
+  const [filters, setFilters] = useState<APIUserFilters>({
+    page: 1,
+    limit: 20,
+    search: "",
+    role: "",
+    status: "",
+    team_id: "",
+  });
+
+  const { data: usersData, isLoading } = useUsers(filters);
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
+  // const createUser = useCreateUser();
 
   const handleInviteUser = () => {
     setIsInviteModalOpen(true);
   };
 
-  const handleDeleteUser = (userId: string) => {
-    const updatedUsers = users.filter((user) => user.id !== userId);
-    setUsers(updatedUsers);
-    setFilteredUsers(updatedUsers);
-  };
-
-  const handleEditUser = (userId: string) => {
-    // Handle edit user logic
-    console.log("Edit user:", userId);
+  const handleFiltersChange = (newFilters: Partial<APIUserFilters>) => {
+    setFilters((prev) => ({
+      ...prev,
+      ...newFilters,
+      // Reset to page 1 when filters change (except when changing page)
+      page: "page" in newFilters ? newFilters.page || 1 : 1,
+    }));
   };
 
   return (
@@ -105,14 +51,28 @@ export function UserManagement() {
       </div>
 
       {/* Filters */}
-      <UserFilters users={users} onFilterChange={setFilteredUsers} />
+      <UserFilters
+        filters={filters}
+        onFilterChange={handleFiltersChange}
+        totalUsers={usersData?.pagination?.total || 0}
+      />
 
       {/* User Table */}
-      <UserTable
-        users={filteredUsers}
-        onDeleteUser={handleDeleteUser}
-        onEditUser={handleEditUser}
-      />
+      {isLoading ? (
+        <div className="flex items-center justify-center py-8">
+          Loading users...
+        </div>
+      ) : (
+        <UserTable
+          users={usersData?.data || []}
+          onEditUser={(userId) => {
+            console.log("Edit user:", userId);
+          }}
+          onDeleteUser={(userId) => {
+            console.log("Delete user:", userId);
+          }}
+        />
+      )}
 
       <InviteUserModal
         open={isInviteModalOpen}
