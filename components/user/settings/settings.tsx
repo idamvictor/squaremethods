@@ -8,6 +8,7 @@ import { PersonalInformationForm } from "./personal-information-form";
 import { NotificationPreferences } from "./notification-preferences";
 import { SecuritySettings } from "./security-settings";
 import DeleteAccount from "./delete-account";
+import { CompanySettings } from "./company-settings";
 
 export default function Settings() {
   const [activeSection, setActiveSection] = useState("profile");
@@ -98,6 +99,8 @@ export default function Settings() {
               onSettingsChange={setNotificationSettings}
             />
           )}
+
+          {activeSection === "company" && <CompanySettings />}
 
           {activeSection === "delete" && <DeleteAccount />}
         </main>

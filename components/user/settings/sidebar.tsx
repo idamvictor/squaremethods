@@ -20,6 +20,11 @@ const sidebarItems: SidebarItem[] = [
     icon: LayoutGrid,
   },
   {
+    id: "company",
+    label: "Company",
+    icon: LayoutGrid,
+  },
+  {
     id: "security",
     label: "Security",
     icon: Shield,
