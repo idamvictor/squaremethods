@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { PageHeader } from "./header";
 import { Sidebar } from "./sidebar";
 import { ProfileHeader } from "./profile-header";
@@ -9,16 +9,33 @@ import { NotificationPreferences } from "./notification-preferences";
 import { SecuritySettings } from "./security-settings";
 import DeleteAccount from "./delete-account";
 import { CompanySettings } from "./company-settings";
+import { useProfile, useUpdateProfile } from "@/services/users/users-querries";
 
 export default function Settings() {
   const [activeSection, setActiveSection] = useState("profile");
+  // Fetch user profile data
+  const { data: profileData, isLoading } = useProfile();
+
   const [personalInfo, setPersonalInfo] = useState({
-    firstName: "Neme John",
-    lastName: "Neme John",
-    email: "Neme.John@gmail.com",
-    phone: "07000000000000",
-    department: "Team Manager",
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    department: "",
   });
+
+  // Update personal info when profile data is loaded
+  useEffect(() => {
+    if (profileData?.data) {
+      setPersonalInfo({
+        firstName: profileData.data.first_name,
+        lastName: profileData.data.last_name,
+        email: profileData.data.email,
+        phone: profileData.data.phone || "",
+        department: profileData.data.role,
+      });
+    }
+  }, [profileData]);
 
   const [notificationSettings, setNotificationSettings] = useState({
     newTask: false,
@@ -33,12 +50,31 @@ export default function Settings() {
     console.log("Logging out...");
   };
 
+  const updateProfileMutation = useUpdateProfile();
+
   const handleEditProfile = () => {
+    // This function can be used to trigger edit mode if needed
     console.log("Editing profile...");
   };
 
   const handleEditPersonalInfo = () => {
-    console.log("Editing personal information...");
+    // This function can be used to enable edit mode
+    console.log("Enabling edit mode...");
+  };
+
+  const handleSavePersonalInfo = async () => {
+    try {
+      await updateProfileMutation.mutateAsync({
+        first_name: personalInfo.firstName,
+        last_name: personalInfo.lastName,
+        phone: personalInfo.phone,
+      });
+      // You might want to show a success toast here
+      console.log("Profile updated successfully");
+    } catch (error) {
+      // Handle error appropriately
+      console.error("Failed to update profile:", error);
+    }
   };
 
   const handleSectionChange = (sectionId: string) => {
@@ -60,37 +96,37 @@ export default function Settings() {
                   My Profile
                 </h2>
 
-                <ProfileHeader
-                  name="Neme John"
-                  role="Team Manager"
-                  location="Head quarters"
-                  avatarUrl="/placeholder.svg?height=64&width=64"
-                  isVerified={true}
-                  onEdit={handleEditProfile}
-                />
+                {isLoading ? (
+                  <div>Loading profile...</div>
+                ) : (
+                  <ProfileHeader
+                    name={`${personalInfo.firstName} ${personalInfo.lastName}`}
+                    role={personalInfo.department}
+                    location={
+                      profileData?.data?.company?.name || "Head quarters"
+                    }
+                    avatarUrl={
+                      profileData?.data?.avatar_url ||
+                      "/placeholder.svg?height=64&width=64"
+                    }
+                    isVerified={profileData?.data?.email_verified || false}
+                    onEdit={handleEditProfile}
+                  />
+                )}
               </div>
 
               <PersonalInformationForm
                 data={personalInfo}
                 onEdit={handleEditPersonalInfo}
                 onChange={setPersonalInfo}
+                onSave={handleSavePersonalInfo}
+                isSaving={updateProfileMutation.isPending}
               />
             </div>
           )}
 
-          {activeSection === "security" && (
-            <SecuritySettings
-              onPasswordUpdate={async (currentPassword /*newPassword*/) => {
-                // Simulate API call
-                await new Promise((resolve) => setTimeout(resolve, 1000));
-                // Simulate incorrect password for demo (return false for "wrong" password)
-                if (currentPassword === "wrong") {
-                  return false;
-                }
-                console.log("Password updated successfully");
-                return true;
-              }}
-            />
+          {activeSection === "security" && profileData?.data && (
+            <SecuritySettings userId={profileData.data.id} />
           )}
 
           {activeSection === "notification" && (

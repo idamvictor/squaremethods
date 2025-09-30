@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Edit } from "lucide-react";
+import { useState, useEffect } from "react";
 
 interface PersonalInformationData {
   firstName: string;
@@ -17,18 +18,52 @@ interface PersonalInformationFormProps {
   data: PersonalInformationData;
   onEdit?: () => void;
   onChange?: (data: PersonalInformationData) => void;
+  onSave?: () => Promise<void>;
+  isSaving?: boolean;
 }
 
 export function PersonalInformationForm({
   data,
   onEdit,
   onChange,
+  onSave,
+  isSaving = false,
 }: PersonalInformationFormProps) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [initialData, setInitialData] = useState(data);
+  const [hasChanges, setHasChanges] = useState(false);
+
+  useEffect(() => {
+    // Check if current data is different from initial data
+    const hasAnyChanges = Object.keys(data).some(
+      (key) =>
+        data[key as keyof PersonalInformationData] !==
+        initialData[key as keyof PersonalInformationData]
+    );
+    setHasChanges(hasAnyChanges);
+  }, [data, initialData]);
+
+  const handleEditClick = () => {
+    if (!isEditing) {
+      setInitialData(data);
+      setIsEditing(true);
+      onEdit?.();
+    }
+  };
+
+  const handleSaveClick = async () => {
+    if (onSave) {
+      await onSave();
+      setIsEditing(false);
+      setInitialData(data);
+    }
+  };
+
   const handleInputChange = (
     field: keyof PersonalInformationData,
     value: string
   ) => {
-    if (onChange) {
+    if (onChange && isEditing) {
       onChange({ ...data, [field]: value });
     }
   };
@@ -39,10 +74,22 @@ export function PersonalInformationForm({
         <h3 className="text-lg font-medium text-gray-900">
           Personal Information
         </h3>
-        <Button variant="outline" size="sm" onClick={onEdit}>
-          <Edit className="h-4 w-4 mr-2" />
-          Edit
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" onClick={handleEditClick}>
+            <Edit className="h-4 w-4 mr-2" />
+            {isEditing ? "Editing..." : "Edit"}
+          </Button>
+          {isEditing && onSave && (
+            <Button
+              variant="default"
+              size="sm"
+              onClick={handleSaveClick}
+              disabled={isSaving || !hasChanges}
+            >
+              {isSaving ? "Saving..." : "Save Changes"}
+            </Button>
+          )}
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -58,6 +105,7 @@ export function PersonalInformationForm({
             value={data.firstName}
             onChange={(e) => handleInputChange("firstName", e.target.value)}
             className="w-full"
+            disabled={!isEditing}
           />
         </div>
 
@@ -73,6 +121,7 @@ export function PersonalInformationForm({
             value={data.lastName}
             onChange={(e) => handleInputChange("lastName", e.target.value)}
             className="w-full"
+            disabled={!isEditing}
           />
         </div>
 
@@ -86,6 +135,7 @@ export function PersonalInformationForm({
             value={data.email}
             onChange={(e) => handleInputChange("email", e.target.value)}
             className="w-full"
+            disabled={!isEditing}
           />
         </div>
 
@@ -99,6 +149,7 @@ export function PersonalInformationForm({
             value={data.phone}
             onChange={(e) => handleInputChange("phone", e.target.value)}
             className="w-full"
+            disabled={!isEditing}
           />
         </div>
 
@@ -114,6 +165,7 @@ export function PersonalInformationForm({
             value={data.department}
             onChange={(e) => handleInputChange("department", e.target.value)}
             className="w-full max-w-md"
+            disabled={!isEditing}
           />
         </div>
       </div>

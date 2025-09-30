@@ -15,14 +15,14 @@ interface PasswordValidation {
   hasMinLength: boolean;
 }
 
+import { useChangePassword } from "@/services/users/users-querries";
+
 interface SecuritySettingsProps {
-  onPasswordUpdate?: (
-    currentPassword: string,
-    newPassword: string
-  ) => Promise<boolean>;
+  userId: string;
 }
 
-export function SecuritySettings({ onPasswordUpdate }: SecuritySettingsProps) {
+export function SecuritySettings({ userId }: SecuritySettingsProps) {
+  const changePasswordMutation = useChangePassword(userId);
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -30,7 +30,6 @@ export function SecuritySettings({ onPasswordUpdate }: SecuritySettingsProps) {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [currentPasswordError, setCurrentPasswordError] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
 
   // Password validation
   const validatePassword = (password: string): PasswordValidation => {
@@ -68,23 +67,21 @@ export function SecuritySettings({ onPasswordUpdate }: SecuritySettingsProps) {
       return;
     }
 
-    setIsLoading(true);
-
     try {
-      const success = await onPasswordUpdate?.(currentPassword, newPassword);
-      if (success === false) {
-        setCurrentPasswordError(true);
-      } else {
-        // Reset form on success
-        setCurrentPassword("");
-        setNewPassword("");
-        setConfirmPassword("");
-      }
+      await changePasswordMutation.mutateAsync({
+        current_password: currentPassword,
+        new_password: newPassword,
+      });
+
+      // Reset form on success
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+      setCurrentPasswordError(false);
+      // Could add a success toast here
     } catch (error) {
       console.error("Password update failed:", error);
       setCurrentPasswordError(true);
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -316,11 +313,13 @@ export function SecuritySettings({ onPasswordUpdate }: SecuritySettingsProps) {
                   !confirmPassword ||
                   !isPasswordValid ||
                   !passwordsMatch ||
-                  isLoading
+                  changePasswordMutation.isPending
                 }
                 className="w-full sm:w-auto"
               >
-                {isLoading ? "Updating..." : "Update Password"}
+                {changePasswordMutation.isPending
+                  ? "Updating..."
+                  : "Update Password"}
               </Button>
             </div>
           </form>
