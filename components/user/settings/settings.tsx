@@ -46,10 +46,6 @@ export default function Settings() {
     emailNotifications: true,
   });
 
-  const handleLogout = () => {
-    console.log("Logging out...");
-  };
-
   const updateProfileMutation = useUpdateProfile();
 
   const handleEditProfile = () => {
@@ -83,7 +79,7 @@ export default function Settings() {
 
   return (
     <div className="min-h-screen bg-gray-50 p-5">
-      <PageHeader title="Account Settings" onLogout={handleLogout} />
+      <PageHeader title="Account Settings" />
 
       <div className="flex">
         <Sidebar activeItem={activeSection} onItemClick={handleSectionChange} />
