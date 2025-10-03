@@ -6,10 +6,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import Link from "next/link";
 import { Eye, EyeOff, Check, X, Globe, Lock } from "lucide-react";
-import { useRegister, useSendOtp } from "@/lib/api/auth";
+import { useRegister } from "@/lib/api/auth";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { OTPDialog } from "./otp-dialog";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -55,11 +54,9 @@ type FormData = z.infer<typeof formSchema>;
 export function SignUpForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [language, setLanguage] = useState("en-US");
-  const [showOtpDialog, setShowOtpDialog] = useState(false);
   const router = useRouter();
 
   const { mutate: register, isPending: isRegistering } = useRegister();
-  const { mutate: sendOtp, isPending: isSendingOtp } = useSendOtp();
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -75,7 +72,6 @@ export function SignUpForm() {
   });
 
   const password = form.watch("password");
-  const email = form.watch("email");
 
   const passwordRequirements = [
     { text: "At least 8 characters", met: password.length >= 8 },
@@ -108,20 +104,8 @@ export function SignUpForm() {
         },
         {
           onSuccess: () => {
-            // After successful registration, send OTP
-            sendOtp(
-              { email: data.email },
-              {
-                onSuccess: () => {
-                  setShowOtpDialog(true);
-                },
-                onError: () => {
-                  toast.error(
-                    "Failed to send verification code. Please try again."
-                  );
-                },
-              }
-            );
+            toast.success("Registration successful!");
+            router.push("/dashboard");
           },
           onError: (
             error: Error & { response?: { data?: { message?: string } } }
@@ -419,15 +403,9 @@ export function SignUpForm() {
               <Button
                 type="submit"
                 className="w-full bg-primary hover:bg-primary/90 text-primary-foreground py-3 rounded-lg font-medium"
-                disabled={
-                  isRegistering || isSendingOtp || !form.formState.isValid
-                }
+                disabled={isRegistering || !form.formState.isValid}
               >
-                {isRegistering
-                  ? "Creating account..."
-                  : isSendingOtp
-                  ? "Sending verification code..."
-                  : "Continue"}
+                {isRegistering ? "Creating account..." : "Continue"}
               </Button>
 
               <div className="text-center text-sm text-muted-foreground">
@@ -441,16 +419,6 @@ export function SignUpForm() {
               </div>
             </form>
           </Form>
-
-          {/* OTP Dialog */}
-          <OTPDialog
-            isOpen={showOtpDialog}
-            onClose={() => setShowOtpDialog(false)}
-            email={email}
-            onVerificationSuccess={() => {
-              router.push("/dashboard");
-            }}
-          />
         </div>
       </div>
 
