@@ -53,10 +53,7 @@ const AuthAPI = {
     return response.data;
   },
 
-  logout: async (): Promise<{ success: boolean; message: string }> => {
-    const response = await axiosInstance.post("/auth/logout");
-    return response.data;
-  },
+  // No logout endpoint needed as we just clear the local state
 };
 
 // Custom hooks using TanStack Query
@@ -107,12 +104,12 @@ export const useLogout = () => {
   const router = useRouter();
 
   return useMutation({
-    mutationFn: AuthAPI.logout,
-    onSuccess: () => {
-      // Clear auth store
+    mutationFn: async () => {
       clearAuth();
-      // Remove token from localStorage
       localStorage.removeItem("auth_token");
+      return { success: true };
+    },
+    onSuccess: () => {
       // Redirect to login
       router.push("/auth/login");
     },
