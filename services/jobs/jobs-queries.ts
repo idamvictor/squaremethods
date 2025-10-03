@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import apiClient from "@/lib/api/axios";
+import axiosInstance from "@/lib/api/axios";
 import {
   JobsQueryParams,
   JobsResponse,
@@ -28,7 +28,7 @@ const JOBS_QUERY_KEY = "jobs";
 export const fetchJobs = async (
   params: JobsQueryParams = {}
 ): Promise<JobsResponse> => {
-  const { data } = await apiClient.get<JobsResponse>("/jobs", {
+  const { data } = await axiosInstance.get<JobsResponse>("/jobs", {
     params: {
       page: params.page || 1,
       limit: params.limit || 20,
@@ -62,7 +62,7 @@ export const getJobsQueryKey = (params: JobsQueryParams = {}) => [
 export const createJob = async (
   input: CreateJobInput
 ): Promise<CreateJobResponse> => {
-  const { data } = await apiClient.post<CreateJobResponse>("/jobs", input);
+  const { data } = await axiosInstance.post<CreateJobResponse>("/jobs", input);
   return data;
 };
 
@@ -85,7 +85,7 @@ export const useCreateJob = () => {
 export const fetchOverdueJobs = async (
   params: OverdueJobsQueryParams = {}
 ): Promise<JobsResponse> => {
-  const { data } = await apiClient.get<JobsResponse>("/jobs/overdue", {
+  const { data } = await axiosInstance.get<JobsResponse>("/jobs/overdue", {
     params: {
       page: params.page || 1,
       limit: params.limit || 20,
@@ -116,7 +116,7 @@ export const assignJob = async (
   jobId: string,
   input: AssignJobInput
 ): Promise<AssignJobResponse> => {
-  const { data } = await apiClient.post<AssignJobResponse>(
+  const { data } = await axiosInstance.post<AssignJobResponse>(
     `/jobs/${jobId}/assign`,
     input
   );
@@ -146,7 +146,7 @@ export const useAssignJob = () => {
 
 // Separate fetch function
 export const startJob = async (jobId: string): Promise<StartJobResponse> => {
-  const { data } = await apiClient.post<StartJobResponse>(
+  const { data } = await axiosInstance.post<StartJobResponse>(
     `/jobs/${jobId}/start`
   );
   return data;
@@ -172,7 +172,7 @@ export const completeJob = async (
   jobId: string,
   input: CompleteJobInput
 ): Promise<CompleteJobResponse> => {
-  const { data } = await apiClient.post<CompleteJobResponse>(
+  const { data } = await axiosInstance.post<CompleteJobResponse>(
     `/jobs/${jobId}/complete`,
     input
   );
@@ -206,7 +206,7 @@ export const updateTaskStatus = async (
   taskId: string,
   input: UpdateTaskInput
 ): Promise<UpdateTaskResponse> => {
-  const { data } = await apiClient.patch<UpdateTaskResponse>(
+  const { data } = await axiosInstance.patch<UpdateTaskResponse>(
     `/jobs/${jobId}/tasks/${taskId}`,
     input
   );
@@ -244,7 +244,7 @@ export const useUpdateTaskStatus = () => {
 export const fetchJobById = async (
   jobId: string
 ): Promise<JobWithRelations> => {
-  const { data } = await apiClient.get<{
+  const { data } = await axiosInstance.get<{
     success: boolean;
     message: string;
     data: JobWithRelations;
@@ -271,7 +271,7 @@ export const updateJob = async (
   jobId: string,
   input: UpdateJobInput
 ): Promise<UpdateJobResponse> => {
-  const { data } = await apiClient.patch<UpdateJobResponse>(
+  const { data } = await axiosInstance.patch<UpdateJobResponse>(
     `/jobs/${jobId}`,
     input
   );
@@ -306,13 +306,16 @@ export const fetchUserJobs = async (
   userId: string,
   params: UserJobsQueryParams = {}
 ): Promise<JobsResponse> => {
-  const { data } = await apiClient.get<JobsResponse>(`/jobs/user/${userId}`, {
-    params: {
-      page: params.page || 1,
-      limit: params.limit || 20,
-      status: params.status,
-    },
-  });
+  const { data } = await axiosInstance.get<JobsResponse>(
+    `/jobs/user/${userId}`,
+    {
+      params: {
+        page: params.page || 1,
+        limit: params.limit || 20,
+        status: params.status,
+      },
+    }
+  );
   return data;
 };
 
@@ -338,7 +341,9 @@ export const getUserJobsQueryKey = (
 
 // Separate fetch function
 export const deleteJob = async (jobId: string): Promise<DeleteJobResponse> => {
-  const { data } = await apiClient.delete<DeleteJobResponse>(`/jobs/${jobId}`);
+  const { data } = await axiosInstance.delete<DeleteJobResponse>(
+    `/jobs/${jobId}`
+  );
   return data;
 };
 
