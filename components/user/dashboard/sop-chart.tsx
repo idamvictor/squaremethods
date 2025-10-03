@@ -74,15 +74,11 @@ export function SOPChart({ data = defaultData, title }: SOPChartProps) {
               content={<ChartTooltipContent />}
               labelFormatter={(value) => `Thursday ${value}, 2025`}
               formatter={(value) => [
-                <>
-                  <span key="created">
-                    {title}: {value}
-                  </span>
-                  <br key="br" /> {/* Added key property here */}
-                  <span key="previous-day" className="text-green-600">
-                    +10.5% Previous day
-                  </span>
-                </>,
+                <div key="tooltip-content">
+                  {title}: {value}
+                  <br />
+                  <span className="text-green-600">+10.5% Previous day</span>
+                </div>,
                 title,
               ]}
             />
