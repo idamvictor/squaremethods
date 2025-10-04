@@ -1,5 +1,10 @@
 import { create } from "zustand";
 import { toast } from "sonner";
+import { fetchLocationsWithEquipment } from "@/services/locations/location-queries";
+import type {
+  Location as APILocation,
+  Equipment as APIEquipment,
+} from "@/services/locations/location-types";
 
 export type EquipmentType =
   | "assembly"
@@ -53,8 +58,11 @@ interface EquipmentStore {
   showFloatingButtons: string | null;
   searchQuery: string;
   breadcrumbs: { id: string; name: string }[];
+  isLoading: boolean;
+  error: string | null;
 
   // Actions
+  fetchHierarchy: () => Promise<void>;
   setSelectedNode: (node: HierarchyNode | null) => void;
   toggleExpanded: (nodeId: string) => void;
   setShowAddLocationModal: (show: boolean) => void;
@@ -83,71 +91,9 @@ const equipmentTypeIcons: Record<EquipmentType, string> = {
 
 export const useEquipmentStore = create<EquipmentStore>((set, get) => ({
   // Initial state
-  hierarchy: [
-    {
-      id: "manufacturing-plant",
-      name: "Manufacturing Plant",
-      type: "location",
-      children: [
-        {
-          id: "assembly-building-b",
-          name: "Assembly Building B",
-          type: "location",
-          parentId: "manufacturing-plant",
-          children: [
-            {
-              id: "conveyor-system",
-              name: "Conveyor System",
-              type: "location",
-              parentId: "assembly-building-b",
-              children: [
-                {
-                  id: "pump-station-12-1",
-                  name: "Pump Station 12",
-                  type: "pump",
-                  parentId: "conveyor-system",
-                  referenceCode: "54635bd",
-                  date: "14/05/2025",
-                  notes: "Cooling pump for assembly line",
-                },
-                {
-                  id: "pump-station-12-2",
-                  name: "Pump Station 12",
-                  type: "assembly",
-                  parentId: "conveyor-system",
-                  referenceCode: "54636cd",
-                  date: "15/05/2025",
-                  notes: "Assembly station for conveyor system",
-                },
-              ],
-            },
-            {
-              id: "pump-station-12-3",
-              name: "Pump Station 12",
-              type: "location",
-              parentId: "assembly-building-b",
-            },
-          ],
-        },
-        {
-          id: "north-production-line",
-          name: "North Production Line",
-          type: "location",
-          parentId: "manufacturing-plant",
-        },
-      ],
-    },
-    {
-      id: "oil-gas-refinery",
-      name: "Oil & Gas Refinery",
-      type: "location",
-    },
-    {
-      id: "water-treatment-plant",
-      name: "Water Treatment Plant",
-      type: "location",
-    },
-  ],
+  hierarchy: [],
+  isLoading: false,
+  error: null,
   selectedNode: null,
   expandedNodes: new Set([
     "manufacturing-plant",
@@ -317,6 +263,66 @@ export const useEquipmentStore = create<EquipmentStore>((set, get) => ({
     };
 
     return findPath(get().hierarchy, nodeId) || [];
+  },
+
+  fetchHierarchy: async () => {
+    try {
+      set({ isLoading: true, error: null });
+      const response = await fetchLocationsWithEquipment();
+
+      // Transform the API response to match our HierarchyNode structure
+      const transformLocation = (location: APILocation): HierarchyNode => {
+        // Transform child locations
+        const locationChildren =
+          location.children?.map(transformLocation) || [];
+
+        // Transform equipment
+        const equipmentChildren = (location.equipment || []).map(
+          (eq: APIEquipment): HierarchyNode => ({
+            id: eq.id,
+            name: eq.name,
+            type: determineEquipmentType(eq.status), // Helper function to determine type
+            parentId: location.id,
+            referenceCode: eq.reference_code,
+            date: new Date().toLocaleDateString(),
+            notes: "",
+            image: eq.image || undefined,
+          })
+        );
+
+        return {
+          id: location.id,
+          name: location.name,
+          type: "location" as const,
+          parentId: location.parent_location_id || undefined,
+          children: [...locationChildren, ...equipmentChildren],
+        };
+      };
+
+      // Helper function to determine equipment type based on status
+      const determineEquipmentType = (status: string): EquipmentType => {
+        // You can customize this mapping based on your needs
+        const typeMap: Record<string, EquipmentType> = {
+          active: "assembly",
+          maintenance: "pump",
+          offline: "motor",
+          // Add more mappings as needed
+        };
+        return typeMap[status.toLowerCase()] || "assembly";
+      };
+
+      const hierarchyData = response.data.map(transformLocation);
+      set({ hierarchy: hierarchyData });
+    } catch (err) {
+      set({
+        error:
+          err instanceof Error
+            ? err.message
+            : "An error occurred while fetching the hierarchy",
+      });
+    } finally {
+      set({ isLoading: false });
+    }
   },
 }));
 

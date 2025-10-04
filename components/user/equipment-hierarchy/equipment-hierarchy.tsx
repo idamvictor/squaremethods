@@ -1,6 +1,6 @@
 "use client";
 
-import type React from "react";
+import React from "react";
 import {
   Search,
   Plus,
@@ -8,6 +8,7 @@ import {
   ChevronDown,
   Folder,
   FolderOpen,
+  Loader2,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
@@ -165,7 +166,15 @@ export function EquipmentHierarchy() {
     selectedNode,
     showAddLocationModal,
     showAddEquipmentModal,
+    isLoading,
+    error,
+    fetchHierarchy,
   } = useEquipmentStore();
+
+  // Fetch hierarchy data when component mounts
+  React.useEffect(() => {
+    fetchHierarchy();
+  }, [fetchHierarchy]);
 
   return (
     <div className="flex flex-col h-screen bg-white p-4">
@@ -203,9 +212,22 @@ export function EquipmentHierarchy() {
                 </div>
 
                 <div className="space-y-1">
-                  {hierarchy.map((node) => (
-                    <TreeNode key={node.id} node={node} level={0} />
-                  ))}
+                  {isLoading ? (
+                    <div className="flex items-center justify-center p-4 text-blue-600">
+                      <Loader2 className="h-6 w-6 animate-spin mr-2" />
+                      <span>Loading hierarchy...</span>
+                    </div>
+                  ) : error ? (
+                    <div className="text-red-600 p-4">{error}</div>
+                  ) : hierarchy.length === 0 ? (
+                    <div className="text-gray-500 p-4">
+                      No locations or equipment found
+                    </div>
+                  ) : (
+                    hierarchy.map((node) => (
+                      <TreeNode key={node.id} node={node} level={0} />
+                    ))
+                  )}
                 </div>
               </div>
             </div>
