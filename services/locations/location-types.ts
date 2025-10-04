@@ -48,9 +48,9 @@ export interface CreateLocationInput {
 }
 
 export interface DeleteLocationResponse {
-  success: boolean;
-  message: string;
+  status: string;
   data: null;
+  message: string;
 }
 
 export interface UpdateLocationInput {

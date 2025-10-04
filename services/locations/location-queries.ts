@@ -126,7 +126,7 @@ export const updateLocation = async (
   id: string,
   input: UpdateLocationInput
 ): Promise<UpdateLocationResponse> => {
-  const { data } = await axiosInstance.patch<UpdateLocationResponse>(
+  const { data } = await axiosInstance.put<UpdateLocationResponse>(
     `/locations/${id}`,
     input
   );
@@ -138,8 +138,13 @@ export const useUpdateLocation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, ...input }: UpdateLocationInput & { id: string }) =>
-      updateLocation(id, input),
+    mutationFn: async ({
+      id,
+      ...input
+    }: UpdateLocationInput & { id: string }) => {
+      const result = await updateLocation(id, input);
+      return result;
+    },
     onSuccess: (_, variables) => {
       // Invalidate specific location query
       queryClient.invalidateQueries({
@@ -171,7 +176,10 @@ export const useDeleteLocation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: deleteLocation,
+    mutationFn: async (id: string) => {
+      const result = await deleteLocation(id);
+      return result;
+    },
     onSuccess: (_, id) => {
       // Remove the location from cache
       queryClient.removeQueries({

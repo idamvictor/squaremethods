@@ -16,11 +16,11 @@ import {
   equipmentTypeIcons,
   type HierarchyNode,
 } from "@/store/equipment-store";
+import { FloatingActionButtons } from "./floating-action-buttons";
 import { cn } from "@/lib/utils";
 import { AddLocationModal } from "./add-location-modal";
 import { AddEquipmentModal } from "./add-equipment-modal";
 import { EquipmentDetails } from "./equipment-details";
-import { FloatingActionButtons } from "./floating-action-buttons";
 
 const getEquipmentIcon = (type: string) => {
   if (type === "location") return null;
@@ -45,19 +45,12 @@ interface TreeNodeProps {
 }
 
 function TreeNode({ node, level }: TreeNodeProps) {
-  const {
-    expandedNodes,
-    toggleExpanded,
-    setSelectedNode,
-    selectedNode,
-    setShowFloatingButtons,
-    showFloatingButtons,
-  } = useEquipmentStore();
+  const { expandedNodes, toggleExpanded, setSelectedNode, selectedNode } =
+    useEquipmentStore();
 
   const isExpanded = expandedNodes.has(node.id);
   const hasChildren = node.children && node.children.length > 0;
   const isSelected = selectedNode?.id === node.id;
-  const showFloating = showFloatingButtons === node.id;
 
   const handleToggle = () => {
     if (hasChildren) {
@@ -69,12 +62,7 @@ function TreeNode({ node, level }: TreeNodeProps) {
     setSelectedNode(node);
   };
 
-  const handleAddClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (node.type === "location") {
-      setShowFloatingButtons(showFloating ? null : node.id);
-    }
-  };
+  // Removed unused handleAddClick
 
   return (
     <div>
@@ -118,16 +106,7 @@ function TreeNode({ node, level }: TreeNodeProps) {
           <span className="text-sm text-gray-700">{node.name}</span>
         </div>
 
-        {node.type === "location" && (
-          <button
-            onClick={handleAddClick}
-            className="p-1 hover:bg-gray-200 rounded opacity-0 group-hover:opacity-100 transition-opacity"
-          >
-            <Plus className="h-4 w-4 text-blue-600" />
-          </button>
-        )}
-
-        {showFloating && <FloatingActionButtons nodeId={node.id} />}
+        {node.type === "location" && <FloatingActionButtons node={node} />}
       </div>
 
       {isExpanded && hasChildren && (
@@ -208,7 +187,17 @@ export function EquipmentHierarchy() {
                   <span className="text-sm font-medium text-blue-600">
                     Location
                   </span>
-                  <Plus className="h-4 w-4 text-blue-600" />
+                  <button
+                    onClick={() => {
+                      const store = useEquipmentStore.getState();
+                      store.setShowFloatingButtons("root");
+                      store.setParentLocationName(null);
+                      store.setShowAddLocationModal(true);
+                    }}
+                    className="p-1 hover:bg-gray-200 rounded"
+                  >
+                    <Plus className="h-4 w-4 text-blue-600" />
+                  </button>
                 </div>
 
                 <div className="space-y-1">

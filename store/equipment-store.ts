@@ -56,6 +56,7 @@ interface EquipmentStore {
   showAddLocationModal: boolean;
   showAddEquipmentModal: boolean;
   showFloatingButtons: string | null;
+  parentLocationName: string | null;
   searchQuery: string;
   breadcrumbs: { id: string; name: string }[];
   isLoading: boolean;
@@ -64,11 +65,13 @@ interface EquipmentStore {
   // Actions
   fetchHierarchy: () => Promise<void>;
   setSelectedNode: (node: HierarchyNode | null) => void;
+  clearSelection: () => void;
   toggleExpanded: (nodeId: string) => void;
   setShowAddLocationModal: (show: boolean) => void;
   setShowAddEquipmentModal: (show: boolean) => void;
   setShowFloatingButtons: (nodeId: string | null) => void;
   setSearchQuery: (query: string) => void;
+  setParentLocationName: (name: string | null) => void;
   addLocation: (parentId: string, name: string) => void;
   addEquipment: (
     parentId: string,
@@ -103,15 +106,22 @@ export const useEquipmentStore = create<EquipmentStore>((set, get) => ({
   showAddLocationModal: false,
   showAddEquipmentModal: false,
   showFloatingButtons: null,
+  parentLocationName: null,
   searchQuery: "",
   breadcrumbs: [],
 
   // Actions
+  clearSelection: () => {
+    set({ selectedNode: null, breadcrumbs: [] });
+  },
+
   setSelectedNode: (node) => {
     set({ selectedNode: node });
     if (node) {
       const breadcrumbs = get().findNodePath(node.id);
       set({ breadcrumbs });
+    } else {
+      set({ breadcrumbs: [] });
     }
   },
 
@@ -128,6 +138,7 @@ export const useEquipmentStore = create<EquipmentStore>((set, get) => ({
   setShowAddLocationModal: (show) => set({ showAddLocationModal: show }),
   setShowAddEquipmentModal: (show) => set({ showAddEquipmentModal: show }),
   setShowFloatingButtons: (nodeId) => set({ showFloatingButtons: nodeId }),
+  setParentLocationName: (name) => set({ parentLocationName: name }),
   setSearchQuery: (query) => set({ searchQuery: query }),
 
   addLocation: (parentId, name) => {
