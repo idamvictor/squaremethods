@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import {
   Table,
   TableBody,
@@ -8,6 +9,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Job } from "@/services/jobs/jobs-types";
 import { Pencil, Trash2 } from "lucide-react";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -18,14 +20,73 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-import { useJobStore } from "@/store/job-store";
-import { Job } from "@/lib/job-mock-data";
+import {
+  useJobs,
+  deleteJob,
+  JOBS_QUERY_KEY,
+} from "@/services/jobs/jobs-queries";
+import {
+  useQueryClient,
+  useMutation,
+  UseMutationResult,
+} from "@tanstack/react-query";
+import { JobFilters } from "./job-filters";
+import { DeleteDialog } from "./delete-dialog";
+
+import { JobStatus, DeleteJobResponse } from "@/services/jobs/jobs-types";
+import { avatarImage } from "@/constants/images";
 
 export function JobTable() {
-  const { currentJobs, currentPage, totalPages, setCurrentPage } =
-    useJobStore();
+  const [page, setPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<JobStatus | "all">("all");
+  const [deleteJobId, setDeleteJobId] = useState<string | null>(null);
 
-  const getStatusBadge = (status: Job["status"]) => {
+  const { data, isLoading } = useJobs({
+    page,
+    limit: 20,
+    search: searchQuery || undefined,
+    status: statusFilter === "all" ? undefined : statusFilter,
+  });
+  const jobs = data?.data || [];
+  const pagination = data?.pagination;
+  const queryClient = useQueryClient();
+
+  // Delete mutation
+  const deleteJobMutation: UseMutationResult<DeleteJobResponse, Error, string> =
+    useMutation({
+      mutationFn: deleteJob,
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: [JOBS_QUERY_KEY] });
+      },
+    });
+
+  if (isLoading || !data) {
+    return <div>Loading jobs...</div>;
+  }
+
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+    setPage(1); // Reset to first page when searching
+  };
+
+  const handleStatusFilter = (status: JobStatus | "all") => {
+    setStatusFilter(status);
+    setPage(1); // Reset to first page when filtering
+  };
+
+  const handleDelete = async (jobId: string) => {
+    await deleteJobMutation.mutateAsync(jobId);
+    setDeleteJobId(null);
+  };
+
+  const resetFilters = () => {
+    setSearchQuery("");
+    setStatusFilter("all");
+    setPage(1);
+  };
+
+  const getStatusBadge = (status: JobStatus) => {
     return (
       <div className="flex items-center gap-2">
         <div
@@ -34,6 +95,10 @@ export function JobTable() {
               ? "bg-blue-500"
               : status === "completed"
               ? "bg-green-500"
+              : status === "in_progress"
+              ? "bg-yellow-500"
+              : status === "on_hold"
+              ? "bg-orange-500"
               : "bg-red-500"
           }`}
         />
@@ -43,6 +108,9 @@ export function JobTable() {
   };
 
   const generatePageNumbers = () => {
+    if (!pagination) return [];
+
+    const { pages: totalPages, page: currentPage } = pagination;
     const pages = [];
     const maxVisiblePages = 5;
 
@@ -73,6 +141,13 @@ export function JobTable() {
 
   return (
     <div className="space-y-4">
+      <JobFilters
+        statusFilter={statusFilter}
+        onStatusChange={handleStatusFilter}
+        searchQuery={searchQuery}
+        onSearchChange={handleSearch}
+        onReset={resetFilters}
+      />
       <div className="rounded-md border">
         <Table>
           <TableHeader>
@@ -80,51 +155,45 @@ export function JobTable() {
               <TableHead>Job Title</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Team</TableHead>
-              <TableHead>Assigned owner</TableHead>
+              <TableHead>Assigned To</TableHead>
               <TableHead>Due Date</TableHead>
               <TableHead>Duration (hrs)</TableHead>
-              <TableHead>Edit</TableHead>
+              <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {currentJobs.map((job) => (
+            {jobs.map((job: Job) => (
               <TableRow key={job.id}>
                 <TableCell>
                   <div className="flex items-center gap-2">
-                    {job.isNew && (
-                      <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
-                    )}
                     <span className="font-medium">{job.title}</span>
                   </div>
                 </TableCell>
                 <TableCell>{getStatusBadge(job.status)}</TableCell>
                 <TableCell>
                   <span className="text-sm text-muted-foreground">
-                    {job.team}
+                    {job.team.name}
                   </span>
                 </TableCell>
                 <TableCell>
                   <div className="flex items-center gap-2">
                     <Avatar className="h-8 w-8">
                       <AvatarImage
-                        src={job.assignedOwner.avatar}
-                        alt={job.assignedOwner.name}
-                        onError={(e) => {
-                          e.currentTarget.src = "/avatars/phoenix.jpg";
-                        }}
+                        src={avatarImage.image1}
+                        alt={`${job.assignedUser.first_name} ${job.assignedUser.last_name}`}
                       />
                     </Avatar>
-                    <span className="text-sm">{job.assignedOwner.name}</span>
+                    <span className="text-sm">{`${job.assignedUser.first_name} ${job.assignedUser.last_name}`}</span>
                   </div>
                 </TableCell>
                 <TableCell>
                   <span className="text-sm text-muted-foreground">
-                    {job.dueDate}
+                    {new Date(job.due_date).toLocaleDateString()}
                   </span>
                 </TableCell>
                 <TableCell>
                   <span className="text-sm text-muted-foreground">
-                    {job.duration}
+                    {job.estimated_duration}
                   </span>
                 </TableCell>
                 <TableCell>
@@ -138,9 +207,7 @@ export function JobTable() {
                       <Pencil className="h-4 w-4 text-gray-500" />
                     </button>
                     <button
-                      onClick={() => {
-                        /* Handle delete */
-                      }}
+                      onClick={() => setDeleteJobId(job.id)}
                       className="h-8 w-8 p-2 hover:bg-gray-100 rounded-full transition-colors"
                     >
                       <Trash2 className="h-4 w-4 text-gray-500" />
@@ -153,7 +220,7 @@ export function JobTable() {
         </Table>
       </div>
 
-      {totalPages > 1 && (
+      {pagination && pagination.total > pagination.limit && (
         <Pagination>
           <PaginationContent>
             <PaginationItem>
@@ -161,28 +228,28 @@ export function JobTable() {
                 href="#"
                 onClick={(e) => {
                   e.preventDefault();
-                  if (currentPage > 1) setCurrentPage(currentPage - 1);
+                  if (page > 1) {
+                    setPage(page - 1);
+                  }
                 }}
-                className={
-                  currentPage === 1 ? "pointer-events-none opacity-50" : ""
-                }
+                className={page === 1 ? "pointer-events-none opacity-50" : ""}
               />
             </PaginationItem>
 
-            {generatePageNumbers().map((page, index) => (
+            {generatePageNumbers().map((pageNum, index) => (
               <PaginationItem key={index}>
-                {page === "..." ? (
+                {pageNum === "..." ? (
                   <span className="px-3 py-2">...</span>
                 ) : (
                   <PaginationLink
                     href="#"
                     onClick={(e) => {
                       e.preventDefault();
-                      setCurrentPage(page as number);
+                      setPage(pageNum as number);
                     }}
-                    isActive={currentPage === page}
+                    isActive={page === pageNum}
                   >
-                    {page}
+                    {pageNum}
                   </PaginationLink>
                 )}
               </PaginationItem>
@@ -193,10 +260,12 @@ export function JobTable() {
                 href="#"
                 onClick={(e) => {
                   e.preventDefault();
-                  if (currentPage < totalPages) setCurrentPage(currentPage + 1);
+                  if (pagination && page < pagination.pages) {
+                    setPage(page + 1);
+                  }
                 }}
                 className={
-                  currentPage === totalPages
+                  page === pagination?.pages
                     ? "pointer-events-none opacity-50"
                     : ""
                 }
@@ -205,6 +274,14 @@ export function JobTable() {
           </PaginationContent>
         </Pagination>
       )}
+
+      <DeleteDialog
+        isOpen={!!deleteJobId}
+        jobId={deleteJobId}
+        onClose={() => setDeleteJobId(null)}
+        onConfirm={handleDelete}
+        isDeleting={deleteJobMutation.isPending}
+      />
     </div>
   );
 }

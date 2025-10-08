@@ -20,7 +20,7 @@ import {
   UserJobsQueryParams,
 } from "./jobs-types";
 
-const JOBS_QUERY_KEY = "jobs";
+export const JOBS_QUERY_KEY = "jobs";
 
 // ============================== List Company Jobs ==============================
 
@@ -44,7 +44,7 @@ export const fetchJobs = async (
 
 // React Query hook using the fetch function
 export const useJobs = (params: JobsQueryParams = {}) => {
-  return useQuery({
+  return useQuery<JobsResponse>({
     queryKey: [JOBS_QUERY_KEY, params],
     queryFn: () => fetchJobs(params),
   });

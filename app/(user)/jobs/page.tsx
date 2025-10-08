@@ -4,8 +4,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { useJobStore } from "@/store/job-store";
-import { SearchInput } from "@/components/user/jobs/search-input";
-import { JobFilters } from "@/components/user/jobs/job-filters";
 import { JobTable } from "@/components/user/jobs/job-table";
 import { AddJobModal } from "@/components/user/jobs/add-job-modal";
 
@@ -25,12 +23,6 @@ export default function JobManagementPage() {
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="flex-1">
-              <SearchInput />
-            </div>
-            <JobFilters />
-          </div>
           <JobTable />
         </CardContent>
       </Card>

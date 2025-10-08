@@ -9,34 +9,66 @@ export type JobStatus =
 export interface Job {
   id: string;
   company_id: string;
-  job_aid_id: string;
-  team_id: string;
-  created_by: string;
   title: string;
-  priority: JobPriority;
-  status: JobStatus;
-  assigned_to: string;
+  slug: string;
   description: string;
+  job_aid_id: string;
+  equipment_id: string | null;
+  team_id: string;
+  assigned_to: string;
+  created_by: string;
+  status: JobStatus;
+  priority: JobPriority;
   due_date: string;
-  started_at: string;
-  completed_at: string;
+  started_at: string | null;
+  completed_at: string | null;
   estimated_duration: number;
-  actual_duration: number;
+  actual_duration: number | null;
+  instructions: string | null;
   safety_notes: string;
-  completion_notes: string;
+  completion_notes: string | null;
   created_at: string;
   updated_at: string;
   deleted_at: string | null;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
+  jobAid: JobAid;
+  equipment: Equipment | null;
+  team: Team;
+  assignedUser: AssignedUser;
+  creator: Creator;
+  tasks: Task[];
+}
+
+export interface Equipment {
+  // Add equipment fields as needed
+  id: string;
+  name: string;
+}
+
+export interface AssignedUser {
+  id: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+}
+
+export interface Creator {
+  id: string;
+  first_name: string;
+  last_name: string;
+  email: string;
 }
 
 export interface JobsResponse {
   success: boolean;
   data: Job[];
-  meta: {
+  pagination: {
     total: number;
     page: number;
     limit: number;
-    totalPages: number;
+    pages: number;
   };
 }
 
