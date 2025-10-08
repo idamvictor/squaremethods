@@ -17,6 +17,7 @@ import {
   type HierarchyNode,
 } from "@/store/equipment-store";
 import { FloatingActionButtons } from "./floating-action-buttons";
+import { EquipmentActionButtons } from "./equipment-action-buttons";
 import { cn } from "@/lib/utils";
 import { AddLocationModal } from "./add-location-modal";
 import { AddEquipmentModal } from "./add-equipment-modal";
@@ -106,7 +107,11 @@ function TreeNode({ node, level }: TreeNodeProps) {
           <span className="text-sm text-gray-700">{node.name}</span>
         </div>
 
-        {node.type === "location" && <FloatingActionButtons node={node} />}
+        {node.type === "location" ? (
+          <FloatingActionButtons node={node} />
+        ) : (
+          <EquipmentActionButtons node={node} />
+        )}
       </div>
 
       {isExpanded && hasChildren && (
