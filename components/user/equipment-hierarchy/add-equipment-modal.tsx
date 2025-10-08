@@ -1,10 +1,9 @@
 "use client";
 
 import type React from "react";
-
 import { useState } from "react";
 import Image from "next/image";
-import { Download } from "lucide-react";
+import { Download, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -22,34 +21,37 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { useEquipmentStore, type EquipmentType } from "@/store/equipment-store";
+import { useEquipmentStore } from "@/store/equipment-store";
+import { useEquipmentTypes } from "@/services/equipment-types/equipment-types-queries";
+import { useCreateEquipment } from "@/services/equipment/equipment-queries";
+import { CreateEquipmentInput } from "@/services/equipment/equipment-types";
+import { EquipmentType } from "@/services/equipment-types/equipment-types-types";
 import { toast } from "sonner";
-import { cn } from "@/lib/utils";
-
-const getEquipmentColor = (type: string) => {
-  const colors = {
-    assembly: "text-orange-600",
-    machine: "text-blue-600",
-    component: "text-green-600",
-    "sub-assembly": "text-purple-600",
-  };
-  return colors[type as keyof typeof colors] || "text-gray-600";
-};
 
 export function AddEquipmentModal() {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<
+    Omit<CreateEquipmentInput, "equipment_type_id" | "location_id"> & {
+      equipment_type_id: string;
+      location_id: string;
+      date: string;
+      image: string;
+      documents: File[];
+    }
+  >({
     name: "",
-    type: "assembly" as EquipmentType,
-    referenceCode: "",
+    equipment_type_id: "",
+    location_id: "",
+    reference_code: "",
     date: "",
     notes: "",
+    status: "draft",
     image: "",
+    documents: [],
   });
   const [qrGenerated, setQrGenerated] = useState(false);
 
   const {
     setShowAddEquipmentModal,
-    addEquipment,
     showFloatingButtons,
     showAddEquipmentModal,
   } = useEquipmentStore();
@@ -69,51 +71,77 @@ export function AddEquipmentModal() {
     }
   };
 
-  const handleRegister = () => {
+  const handleDocumentsUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    setFormData((prev) => ({
+      ...prev,
+      documents: [...prev.documents, ...files],
+    }));
+  };
+
+  const createEquipmentMutation = useCreateEquipment();
+
+  const handleRegister = async () => {
     if (
       !formData.name ||
-      !formData.type ||
-      !formData.referenceCode ||
-      !formData.date
+      !formData.equipment_type_id ||
+      !formData.reference_code ||
+      !formData.date ||
+      !showFloatingButtons
     ) {
       toast.error("Please fill in all required fields");
       return;
     }
 
-    if (showFloatingButtons) {
-      addEquipment(showFloatingButtons, formData);
+    try {
+      await createEquipmentMutation.mutateAsync({
+        equipment_type_id: formData.equipment_type_id,
+        location_id: showFloatingButtons,
+        name: formData.name,
+        reference_code: formData.reference_code,
+        notes: formData.notes,
+        status: formData.status,
+      });
+
+      // Refresh the hierarchy data
+      const store = useEquipmentStore.getState();
+      await store.fetchHierarchy();
+
       setQrGenerated(true);
-      toast.success("QR Code generated successfully");
+      toast.success("Equipment created successfully");
+      handleCancel();
+    } catch (error) {
+      if (error instanceof Error) {
+        toast.error(error.message);
+      } else {
+        toast.error("Failed to create equipment");
+      }
     }
   };
 
   const handleCancel = () => {
     setFormData({
       name: "",
-      type: "assembly" as EquipmentType,
-      referenceCode: "",
+      equipment_type_id: "",
+      location_id: "",
+      reference_code: "",
       date: "",
       notes: "",
+      status: "draft",
       image: "",
+      documents: [],
     });
     setQrGenerated(false);
     setShowAddEquipmentModal(false);
   };
 
-  const equipmentTypes = [
-    { value: "assembly", label: "Assembly", icon: "/equipment/assembly.svg" },
-    { value: "machine", label: "Machine", icon: "/equipment/machine.svg" },
-    {
-      value: "component",
-      label: "Component",
-      icon: "/equipment/component.svg",
-    },
-    {
-      value: "sub-assembly",
-      label: "Sub Assembly",
-      icon: "/equipment/sub-assembly.svg",
-    },
-  ];
+  const { data: equipmentTypesData } = useEquipmentTypes();
+  const equipmentTypes =
+    equipmentTypesData?.data?.map((type: EquipmentType) => ({
+      value: type.id,
+      label: type.name,
+      icon: type.icon || null,
+    })) || [];
 
   return (
     <Dialog
@@ -169,37 +197,85 @@ export function AddEquipmentModal() {
               )}
             </div>
 
+            {/* Document Upload */}
+            <div>
+              <Label htmlFor="documents">Documents</Label>
+              <div className="mt-2 border-2 border-dashed border-gray-300 rounded-lg p-4 bg-gray-50">
+                <input
+                  id="documents"
+                  type="file"
+                  multiple
+                  onChange={handleDocumentsUpload}
+                  className="text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                />
+                {formData.documents.length > 0 && (
+                  <ul className="mt-4 space-y-2">
+                    {formData.documents.map((file: File, index: number) => (
+                      <li
+                        key={index}
+                        className="flex items-center justify-between bg-white p-2 rounded-md"
+                      >
+                        <span className="text-sm text-gray-600">
+                          {file.name}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setFormData((prev) => ({
+                              ...prev,
+                              documents: prev.documents.filter(
+                                (_, i) => i !== index
+                              ),
+                            }));
+                          }}
+                          className="text-red-500 hover:text-red-700"
+                        >
+                          Remove
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </div>
+
             {/* Form Fields */}
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="equipment-type">Equipment type</Label>
                   <Select
-                    value={formData.type}
-                    onValueChange={(value) => handleInputChange("type", value)}
+                    value={formData.equipment_type_id}
+                    onValueChange={(value) =>
+                      handleInputChange("equipment_type_id", value)
+                    }
                   >
                     <SelectTrigger className="w-full">
                       <SelectValue>
-                        {formData.type ? (
+                        {formData.equipment_type_id ? (
                           <div className="flex items-center gap-2">
-                            <Image
-                              src={
-                                equipmentTypes.find(
-                                  (t) => t.value === formData.type
-                                )?.icon || ""
-                              }
-                              alt=""
-                              width={20}
-                              height={20}
-                              className={cn(
-                                "w-5 h-5",
-                                getEquipmentColor(formData.type)
-                              )}
-                            />
+                            {(() => {
+                              const equipmentType = equipmentTypes.find(
+                                (t: { value: string; icon: string | null }) =>
+                                  t.value === formData.equipment_type_id
+                              );
+                              return equipmentType?.icon ? (
+                                <Image
+                                  src={equipmentType.icon}
+                                  alt=""
+                                  width={20}
+                                  height={20}
+                                  className="w-5 h-5"
+                                />
+                              ) : (
+                                <Settings className="w-5 h-5 text-gray-600" />
+                              );
+                            })()}
                             <span>
                               {
                                 equipmentTypes.find(
-                                  (t) => t.value === formData.type
+                                  (t: { value: string; label: string }) =>
+                                    t.value === formData.equipment_type_id
                                 )?.label
                               }
                             </span>
@@ -210,23 +286,30 @@ export function AddEquipmentModal() {
                       </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
-                      {equipmentTypes.map((type) => (
-                        <SelectItem key={type.value} value={type.value}>
-                          <div className="flex items-center gap-2">
-                            <Image
-                              src={type.icon}
-                              alt=""
-                              width={20}
-                              height={20}
-                              className={cn(
-                                "w-5 h-5",
-                                getEquipmentColor(type.value)
+                      {equipmentTypes.map(
+                        (type: {
+                          value: string;
+                          label: string;
+                          icon: string | null;
+                        }) => (
+                          <SelectItem key={type.value} value={type.value}>
+                            <div className="flex items-center gap-2">
+                              {type.icon ? (
+                                <Image
+                                  src={type.icon}
+                                  alt=""
+                                  width={20}
+                                  height={20}
+                                  className="w-5 h-5"
+                                />
+                              ) : (
+                                <Settings className="w-5 h-5 text-gray-600" />
                               )}
-                            />
-                            <span>{type.label}</span>
-                          </div>
-                        </SelectItem>
-                      ))}
+                              <span>{type.label}</span>
+                            </div>
+                          </SelectItem>
+                        )
+                      )}
                     </SelectContent>
                   </Select>
                 </div>
@@ -251,9 +334,9 @@ export function AddEquipmentModal() {
                   </Label>
                   <Input
                     id="reference-code"
-                    value={formData.referenceCode}
+                    value={formData.reference_code}
                     onChange={(e) =>
-                      handleInputChange("referenceCode", e.target.value)
+                      handleInputChange("reference_code", e.target.value)
                     }
                     placeholder="54635bd"
                   />
