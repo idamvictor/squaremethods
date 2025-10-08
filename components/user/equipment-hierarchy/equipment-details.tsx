@@ -2,7 +2,6 @@
 
 import { Download } from "lucide-react";
 import Image from "next/image";
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,23 +16,20 @@ import {
 } from "@/components/ui/select";
 import type { HierarchyNode } from "@/store/equipment-store";
 
+import { useEquipmentDetails } from "@/services/equipment/equipment-queries";
+import { Loader2 } from "lucide-react";
+
 interface EquipmentDetailsProps {
   node: HierarchyNode;
 }
 
-const getEquipmentColor = (type: string) => {
-  const colors = {
-    pump: "text-blue-600",
-    assembly: "text-orange-600",
-    conveyor: "text-green-600",
-    motor: "text-purple-600",
-    valve: "text-red-600",
-    sensor: "text-yellow-600",
-  };
-  return colors[type as keyof typeof colors] || "text-gray-600";
-};
-
 export function EquipmentDetails({ node }: EquipmentDetailsProps) {
+  const {
+    data: equipmentData,
+    isLoading,
+    error,
+  } = useEquipmentDetails(node.type !== "location" ? node.id : undefined);
+
   if (node.type === "location") {
     return (
       <div className="text-center text-gray-500 mt-20">
@@ -43,14 +39,33 @@ export function EquipmentDetails({ node }: EquipmentDetailsProps) {
     );
   }
 
-  const equipmentTypes = [
-    { value: "assembly", label: "Assembly", icon: "⚙️" },
-    { value: "pump", label: "Pump", icon: "🔧" },
-    { value: "conveyor", label: "Conveyor", icon: "📦" },
-    { value: "motor", label: "Motor", icon: "⚡" },
-    { value: "valve", label: "Valve", icon: "🔩" },
-    { value: "sensor", label: "Sensor", icon: "📡" },
-  ];
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center text-red-500 mt-20">
+        <h2 className="text-xl font-semibold mb-2">Error</h2>
+        <p>Failed to load equipment details.</p>
+      </div>
+    );
+  }
+
+  if (!equipmentData?.data) {
+    return (
+      <div className="text-center text-gray-500 mt-20">
+        <h2 className="text-xl font-semibold mb-2">No Data</h2>
+        <p>Equipment details not found.</p>
+      </div>
+    );
+  }
+
+  const equipment = equipmentData.data;
 
   return (
     <div className="space-y-6">
@@ -69,10 +84,10 @@ export function EquipmentDetails({ node }: EquipmentDetailsProps) {
             <div className="flex flex-col gap-6">
               {/* Image */}
               <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center bg-gray-50">
-                {node.image ? (
+                {equipment.image ? (
                   <Image
-                    src={node.image}
-                    alt={node.name}
+                    src={equipment.image}
+                    alt={equipment.name}
                     width={400}
                     height={192}
                     className="w-full h-48 object-cover rounded-lg"
@@ -100,48 +115,26 @@ export function EquipmentDetails({ node }: EquipmentDetailsProps) {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="equipment-type">Equipment type</Label>
-                    <Select value={node.type} disabled>
+                    <Select value={equipment.equipmentType.id} disabled>
                       <SelectTrigger className="w-full">
                         <SelectValue>
                           <div className="flex items-center gap-2">
-                            <span
-                              className={cn(
-                                "text-lg",
-                                getEquipmentColor(node.type)
-                              )}
-                            >
-                              {
-                                equipmentTypes.find(
-                                  (t) => t.value === node.type
-                                )?.icon
-                              }
+                            <span className="text-lg text-blue-600">
+                              {equipment.equipmentType.icon || "⚙️"}
                             </span>
-                            <span>
-                              {
-                                equipmentTypes.find(
-                                  (t) => t.value === node.type
-                                )?.label
-                              }
-                            </span>
+                            <span>{equipment.equipmentType.name}</span>
                           </div>
                         </SelectValue>
                       </SelectTrigger>
                       <SelectContent>
-                        {equipmentTypes.map((type) => (
-                          <SelectItem key={type.value} value={type.value}>
-                            <div className="flex items-center gap-2">
-                              <span
-                                className={cn(
-                                  "text-lg",
-                                  getEquipmentColor(type.value)
-                                )}
-                              >
-                                {type.icon}
-                              </span>
-                              <span>{type.label}</span>
-                            </div>
-                          </SelectItem>
-                        ))}
+                        <SelectItem value={equipment.equipmentType.id}>
+                          <div className="flex items-center gap-2">
+                            <span className="text-lg text-blue-600">
+                              {equipment.equipmentType.icon || "⚙️"}
+                            </span>
+                            <span>{equipment.equipmentType.name}</span>
+                          </div>
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -149,7 +142,11 @@ export function EquipmentDetails({ node }: EquipmentDetailsProps) {
                     <Label htmlFor="equipment-name">
                       Equipment name <span className="text-red-500">*</span>
                     </Label>
-                    <Input id="equipment-name" value={node.name} readOnly />
+                    <Input
+                      id="equipment-name"
+                      value={equipment.name}
+                      readOnly
+                    />
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
@@ -159,7 +156,7 @@ export function EquipmentDetails({ node }: EquipmentDetailsProps) {
                     </Label>
                     <Input
                       id="reference-code"
-                      value={node.referenceCode || ""}
+                      value={equipment.reference_code || ""}
                       readOnly
                       placeholder="54635bd"
                     />
@@ -171,7 +168,7 @@ export function EquipmentDetails({ node }: EquipmentDetailsProps) {
                     <Input
                       id="date"
                       type="date"
-                      value={node.date || ""}
+                      value={equipment.created_at?.split("T")[0] || ""}
                       readOnly
                     />
                   </div>
@@ -180,7 +177,7 @@ export function EquipmentDetails({ node }: EquipmentDetailsProps) {
                   <Label htmlFor="notes">Notes</Label>
                   <Textarea
                     id="notes"
-                    value={node.notes || ""}
+                    value={equipment.notes || ""}
                     readOnly
                     rows={4}
                     placeholder="Please Enter"
@@ -199,9 +196,9 @@ export function EquipmentDetails({ node }: EquipmentDetailsProps) {
             <div className="space-y-4">
               <div className="border rounded-lg p-4 text-center">
                 <div className="w-32 h-32 mx-auto mb-4">
-                  {node.qrCode ? (
+                  {equipment.qrcode ? (
                     <Image
-                      src={node.qrCode}
+                      src={equipment.qrcode}
                       alt="QR Code"
                       width={128}
                       height={128}
@@ -225,7 +222,10 @@ export function EquipmentDetails({ node }: EquipmentDetailsProps) {
                   variant="outline"
                   size="sm"
                   className="bg-blue-800 text-white hover:bg-blue-700"
-                  disabled={!node.qrCode}
+                  disabled={!equipment.qrcode}
+                  onClick={() =>
+                    equipment.qrcode && window.open(equipment.qrcode, "_blank")
+                  }
                 >
                   <Download className="h-4 w-4 mr-2" />
                   Download QR (PNG)

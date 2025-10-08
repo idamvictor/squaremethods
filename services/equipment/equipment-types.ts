@@ -1,3 +1,23 @@
+export interface EquipmentType {
+  id: string;
+  name: string;
+  slug: string;
+  description: string;
+  icon: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Location {
+  id: string;
+  name: string;
+  icon: string | null;
+  slug: string;
+  parent_location_id: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface Equipment {
   id: string;
   equipment_type_id: string;
@@ -6,13 +26,15 @@ export interface Equipment {
   reference_code: string;
   status: "draft" | string; // Add other status types as needed
   location_id: string;
-  image: string;
-  icon: string;
-  documents: string[];
+  image: string | null;
+  icon: string | null;
+  documents: string[] | null;
   notes: string;
-  qrcode: string;
+  qrcode: string | null;
   created_at: string;
   updated_at: string;
+  equipmentType: EquipmentType;
+  location: Location;
 }
 
 export interface EquipmentMeta {
