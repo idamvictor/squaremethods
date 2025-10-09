@@ -18,11 +18,12 @@ export interface User {
 
 export interface TeamMember {
   id: string;
-  team_id: string;
-  user_id: string;
-  role: "manager" | "member" | string;
-  joined_at: string;
-  user: User;
+  first_name: string;
+  last_name: string;
+  email: string;
+  role: string;
+  status: string;
+  created_at: string;
 }
 
 export interface Team {

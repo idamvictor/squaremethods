@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import axios from "@/lib/api/axios";
+import axiosInstance from "@/lib/api/axios";
 import {
   UserFilters,
   UsersResponse,
@@ -36,7 +36,7 @@ const getUsers = async (filters: UserFilters): Promise<UsersResponse> => {
   if (filters.status) queryParams.append("status", filters.status);
   if (filters.team_id) queryParams.append("team_id", filters.team_id);
 
-  const response = await axios.get(`/users?${queryParams.toString()}`);
+  const response = await axiosInstance.get(`/users?${queryParams.toString()}`);
   return response.data;
 };
 
@@ -52,7 +52,7 @@ export const useUsers = (filters: UserFilters = { page: 1, limit: 20 }) => {
 const createUser = async (
   data: CreateUserRequest
 ): Promise<CreateUserResponse> => {
-  const response = await axios.post("/users", data);
+  const response = await axiosInstance.post("/users", data);
   return response.data;
 };
 
@@ -74,7 +74,7 @@ export const useCreateUser = () => {
 const PROFILE_QUERY_KEY = "profile";
 
 const getProfile = async (): Promise<ProfileResponse> => {
-  const response = await axios.get("/users/profile");
+  const response = await axiosInstance.get("/users/profile");
   return response.data;
 };
 
@@ -89,7 +89,7 @@ export const useProfile = () => {
 const updateProfile = async (
   data: UpdateProfileRequest
 ): Promise<ProfileResponse> => {
-  const response = await axios.put("/users/profile", data);
+  const response = await axiosInstance.put("/users/profile", data);
   return response.data;
 };
 
@@ -111,7 +111,7 @@ export const useUpdateProfile = () => {
 const DASHBOARD_QUERY_KEY = "dashboard";
 
 const getDashboard = async (): Promise<DashboardResponse> => {
-  const response = await axios.get("/users/dashboard");
+  const response = await axiosInstance.get("/users/dashboard");
   return response.data;
 };
 
@@ -126,7 +126,7 @@ export const useDashboard = () => {
 
 // Get User Details
 const getUserDetails = async (userId: string): Promise<UserDetailsResponse> => {
-  const response = await axios.get(`/users/${userId}`);
+  const response = await axiosInstance.get(`/users/${userId}`);
   return response.data;
 };
 
@@ -143,7 +143,7 @@ const changePassword = async (
   userId: string,
   data: ChangePasswordRequest
 ): Promise<ChangePasswordResponse> => {
-  const response = await axios.put(`/users/${userId}/password`, data);
+  const response = await axiosInstance.put(`/users/${userId}/password`, data);
   return response.data;
 };
 
@@ -164,7 +164,7 @@ const getUserActivity = async (
   if (filters.page) queryParams.append("page", filters.page.toString());
   if (filters.limit) queryParams.append("limit", filters.limit.toString());
 
-  const response = await axios.get(
+  const response = await axiosInstance.get(
     `/users/${userId}/activity?${queryParams.toString()}`
   );
   return response.data;
@@ -194,7 +194,7 @@ const getUserJobs = async (
   if (filters.status) queryParams.append("status", filters.status);
   if (filters.priority) queryParams.append("priority", filters.priority);
 
-  const response = await axios.get(
+  const response = await axiosInstance.get(
     `/users/${userId}/jobs?${queryParams.toString()}`
   );
   return response.data;
@@ -213,7 +213,7 @@ export const useUserJobs = (
 
 // Activate user
 const activateUser = async (userId: string): Promise<ActivateUserResponse> => {
-  const response = await axios.put(`/users/${userId}/activate`);
+  const response = await axiosInstance.put(`/users/${userId}/activate`);
   return response.data;
 };
 
@@ -234,7 +234,7 @@ export const useActivateUser = (userId: string) => {
 const deactivateUser = async (
   userId: string
 ): Promise<ActivateUserResponse> => {
-  const response = await axios.put(`/users/${userId}/deactivate`);
+  const response = await axiosInstance.put(`/users/${userId}/deactivate`);
   return response.data;
 };
 
@@ -256,7 +256,7 @@ const updateUser = async (
   userId: string,
   data: UpdateUserRequest
 ): Promise<UserDetailsResponse> => {
-  const response = await axios.put(`/users/${userId}`, data);
+  const response = await axiosInstance.put(`/users/${userId}`, data);
   return response.data;
 };
 
@@ -275,7 +275,7 @@ export const useUpdateUser = (userId: string) => {
 
 // Delete user
 const deleteUser = async (userId: string): Promise<ChangePasswordResponse> => {
-  const response = await axios.delete(`/users/${userId}`);
+  const response = await axiosInstance.delete(`/users/${userId}`);
   return response.data;
 };
 
