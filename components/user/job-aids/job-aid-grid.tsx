@@ -11,6 +11,7 @@ interface JobAidGridProps {
   equipmentId?: string;
   status?: "draft" | "published";
   onDelete?: (id: string) => void;
+  onEdit?: (id: string) => void;
 }
 
 export function JobAidGrid({
@@ -19,6 +20,7 @@ export function JobAidGrid({
   equipmentId,
   status,
   onDelete,
+  onEdit,
 }: JobAidGridProps) {
   const [page] = useState(1);
   const { data, isLoading, isError } = useJobAids({
@@ -56,7 +58,9 @@ export function JobAidGrid({
   }
 
   if (viewMode === "list") {
-    return <JobAidsTable jobAids={data.data} onDelete={onDelete} />;
+    return (
+      <JobAidsTable jobAids={data.data} onDelete={onDelete} onEdit={onEdit} />
+    );
   }
 
   return (
@@ -67,6 +71,7 @@ export function JobAidGrid({
           jobAid={jobAid}
           viewMode={viewMode}
           onDelete={onDelete}
+          onEdit={onEdit}
         />
       ))}
     </div>

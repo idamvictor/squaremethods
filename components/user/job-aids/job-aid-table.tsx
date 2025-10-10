@@ -23,9 +23,10 @@ import { JobAid } from "@/services/job-aid/job-aid-types";
 interface JobAidsTableProps {
   jobAids: JobAid[];
   onDelete?: (id: string) => void;
+  onEdit?: (id: string) => void;
 }
 
-export function JobAidsTable({ jobAids, onDelete }: JobAidsTableProps) {
+export function JobAidsTable({ jobAids, onDelete, onEdit }: JobAidsTableProps) {
   if (jobAids.length === 0) {
     return (
       <div className="text-center py-12">
@@ -108,10 +109,8 @@ export function JobAidsTable({ jobAids, onDelete }: JobAidsTableProps) {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
-                    <DropdownMenuItem asChild>
-                      <Link href={`/job-aids/${jobAid.id}/edit`}>
-                        Edit Job Aid
-                      </Link>
+                    <DropdownMenuItem onClick={() => onEdit?.(jobAid.id)}>
+                      Edit Job Aid
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       className="text-red-600"

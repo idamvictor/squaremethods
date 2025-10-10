@@ -18,9 +18,15 @@ interface JobAidCardProps {
   jobAid: JobAid;
   viewMode: "grid" | "list";
   onDelete?: (id: string) => void;
+  onEdit?: (id: string) => void;
 }
 
-export function JobAidCard({ jobAid, viewMode, onDelete }: JobAidCardProps) {
+export function JobAidCard({
+  jobAid,
+  viewMode,
+  onDelete,
+  onEdit,
+}: JobAidCardProps) {
   return (
     <Link href={`/job-aids/${jobAid.id}`} className="block">
       <Card className="relative group hover:shadow-md transition-shadow overflow-hidden py-0">
@@ -36,8 +42,13 @@ export function JobAidCard({ jobAid, viewMode, onDelete }: JobAidCardProps) {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem asChild>
-                <Link href={`/job-aids/${jobAid.id}/edit`}>Edit Job Aid</Link>
+              <DropdownMenuItem
+                onClick={(e) => {
+                  e.preventDefault();
+                  onEdit?.(jobAid.id);
+                }}
+              >
+                Edit Job Aid
               </DropdownMenuItem>
               <DropdownMenuItem
                 className="text-red-600"

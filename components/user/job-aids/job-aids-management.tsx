@@ -9,17 +9,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogFooter,
-} from "@/components/ui/dialog";
 import { JobAidGrid } from "./job-aid-grid";
+import { DeleteJobAidModal } from "./delete-job-aid-modal";
+import { EditJobAidModal } from "./edit-job-aid-modal";
 import { Grid3X3, List, Search } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { useDeleteJobAid } from "@/services/job-aid/job-aid-queries";
+import {
+  useDeleteJobAid,
+  useUpdateJobAid,
+  useJobAidDetails,
+} from "@/services/job-aid/job-aid-queries";
 import { JobAidStatus } from "@/services/job-aid/job-aid-types";
 import { toast } from "sonner";
 
@@ -30,19 +30,26 @@ export function JobAidsManagement() {
   const [status, setStatus] = useState<JobAidStatus | undefined>();
   const [equipmentId, setEquipmentId] = useState<string>();
 
-  const deleteJobAid = useDeleteJobAid();
-
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [editId, setEditId] = useState<string | null>(null);
 
-  const handleDelete = async (id: string) => {
+  const deleteJobAidMutation = useDeleteJobAid();
+  const updateJobAidMutation = useUpdateJobAid(editId || "");
+  const { data: editingJobAid } = useJobAidDetails(editId || "");
+
+  const handleDelete = (id: string) => {
     setDeleteId(id);
+  };
+
+  const handleEdit = (id: string) => {
+    setEditId(id);
   };
 
   const confirmDelete = async () => {
     if (!deleteId) return;
 
     try {
-      await deleteJobAid.mutateAsync(deleteId);
+      await deleteJobAidMutation.mutateAsync(deleteId);
       toast.success("Job aid deleted successfully");
     } catch (error) {
       toast.error(
@@ -51,6 +58,26 @@ export function JobAidsManagement() {
       );
     } finally {
       setDeleteId(null);
+    }
+  };
+
+  const handleUpdate = async (data: {
+    title: string;
+    description: string;
+    status: JobAidStatus;
+    safety_notes: string;
+  }) => {
+    if (!editId) return;
+
+    try {
+      await updateJobAidMutation.mutateAsync(data);
+      toast.success("Job aid updated successfully");
+      setEditId(null);
+    } catch (error) {
+      toast.error(
+        "Failed to update job aid: " +
+          (error instanceof Error ? error.message : "Unknown error")
+      );
     }
   };
 
@@ -142,39 +169,25 @@ export function JobAidsManagement() {
         status={status}
         equipmentId={equipmentId}
         onDelete={handleDelete}
+        onEdit={handleEdit}
       />
 
-      {/* Delete Confirmation Dialog */}
-      <Dialog
+      {/* Delete Confirmation Modal */}
+      <DeleteJobAidModal
         open={!!deleteId}
-        onOpenChange={(open) => !open && setDeleteId(null)}
-      >
-        <DialogContent>
-          <DialogHeader>
-            <h2 className="text-lg font-semibold">Delete Job Aid</h2>
-            <p className="text-sm text-gray-500">
-              Are you sure you want to delete this job aid? This action cannot
-              be undone.
-            </p>
-          </DialogHeader>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setDeleteId(null)}
-              disabled={deleteJobAid.isPending}
-            >
-              Cancel
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={confirmDelete}
-              disabled={deleteJobAid.isPending}
-            >
-              {deleteJobAid.isPending ? "Deleting..." : "Delete"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+        isDeleting={deleteJobAidMutation.isPending}
+        onClose={() => setDeleteId(null)}
+        onConfirm={confirmDelete}
+      />
+
+      {/* Edit Job Aid Modal */}
+      <EditJobAidModal
+        jobAid={editingJobAid?.data}
+        open={!!editId}
+        isLoading={updateJobAidMutation.isPending}
+        onClose={() => setEditId(null)}
+        onSubmit={handleUpdate}
+      />
     </div>
   );
 }

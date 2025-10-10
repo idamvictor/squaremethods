@@ -74,7 +74,7 @@ export const updateJobAid = async ({
   id: string;
   data: UpdateJobAidInput;
 }) => {
-  const response = await axiosInstance.patch<JobAidResponse>(
+  const response = await axiosInstance.put<JobAidResponse>(
     `/job-aids/${id}`,
     data
   );
