@@ -1,33 +1,40 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { ArrowLeft, Search, X, Upload, Download, Plus } from "lucide-react"
-import { useJobAidStore } from "@/store/job-aid-store"
-import type { JobAid } from "@/types/job-aid"
-import Link from "next/link"
-import Image from "next/image"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ArrowLeft, Search, X, Plus } from "lucide-react";
+import { useJobAidDetails } from "@/services/job-aid/job-aid-queries";
+import Link from "next/link";
+import Image from "next/image";
 
 interface JobAidDetailsProps {
-  jobAidId: string
+  jobAidId: string;
 }
 
 export function JobAidDetails({ jobAidId }: JobAidDetailsProps) {
-  const { getJobAidById } = useJobAidStore()
-  const [jobAid, setJobAid] = useState<JobAid | null>(null)
-  const [searchQuery, setSearchQuery] = useState("")
+  const { data: jobAidResponse, isLoading, error } = useJobAidDetails(jobAidId);
+  const [searchQuery, setSearchQuery] = useState("");
 
-  useEffect(() => {
-    const aid = getJobAidById(jobAidId)
-    setJobAid(aid || null)
-  }, [jobAidId, getJobAidById])
+  if (isLoading) {
+    return <div className="p-6 text-center text-gray-600">Loading...</div>;
+  }
+
+  if (error || !jobAidResponse) {
+    return (
+      <div className="p-6 text-center text-gray-600">
+        Failed to load job aid details.
+      </div>
+    );
+  }
+
+  const jobAid = jobAidResponse.data;
 
   if (!jobAid) {
-    return <div className="p-6 text-center text-gray-600">Job aid not found.</div>
+    return (
+      <div className="p-6 text-center text-gray-600">Job aid not found.</div>
+    );
   }
 
   return (
@@ -36,7 +43,10 @@ export function JobAidDetails({ jobAidId }: JobAidDetailsProps) {
       <div className="bg-white border-b px-6 py-4">
         <div className="flex items-center justify-between max-w-7xl mx-auto">
           <div className="flex items-center gap-4">
-            <Link href="/job-aids" className="text-gray-500 hover:text-gray-700">
+            <Link
+              href="/job-aids"
+              className="text-gray-500 hover:text-gray-700"
+            >
               <ArrowLeft className="w-5 h-5" />
             </Link>
             <h1 className="text-2xl font-semibold text-gray-900">Job Aids</h1>
@@ -78,112 +88,104 @@ export function JobAidDetails({ jobAidId }: JobAidDetailsProps) {
                   <Input value={jobAid.title} readOnly />
                 </div>
 
-                {/* Category, Author, Date Created */}
+                {/* Author, Difficulty, Date Created */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Category <span className="text-red-500">*</span>
+                      Author
                     </label>
-                    <Select value={jobAid.category} disabled>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value={jobAid.category}>{jobAid.category}</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <Input
+                      value={`${jobAid.creator.first_name} ${jobAid.creator.last_name}`}
+                      readOnly
+                    />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Author <span className="text-red-500">*</span>
+                      Difficulty Level
                     </label>
-                    <Input value={jobAid.author} readOnly />
+                    <Input value={jobAid.difficulty_level} readOnly />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Date Created <span className="text-red-500">*</span>
+                      Date Created
                     </label>
-                    <Input value={jobAid.dateCreated} readOnly />
+                    <Input
+                      value={new Date(jobAid.created_at).toLocaleDateString()}
+                      readOnly
+                    />
                   </div>
                 </div>
 
-                {/* Safety Precautions */}
+                {/* Safety Notes */}
                 <div>
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-2">
-                      <h3 className="text-lg font-medium">Safety Precautions</h3>
+                      <h3 className="text-lg font-medium">Safety Notes</h3>
                       <div className="w-4 h-4 bg-orange-500 rounded-full flex items-center justify-center">
                         <span className="text-white text-xs">!</span>
                       </div>
                     </div>
-                    <Button variant="outline" size="sm">
-                      <Upload className="w-4 h-4 mr-2" />
-                      Upload
-                    </Button>
                   </div>
-                  {jobAid.safetyPrecautions.length > 0 ? (
-                    <ul className="space-y-2">
-                      {jobAid.safetyPrecautions.map((precaution, index) => (
-                        <li key={index} className="flex items-start gap-2">
-                          <span className="w-2 h-2 bg-gray-400 rounded-full mt-2 flex-shrink-0" />
-                          <span className="text-gray-700">{precaution}</span>
-                        </li>
-                      ))}
-                    </ul>
+                  {jobAid.safety_notes ? (
+                    <div className="text-gray-700 whitespace-pre-wrap">
+                      {jobAid.safety_notes}
+                    </div>
                   ) : (
                     <p className="text-gray-500">
-                      No safety steps added. Protect your team by adding essential precautions
+                      No safety notes added. Protect your team by adding
+                      essential precautions.
                     </p>
                   )}
                 </div>
 
-                {/* Job Aid Procedures */}
+                {/* Instructions */}
                 <div>
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-medium">Job Aid Procedures</h3>
-                    <Button variant="outline" size="sm">
-                      <Upload className="w-4 h-4 mr-2" />
-                      Upload
-                    </Button>
+                    <h3 className="text-lg font-medium">Instructions</h3>
                   </div>
-                  <p className="text-gray-600 mb-6">
-                    Build visual step-by-step instructions. Add a new step or [import pdf]
-                  </p>
+                  {jobAid.instructions ? (
+                    <div className="text-gray-700 whitespace-pre-wrap">
+                      {jobAid.instructions}
+                    </div>
+                  ) : (
+                    <p className="text-gray-500">No instructions added yet.</p>
+                  )}
+                </div>
 
-                  <div className="space-y-4">
-                    {jobAid.procedures.map((procedure) => (
-                      <div key={procedure.id} className="border rounded-lg p-4">
-                        <div className="flex items-center justify-between mb-2">
-                          <h4 className="font-medium">{procedure.title}</h4>
-                          <div className="flex items-center gap-2">
-                            <Badge variant="secondary" className="text-green-600">
-                              {procedure.steps.length} Steps
-                            </Badge>
-                            <Button variant="outline" size="sm">
-                              <Download className="w-4 h-4 mr-2" />
-                              Export
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
+                {/* Content */}
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-medium">Content</h3>
                   </div>
+                  {jobAid.content ? (
+                    <div className="text-gray-700 whitespace-pre-wrap">
+                      {jobAid.content}
+                    </div>
+                  ) : (
+                    <p className="text-gray-500">No content added yet.</p>
+                  )}
+                </div>
 
-                  {/* Add New Buttons */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-                    <Button variant="outline" className="h-20 border-dashed bg-transparent">
-                      <div className="text-center">
-                        <Plus className="w-6 h-6 mx-auto mb-2" />
-                        <span>New Instruction</span>
-                      </div>
-                    </Button>
-                    <Button variant="outline" className="h-20 border-dashed bg-transparent">
-                      <div className="text-center">
-                        <Plus className="w-6 h-6 mx-auto mb-2" />
-                        <span>New Steps</span>
-                      </div>
-                    </Button>
-                  </div>
+                {/* Add New Buttons */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+                  <Button
+                    variant="outline"
+                    className="h-20 border-dashed bg-transparent"
+                  >
+                    <div className="text-center">
+                      <Plus className="w-6 h-6 mx-auto mb-2" />
+                      <span>New Instruction</span>
+                    </div>
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="h-20 border-dashed bg-transparent"
+                  >
+                    <div className="text-center">
+                      <Plus className="w-6 h-6 mx-auto mb-2" />
+                      <span>New Steps</span>
+                    </div>
+                  </Button>
                 </div>
               </CardContent>
             </Card>
@@ -198,34 +200,45 @@ export function JobAidDetails({ jobAidId }: JobAidDetailsProps) {
               <CardContent className="space-y-6">
                 {/* Equipment Name and Image */}
                 <div>
-                  <h3 className="text-lg font-medium mb-4">{jobAid.assignedEquipment.name}</h3>
-                  <div className="aspect-video relative rounded-lg overflow-hidden">
-                    <Image
-                      src={jobAid.assignedEquipment.image || "/placeholder.svg"}
-                      alt={jobAid.assignedEquipment.name}
-                      fill
-                      className="object-cover"
-                    />
+                  <h3 className="text-lg font-medium mb-4">
+                    Equipment Details
+                  </h3>
+                  <div className="aspect-video relative rounded-lg overflow-hidden bg-gray-100 mb-4">
+                    {jobAid.image_url ? (
+                      <Image
+                        src={jobAid.image_url}
+                        alt={jobAid.title}
+                        fill
+                        className="object-cover"
+                      />
+                    ) : (
+                      <div className="flex items-center justify-center h-full text-gray-400">
+                        No image available
+                      </div>
+                    )}
                   </div>
                 </div>
 
                 {/* Equipment Type */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Equipment type</label>
-                  <Select value={jobAid.assignedEquipment.type} disabled>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value={jobAid.assignedEquipment.type}>{jobAid.assignedEquipment.type}</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Equipment type
+                  </label>
+                  <Input
+                    value={jobAid.equipment_type_id || "Not assigned"}
+                    readOnly
+                  />
                 </div>
 
                 {/* Location */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Location</label>
-                  <Input value={jobAid.assignedEquipment.location} readOnly />
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Location ID
+                  </label>
+                  <Input
+                    value={jobAid.location_id || "Not assigned"}
+                    readOnly
+                  />
                 </div>
 
                 {/* View Equipment Button */}
@@ -238,5 +251,5 @@ export function JobAidDetails({ jobAidId }: JobAidDetailsProps) {
         </div>
       </div>
     </div>
-  )
+  );
 }

@@ -6,6 +6,7 @@ export default async function JobAidDetailsPage({
   params: Promise<{ jobAidId: string }>;
 }) {
   const { jobAidId } = await params;
+  console.log("Job Aid ID:", jobAidId);
   return (
     <div className="min-h-screen bg-gray-50">
       <JobAidDetails jobAidId={jobAidId} />
