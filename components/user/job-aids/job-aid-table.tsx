@@ -18,13 +18,14 @@ import { Button } from "@/components/ui/button";
 import { MoreHorizontal } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import type { JobAid } from "@/types/job-aid";
+import { JobAid } from "@/services/job-aid/job-aid-types";
 
 interface JobAidsTableProps {
   jobAids: JobAid[];
+  onDelete?: (id: string) => void;
 }
 
-export function JobAidsTable({ jobAids }: JobAidsTableProps) {
+export function JobAidsTable({ jobAids, onDelete }: JobAidsTableProps) {
   if (jobAids.length === 0) {
     return (
       <div className="text-center py-12">
@@ -44,17 +45,11 @@ export function JobAidsTable({ jobAids }: JobAidsTableProps) {
               JOB AID
             </TableHead>
             <TableHead className="font-medium text-gray-700">TITLE</TableHead>
-            <TableHead className="font-medium text-gray-700">
-              CATEGORY
-            </TableHead>
-            <TableHead className="font-medium text-gray-700">
-              EQUIPMENT
-            </TableHead>
-            <TableHead className="font-medium text-gray-700">
-              DATE ENTERED
-            </TableHead>
+            <TableHead className="font-medium text-gray-700">STATUS</TableHead>
+            <TableHead className="font-medium text-gray-700">VIEWS</TableHead>
+            <TableHead className="font-medium text-gray-700">CREATED</TableHead>
             <TableHead className="font-medium text-gray-700 w-16">
-              Edit
+              Actions
             </TableHead>
           </TableRow>
         </TableHeader>
@@ -66,7 +61,8 @@ export function JobAidsTable({ jobAids }: JobAidsTableProps) {
                   <div className="w-24 h-16 relative rounded overflow-hidden">
                     <Image
                       src={
-                        jobAid.image || "/placeholder.svg?height=64&width=96"
+                        jobAid.image_url ||
+                        "/placeholder.svg?height=64&width=96"
                       }
                       alt={jobAid.title}
                       fill
@@ -81,20 +77,23 @@ export function JobAidsTable({ jobAids }: JobAidsTableProps) {
                   className="block hover:text-blue-600"
                 >
                   <div className="font-medium text-gray-900">
-                    {jobAid.subtitle}
+                    {jobAid.title}
+                  </div>
+                  <div className="text-gray-500 text-sm">
+                    {jobAid.description}
                   </div>
                 </Link>
               </TableCell>
               <TableCell>
-                <span className="text-gray-600">{jobAid.category}</span>
+                <span className="text-gray-600">{jobAid.status}</span>
+              </TableCell>
+              <TableCell>
+                <span className="text-gray-600">{jobAid.view_count}</span>
               </TableCell>
               <TableCell>
                 <span className="text-gray-600">
-                  {jobAid.assignedEquipment.name}
+                  {new Date(jobAid.created_at).toLocaleDateString()}
                 </span>
-              </TableCell>
-              <TableCell>
-                <span className="text-gray-600">{jobAid.dateCreated}</span>
               </TableCell>
               <TableCell>
                 <DropdownMenu>
@@ -109,10 +108,15 @@ export function JobAidsTable({ jobAids }: JobAidsTableProps) {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
-                    <DropdownMenuItem>Edit Job Aid</DropdownMenuItem>
-                    <DropdownMenuItem>Duplicate</DropdownMenuItem>
-                    <DropdownMenuItem>Share</DropdownMenuItem>
-                    <DropdownMenuItem className="text-red-600">
+                    <DropdownMenuItem asChild>
+                      <Link href={`/job-aids/${jobAid.id}/edit`}>
+                        Edit Job Aid
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      className="text-red-600"
+                      onClick={() => onDelete?.(jobAid.id)}
+                    >
                       Delete
                     </DropdownMenuItem>
                   </DropdownMenuContent>

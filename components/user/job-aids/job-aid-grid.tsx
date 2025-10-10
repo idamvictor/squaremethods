@@ -1,14 +1,51 @@
 "use client";
 
 import { JobAidCard } from "./job-aid-card";
-import { useJobAidStore } from "@/store/job-aid-store";
 import { JobAidsTable } from "./job-aid-table";
+import { useJobAids } from "@/services/job-aid/job-aid-queries";
+import { useState } from "react";
 
-export function JobAidGrid() {
-  const { getFilteredJobAids, viewMode } = useJobAidStore();
-  const jobAids = getFilteredJobAids();
+interface JobAidGridProps {
+  viewMode: "grid" | "list";
+  searchQuery?: string;
+  equipmentId?: string;
+  status?: "draft" | "published";
+  onDelete?: (id: string) => void;
+}
 
-  if (jobAids.length === 0) {
+export function JobAidGrid({
+  viewMode,
+  searchQuery,
+  equipmentId,
+  status,
+  onDelete,
+}: JobAidGridProps) {
+  const [page] = useState(1);
+  const { data, isLoading, isError } = useJobAids({
+    page,
+    limit: 20,
+    status,
+    equipment_id: equipmentId,
+    search: searchQuery,
+  });
+
+  if (isLoading) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-gray-500">Loading job aids...</p>
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-red-500">Error loading job aids.</p>
+      </div>
+    );
+  }
+
+  if (!data?.data.length) {
     return (
       <div className="text-center py-12">
         <p className="text-gray-500">
@@ -19,13 +56,18 @@ export function JobAidGrid() {
   }
 
   if (viewMode === "list") {
-    return <JobAidsTable jobAids={jobAids} />;
+    return <JobAidsTable jobAids={data.data} onDelete={onDelete} />;
   }
 
   return (
     <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-      {jobAids.map((jobAid) => (
-        <JobAidCard key={jobAid.id} jobAid={jobAid} viewMode={viewMode} />
+      {data.data.map((jobAid) => (
+        <JobAidCard
+          key={jobAid.id}
+          jobAid={jobAid}
+          viewMode={viewMode}
+          onDelete={onDelete}
+        />
       ))}
     </div>
   );

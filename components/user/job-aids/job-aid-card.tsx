@@ -9,16 +9,18 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { MoreHorizontal } from "lucide-react";
-import type { JobAid } from "@/types/job-aid";
+import { JobAid } from "@/services/job-aid/job-aid-types";
 import Link from "next/link";
 import Image from "next/image";
+// import { formatDate } from "@/lib/utils";
 
 interface JobAidCardProps {
   jobAid: JobAid;
   viewMode: "grid" | "list";
+  onDelete?: (id: string) => void;
 }
 
-export function JobAidCard({ jobAid, viewMode }: JobAidCardProps) {
+export function JobAidCard({ jobAid, viewMode, onDelete }: JobAidCardProps) {
   return (
     <Link href={`/job-aids/${jobAid.id}`} className="block">
       <Card className="relative group hover:shadow-md transition-shadow overflow-hidden py-0">
@@ -34,10 +36,16 @@ export function JobAidCard({ jobAid, viewMode }: JobAidCardProps) {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem>Edit Job Aid</DropdownMenuItem>
-              <DropdownMenuItem>Duplicate</DropdownMenuItem>
-              <DropdownMenuItem>Share</DropdownMenuItem>
-              <DropdownMenuItem className="text-red-600">
+              <DropdownMenuItem asChild>
+                <Link href={`/job-aids/${jobAid.id}/edit`}>Edit Job Aid</Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="text-red-600"
+                onClick={(e) => {
+                  e.preventDefault();
+                  onDelete?.(jobAid.id);
+                }}
+              >
                 Delete
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -48,7 +56,7 @@ export function JobAidCard({ jobAid, viewMode }: JobAidCardProps) {
           <>
             <div className="aspect-video relative">
               <Image
-                src={jobAid.image || "/placeholder.svg"}
+                src={jobAid.image_url || "/placeholder.svg"}
                 alt={jobAid.title}
                 fill
                 className="object-cover"
@@ -59,9 +67,7 @@ export function JobAidCard({ jobAid, viewMode }: JobAidCardProps) {
                   <h3 className="font-semibold text-white text-lg">
                     {jobAid.title}
                   </h3>
-                  {jobAid.subtitle && (
-                    <p className="text-white/90 text-sm">{jobAid.subtitle}</p>
-                  )}
+                  <p className="text-white/90 text-sm">{jobAid.description}</p>
                 </div>
               </CardContent>
             </div>
@@ -71,7 +77,7 @@ export function JobAidCard({ jobAid, viewMode }: JobAidCardProps) {
             <div className="flex items-center gap-4">
               <div className="w-20 h-20 relative flex-shrink-0">
                 <Image
-                  src={jobAid.image || "/placeholder.svg"}
+                  src={jobAid.image_url || "/placeholder.svg"}
                   alt={jobAid.title}
                   fill
                   className="object-cover rounded"
@@ -79,9 +85,10 @@ export function JobAidCard({ jobAid, viewMode }: JobAidCardProps) {
               </div>
               <div className="flex-1">
                 <h3 className="font-medium text-gray-900">{jobAid.title}</h3>
-                <p className="text-gray-600">{jobAid.subtitle}</p>
+                <p className="text-gray-600">{jobAid.description}</p>
                 <p className="text-sm text-gray-500 mt-1">
-                  By {jobAid.author} • {jobAid.dateCreated}
+                  By {jobAid.creator.first_name} {jobAid.creator.last_name} •{" "}
+                  {new Date(jobAid.created_at).toLocaleDateString()}
                 </p>
               </div>
             </div>

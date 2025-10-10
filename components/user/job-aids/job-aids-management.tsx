@@ -9,34 +9,49 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { JobAidGrid } from "./job-aid-grid";
-import { Filter, Grid3X3, List, Search } from "lucide-react";
-import { useJobAidStore } from "@/store/job-aid-store";
+import { Grid3X3, List, Search } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { useDeleteJobAid } from "@/services/job-aid/job-aid-queries";
+import { JobAidStatus } from "@/services/job-aid/job-aid-types";
+import { toast } from "sonner";
 
 export function JobAidsManagement() {
   const router = useRouter();
-  const {
-    filters,
-    searchQuery,
-    viewMode,
-    setFilter,
-    resetFilters,
-    setSearchQuery,
-    setViewMode,
-  } = useJobAidStore();
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [status, setStatus] = useState<JobAidStatus | undefined>();
+  const [equipmentId, setEquipmentId] = useState<string>();
 
-  const handleFilterChange = (key: keyof typeof filters, value: string) => {
-    setFilter(key, value);
+  const deleteJobAid = useDeleteJobAid();
+
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+
+  const handleDelete = async (id: string) => {
+    setDeleteId(id);
   };
 
-  const handleResetFilters = () => {
-    resetFilters();
-  };
+  const confirmDelete = async () => {
+    if (!deleteId) return;
 
-  const handleSearchChange = (value: string) => {
-    setSearchQuery(value);
+    try {
+      await deleteJobAid.mutateAsync(deleteId);
+      toast.success("Job aid deleted successfully");
+    } catch (error) {
+      toast.error(
+        "Failed to delete job aid: " +
+          (error instanceof Error ? error.message : "Unknown error")
+      );
+    } finally {
+      setDeleteId(null);
+    }
   };
 
   return (
@@ -50,7 +65,7 @@ export function JobAidsManagement() {
             <Input
               placeholder="Search..."
               value={searchQuery}
-              onChange={(e) => handleSearchChange(e.target.value)}
+              onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10 w-64"
             />
           </div>
@@ -83,70 +98,83 @@ export function JobAidsManagement() {
             </Button>
           </div>
 
-          <div className="flex items-center gap-2">
-            <Filter className="w-4 h-4 text-gray-500" />
-            <Select
-              value={filters.count}
-              onValueChange={(value) => handleFilterChange("count", value)}
-            >
-              <SelectTrigger className="w-24">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All</SelectItem>
-                <SelectItem value="50">50</SelectItem>
-                <SelectItem value="25">25</SelectItem>
-                <SelectItem value="10">10</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
           <Select
-            value={filters.equipment}
-            onValueChange={(value) => handleFilterChange("equipment", value)}
+            value={status}
+            onValueChange={(value: JobAidStatus) => setStatus(value)}
           >
+            <SelectTrigger className="w-32">
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="draft">Draft</SelectItem>
+              <SelectItem value="published">Published</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Select value={equipmentId} onValueChange={setEquipmentId}>
             <SelectTrigger className="w-32">
               <SelectValue placeholder="Equipment" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Equipment</SelectItem>
-              <SelectItem value="hydraulic">Hydraulic</SelectItem>
-              <SelectItem value="electrical">Electrical</SelectItem>
-              <SelectItem value="mechanical">Mechanical</SelectItem>
+              {/* Add your equipment options here */}
             </SelectContent>
           </Select>
-
-          <div className="flex items-center gap-2">
-            <Badge
-              variant={filters.category === "recent" ? "default" : "secondary"}
-              className="cursor-pointer"
-              onClick={() => handleFilterChange("category", "recent")}
-            >
-              Recent
-            </Badge>
-            <Badge
-              variant={
-                filters.category === "most-viewed" ? "default" : "secondary"
-              }
-              className="cursor-pointer"
-              onClick={() => handleFilterChange("category", "most-viewed")}
-            >
-              Most viewed
-            </Badge>
-          </div>
         </div>
 
         <Button
           variant="ghost"
           className="text-gray-500 hover:text-gray-700"
-          onClick={handleResetFilters}
+          onClick={() => {
+            setSearchQuery("");
+            setStatus(undefined);
+            setEquipmentId(undefined);
+          }}
         >
           Reset Filter
         </Button>
       </div>
 
       {/* Job Aid Grid */}
-      <JobAidGrid />
+      <JobAidGrid
+        viewMode={viewMode}
+        searchQuery={searchQuery}
+        status={status}
+        equipmentId={equipmentId}
+        onDelete={handleDelete}
+      />
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog
+        open={!!deleteId}
+        onOpenChange={(open) => !open && setDeleteId(null)}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <h2 className="text-lg font-semibold">Delete Job Aid</h2>
+            <p className="text-sm text-gray-500">
+              Are you sure you want to delete this job aid? This action cannot
+              be undone.
+            </p>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setDeleteId(null)}
+              disabled={deleteJobAid.isPending}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={confirmDelete}
+              disabled={deleteJobAid.isPending}
+            >
+              {deleteJobAid.isPending ? "Deleting..." : "Delete"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
