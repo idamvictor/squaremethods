@@ -9,7 +9,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -70,24 +70,20 @@ export function MemberTable({
             <TableCell>
               <div className="flex items-center gap-2">
                 <Avatar className="h-8 w-8">
-                  <AvatarImage
-                    src={member.user.avatar_url || "/avatars/placeholder.png"}
-                    alt={`${member.user.first_name} ${member.user.last_name}`}
-                  />
                   <AvatarFallback>
-                    {member.user.first_name?.[0]}
-                    {member.user.last_name?.[0]}
+                    {member.first_name[0]}
+                    {member.last_name[0]}
                   </AvatarFallback>
                 </Avatar>
                 <div className="font-medium">
-                  {member.user.first_name} {member.user.last_name}
+                  {member.first_name} {member.last_name}
                 </div>
               </div>
             </TableCell>
-            <TableCell>{member.user.email}</TableCell>
+            <TableCell>{member.email}</TableCell>
             <TableCell className="capitalize">{member.role}</TableCell>
             <TableCell>
-              {new Date(member.joined_at).toLocaleDateString()}
+              {new Date(member.created_at).toLocaleDateString()}
             </TableCell>
             <TableCell>
               <DropdownMenu>

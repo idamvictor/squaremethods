@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { useJobStore } from "@/store/job-store";
 import { SearchInput } from "@/components/user/jobs/search-input";
-import { JobFilters } from "@/components/user/jobs/job-filters";
+// import { JobFilters } from "@/components/user/jobs/job-filters";
 import { JobTable } from "@/components/user/jobs/job-table";
 import { AddJobModal } from "@/components/user/jobs/add-job-modal";
 
@@ -29,7 +29,7 @@ export default function JobManagementPage() {
             <div className="flex-1">
               <SearchInput />
             </div>
-            <JobFilters />
+            {/* <JobFilters /> */}
           </div>
           <JobTable />
         </CardContent>

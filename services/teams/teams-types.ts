@@ -21,9 +21,12 @@ export interface TeamMember {
   first_name: string;
   last_name: string;
   email: string;
+  avatar_url?: string;
   role: string;
   status: string;
   created_at: string;
+  // The API may return a nested `user` object with more details (avatar, names, etc.)
+  user?: User;
 }
 
 export interface Team {
@@ -49,7 +52,8 @@ export interface CreateTeamResponse {
 
 export interface TeamDetail extends Team {
   members: TeamMember[];
-  jobs: any[]; // Keeping the jobs array as requested
+  otherMembers: TeamMember[];
+  jobs: Job[]; // Typed jobs array
 }
 
 export interface TeamListResponse {

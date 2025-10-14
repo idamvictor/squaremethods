@@ -12,7 +12,7 @@ import {
 import { MemberTable } from "./member-table";
 import { ArrowLeft, Plus, SlidersHorizontal } from "lucide-react";
 import Link from "next/link";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -24,7 +24,6 @@ import { useTeamDetails, useTeamMembers } from "@/services/teams/teams";
 
 interface TeamFilters {
   count: string;
-  category: string;
 }
 
 interface TeamDetailsProps {
@@ -38,45 +37,14 @@ export function TeamDetails({ teamId }: TeamDetailsProps) {
     useTeamMembers(teamId);
   const [filters, setFilters] = useState<TeamFilters>({
     count: "50",
-    category: "all", // This will be 'declined', 'pending', 'recent' for this page
   });
 
   const handleFilterChange = (key: keyof TeamFilters, value: string) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
   };
 
-  const resetFilters = () => {
-    setFilters({
-      count: "50",
-      category: "all",
-    });
-  };
-
-  // Filter members based on the 'category' filter (Declined, Pending, Recent)
-  const filteredMembers =
-    membersData?.data.filter((member) => {
-      if (filters.category === "all") return true;
-
-      const today = new Date();
-      const memberDate = new Date(member.joined_at);
-      const daysDifference = Math.floor(
-        (today.getTime() - memberDate.getTime()) / (1000 * 60 * 60 * 24)
-      );
-
-      switch (filters.category) {
-        case "recent":
-          // Members who joined in the last 30 days
-          return daysDifference <= 30;
-        case "pending":
-          // Members who joined between 31-90 days ago
-          return daysDifference > 30 && daysDifference <= 90;
-        case "declined":
-          // Members who joined more than 90 days ago
-          return daysDifference > 90;
-        default:
-          return true;
-      }
-    }) ?? [];
+  // Filter members based on the 'category' filter (we're just passing through all members since joined_at is not available)
+  const filteredMembers = membersData?.data ?? [];
 
   if (isLoadingTeam || isLoadingMembers) {
     return (
@@ -109,13 +77,9 @@ export function TeamDetails({ teamId }: TeamDetailsProps) {
           <div className="flex -space-x-2">
             {teamDetails.data.members.slice(0, 3).map((member) => (
               <Avatar key={member.id} className="w-8 h-8 border-2 border-white">
-                <AvatarImage
-                  src={member.user.avatar_url || "/placeholder.svg"}
-                  alt={`${member.user.first_name} ${member.user.last_name}`}
-                />
                 <AvatarFallback className="text-xs">
-                  {member.user.first_name[0]}
-                  {member.user.last_name[0]}
+                  {member.first_name[0]}
+                  {member.last_name[0]}
                 </AvatarFallback>
               </Avatar>
             ))}
@@ -149,57 +113,23 @@ export function TeamDetails({ teamId }: TeamDetailsProps) {
 
       {/* Filters */}
       <div className="flex items-center justify-between mb-8">
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            <SlidersHorizontal />
-            <Select
-              value={filters.count}
-              onValueChange={(value) => handleFilterChange("count", value)}
-            >
-              <SelectTrigger className="w-24">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All</SelectItem>
-                <SelectItem value="50">50</SelectItem>
-                <SelectItem value="25">25</SelectItem>
-                <SelectItem value="10">10</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <Button
-              variant={filters.category === "declined" ? "default" : "outline"}
-              size="sm"
-              onClick={() => handleFilterChange("category", "declined")}
-            >
-              Declined
-            </Button>
-            <Button
-              variant={filters.category === "pending" ? "default" : "outline"}
-              size="sm"
-              onClick={() => handleFilterChange("category", "pending")}
-            >
-              Pending
-            </Button>
-            <Button
-              variant={filters.category === "recent" ? "default" : "outline"}
-              size="sm"
-              onClick={() => handleFilterChange("category", "recent")}
-            >
-              Recent
-            </Button>
-          </div>
+        <div className="flex items-center gap-2">
+          <SlidersHorizontal />
+          <Select
+            value={filters.count}
+            onValueChange={(value) => handleFilterChange("count", value)}
+          >
+            <SelectTrigger className="w-24">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All</SelectItem>
+              <SelectItem value="50">50</SelectItem>
+              <SelectItem value="25">25</SelectItem>
+              <SelectItem value="10">10</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
-
-        <Button
-          variant="ghost"
-          className="text-gray-500 hover:text-gray-700"
-          onClick={resetFilters}
-        >
-          Reset Filter
-        </Button>
       </div>
 
       {/* Member Table */}

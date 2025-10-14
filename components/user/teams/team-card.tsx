@@ -10,7 +10,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Calendar, MoreHorizontal, Plus, Users } from "lucide-react";
-import { Team } from "@/services/teams/teams-types";
+import { Team, TeamMember } from "@/services/teams/teams-types";
 import { useTeamDetails } from "@/services/teams/teams";
 import Link from "next/link";
 
@@ -53,25 +53,37 @@ export function TeamCard({ team }: TeamCardProps) {
           {/* Avatar Group */}
           <div className="flex items-center justify-between">
             <div className="flex -space-x-2">
-              {teamDetails?.data.members.slice(0, 4).map((member) => (
-                <Avatar
-                  key={member.id}
-                  className="w-8 h-8 border-2 border-white"
-                >
-                  <AvatarImage
-                    src={member.user.avatar_url || "/placeholder.svg"}
-                    alt={`${member.user.first_name} ${member.user.last_name}`}
-                  />
-                  <AvatarFallback className="text-xs">
-                    {member.user.first_name[0]}
-                    {member.user.last_name[0]}
-                  </AvatarFallback>
-                </Avatar>
-              ))}
-              {(teamDetails?.data.members.length ?? 0) > 4 && (
+              {(teamDetails?.data.members ?? [])
+                .slice(0, 4)
+                .map((member: TeamMember) => {
+                  const avatarUrl =
+                    member.user?.avatar_url ??
+                    member.avatar_url ??
+                    "/placeholder.svg";
+                  const firstName =
+                    member.user?.first_name ?? member.first_name ?? "";
+                  const lastName =
+                    member.user?.last_name ?? member.last_name ?? "";
+                  return (
+                    <Avatar
+                      key={member.id}
+                      className="w-8 h-8 border-2 border-white"
+                    >
+                      <AvatarImage
+                        src={avatarUrl}
+                        alt={`${firstName} ${lastName}`}
+                      />
+                      <AvatarFallback className="text-xs">
+                        {firstName?.[0] ?? ""}
+                        {lastName?.[0] ?? ""}
+                      </AvatarFallback>
+                    </Avatar>
+                  );
+                })}
+              {(teamDetails?.data.members?.length ?? 0) > 4 && (
                 <div className="w-8 h-8 rounded-full bg-gray-100 border-2 border-white flex items-center justify-center">
                   <span className="text-xs text-gray-600">
-                    +{(teamDetails?.data.members.length ?? 0) - 4}
+                    +{(teamDetails?.data.members?.length ?? 0) - 4}
                   </span>
                 </div>
               )}
