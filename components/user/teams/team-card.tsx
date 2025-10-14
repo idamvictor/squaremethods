@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -13,6 +14,8 @@ import { Calendar, MoreHorizontal, Plus, Users } from "lucide-react";
 import { Team, TeamMember } from "@/services/teams/teams-types";
 import { useTeamDetails } from "@/services/teams/teams";
 import Link from "next/link";
+import { UpdateTeamModal } from "./update-team-modal";
+import { DeleteTeamModal } from "./delete-team-modal";
 
 interface TeamCardProps {
   team: Team;
@@ -20,36 +23,84 @@ interface TeamCardProps {
 
 export function TeamCard({ team }: TeamCardProps) {
   const { data: teamDetails } = useTeamDetails(team.id);
+  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   return (
-    <Link href={`/teams/${team.id}`} className="block">
-      <Card className="relative group hover:shadow-md transition-shadow">
-        <CardHeader className="pb-3">
-          <div className="flex items-center justify-between">
-            <h3 className="font-medium text-gray-900">{team.name}</h3>
-            <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-              <Button size="icon" variant="ghost" className="h-6 w-6">
-                <Plus className="h-3 w-3" />
-              </Button>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button size="icon" variant="ghost" className="h-6 w-6">
-                    <MoreHorizontal className="h-3 w-3" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem>Edit Team</DropdownMenuItem>
-                  <DropdownMenuItem>View Members</DropdownMenuItem>
-                  <DropdownMenuItem>Team Settings</DropdownMenuItem>
-                  <DropdownMenuItem className="text-red-600">
-                    Delete Team
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
+    <Card className="relative group hover:shadow-md transition-shadow">
+      <CardHeader className="pb-3">
+        <div className="flex items-center justify-between">
+          <Link href={`/teams/${team.id}`}>
+            <h3 className="font-medium text-gray-900 hover:text-gray-700">
+              {team.name}
+            </h3>
+          </Link>
+          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+            <Button
+              size="icon"
+              variant="ghost"
+              className="h-6 w-6"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+              }}
+            >
+              <Plus className="h-3 w-3" />
+            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger
+                asChild
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                }}
+              >
+                <Button size="icon" variant="ghost" className="h-6 w-6">
+                  <MoreHorizontal className="h-3 w-3" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                align="end"
+                onClick={(e) => e.preventDefault()}
+              >
+                <DropdownMenuItem
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setIsUpdateModalOpen(true);
+                  }}
+                >
+                  Edit Team
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setIsDeleteModalOpen(true);
+                  }}
+                  className="text-red-600"
+                >
+                  Delete Team
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
-        </CardHeader>
+        </div>
+      </CardHeader>
 
-        <CardContent className="space-y-4">
+      <CardContent className="space-y-4">
+        {/* Modals */}
+        <UpdateTeamModal
+          team={team}
+          isOpen={isUpdateModalOpen}
+          onClose={() => setIsUpdateModalOpen(false)}
+        />
+        <DeleteTeamModal
+          team={team}
+          isOpen={isDeleteModalOpen}
+          onClose={() => setIsDeleteModalOpen(false)}
+        />
+
+        <Link href={`/teams/${team.id}`} className="block">
           {/* Avatar Group */}
           <div className="flex items-center justify-between">
             <div className="flex -space-x-2">
@@ -100,8 +151,8 @@ export function TeamCard({ team }: TeamCardProps) {
             <Calendar className="w-3 h-3" />
             <span>{new Date(team.created_at).toLocaleDateString()}</span>
           </div>
-        </CardContent>
-      </Card>
-    </Link>
+        </Link>
+      </CardContent>
+    </Card>
   );
 }

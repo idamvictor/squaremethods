@@ -9,6 +9,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { UpdateTeamModal } from "./update-team-modal";
+import { DeleteTeamModal } from "./delete-team-modal";
 import { MemberTable } from "./member-table";
 import { ArrowLeft, Plus, SlidersHorizontal } from "lucide-react";
 import Link from "next/link";
@@ -20,7 +22,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { MoreHorizontal } from "lucide-react";
-import { useTeamDetails, useTeamMembers } from "@/services/teams/teams";
+import {
+  useTeamDetails,
+  useTeamMembers,
+  useRemoveTeamMember,
+} from "@/services/teams/teams";
+import { toast } from "sonner";
 
 interface TeamFilters {
   count: string;
@@ -38,9 +45,23 @@ export function TeamDetails({ teamId }: TeamDetailsProps) {
   const [filters, setFilters] = useState<TeamFilters>({
     count: "50",
   });
+  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   const handleFilterChange = (key: keyof TeamFilters, value: string) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const removeTeamMember = useRemoveTeamMember(teamId);
+
+  const handleRemoveMember = async (memberId: string) => {
+    try {
+      await removeTeamMember.mutateAsync(memberId);
+      toast.success("Member removed successfully");
+    } catch (error) {
+      toast.error("Failed to remove member");
+      console.error("Failed to remove member:", error);
+    }
   };
 
   // Filter members based on the 'category' filter (we're just passing through all members since joined_at is not available)
@@ -101,13 +122,29 @@ export function TeamDetails({ teamId }: TeamDetailsProps) {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem>Edit Team</DropdownMenuItem>
-              <DropdownMenuItem>Team Settings</DropdownMenuItem>
-              <DropdownMenuItem className="text-red-600">
+              <DropdownMenuItem onClick={() => setIsUpdateModalOpen(true)}>
+                Edit Team
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => setIsDeleteModalOpen(true)}
+                className="text-red-600"
+              >
                 Delete Team
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+
+          {/* Modals */}
+          <UpdateTeamModal
+            team={teamDetails.data}
+            isOpen={isUpdateModalOpen}
+            onClose={() => setIsUpdateModalOpen(false)}
+          />
+          <DeleteTeamModal
+            team={teamDetails.data}
+            isOpen={isDeleteModalOpen}
+            onClose={() => setIsDeleteModalOpen(false)}
+          />
         </div>
       </div>
 
@@ -133,7 +170,10 @@ export function TeamDetails({ teamId }: TeamDetailsProps) {
       </div>
 
       {/* Member Table */}
-      <MemberTable members={filteredMembers} />
+      <MemberTable
+        members={filteredMembers}
+        onRemoveMember={handleRemoveMember}
+      />
     </div>
   );
 }

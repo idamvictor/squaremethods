@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import {
   Table,
   TableBody,
@@ -18,6 +19,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { MoreHorizontal, UserX2 } from "lucide-react";
 import { TeamMember } from "@/services/teams/teams-types";
+import { RemoveMemberModal } from "./remove-member-modal";
 
 interface MemberTableProps {
   members: TeamMember[];
@@ -30,10 +32,9 @@ interface MemberTableProps {
 export function MemberTable({
   members,
   isLoading,
-  onViewProfile,
-  onChangeRole,
   onRemoveMember,
 }: MemberTableProps) {
+  const [memberToRemove, setMemberToRemove] = useState<TeamMember | null>(null);
   if (isLoading) {
     return (
       <div className="w-full h-48 flex items-center justify-center">
@@ -93,14 +94,8 @@ export function MemberTable({
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => onViewProfile?.(member.id)}>
-                    View Profile
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => onChangeRole?.(member.id)}>
-                    Change Role
-                  </DropdownMenuItem>
                   <DropdownMenuItem
-                    onClick={() => onRemoveMember?.(member.id)}
+                    onClick={() => setMemberToRemove(member)}
                     className="text-red-600"
                   >
                     Remove Member
@@ -111,6 +106,19 @@ export function MemberTable({
           </TableRow>
         ))}
       </TableBody>
+
+      {/* Remove Member Modal */}
+      {memberToRemove && (
+        <RemoveMemberModal
+          member={memberToRemove}
+          isOpen={!!memberToRemove}
+          onClose={() => setMemberToRemove(null)}
+          onConfirm={(memberId) => {
+            onRemoveMember?.(memberId);
+            setMemberToRemove(null);
+          }}
+        />
+      )}
     </Table>
   );
 }
