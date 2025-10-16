@@ -7,9 +7,16 @@ import { TabNavigation } from "./tab-navigation";
 import { ProfileSection } from "./profile-section";
 import { PersonalInformationForm } from "./personal-information-form";
 import { NotificationPreferences } from "./notification-preferences";
+import { useLogout } from "@/lib/api/auth";
 
 export default function AccountSettings() {
   const [activeTab, setActiveTab] = useState("profile");
+
+  const logout = useLogout();
+
+  const handleLogout = () => {
+    logout.mutate();
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -19,9 +26,14 @@ export default function AccountSettings() {
           <h1 className="text-2xl font-semibold text-gray-900">
             Account Settings
           </h1>
-          <Button variant="outline" className="gap-2 bg-transparent">
+          <Button
+            variant="outline"
+            className="gap-2 bg-transparent"
+            onClick={handleLogout}
+            disabled={logout.isPending}
+          >
             <LogOut className="w-4 h-4" />
-            Log out
+            {logout.isPending ? "Logging out..." : "Log out"}
           </Button>
         </div>
 

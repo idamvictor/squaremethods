@@ -28,6 +28,7 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar";
 import Image from "next/image";
+import Link from "next/link";
 
 // Navigation data
 const mainNavItems = [
@@ -119,10 +120,10 @@ export function TechnicianSidebar({
                     isActive={pathname === item.url}
                     className="h-9"
                   >
-                    <a href={item.url}>
+                    <Link href={item.url}>
                       <item.icon className="h-4 w-4" />
                       <span>{item.title}</span>
-                    </a>
+                    </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
