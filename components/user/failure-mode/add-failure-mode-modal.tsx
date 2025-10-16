@@ -31,10 +31,8 @@ export interface FailureModeData {
   title: string;
   resolutions: Resolution[];
   equipment: string;
-  team: string;
-  assignedOwner: string;
+  reportedBy: string;
   dueDate: string;
-  duration: string;
   image: string | null;
 }
 
@@ -53,10 +51,8 @@ export function AddFailureModeModal({
   const [resolutions, setResolutions] = useState<Resolution[]>([]);
   const [newResolution, setNewResolution] = useState("");
   const [equipment, setEquipment] = useState("");
-  const [team, setTeam] = useState("");
-  const [assignedOwner, setAssignedOwner] = useState("");
+  const [reportedBy, setReportedBy] = useState("");
   const [dueDate, setDueDate] = useState("");
-  const [duration, setDuration] = useState("");
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -97,10 +93,8 @@ export function AddFailureModeModal({
       title,
       resolutions,
       equipment,
-      team,
-      assignedOwner,
+      reportedBy,
       dueDate,
-      duration,
       image: imagePreview,
     });
     // Reset form
@@ -108,10 +102,8 @@ export function AddFailureModeModal({
     setResolutions([]);
     setNewResolution("");
     setEquipment("");
-    setTeam("");
-    setAssignedOwner("");
+    setReportedBy("");
     setDueDate("");
-    setDuration("");
     setImagePreview(null);
     onOpenChange(false);
   };
@@ -265,27 +257,12 @@ export function AddFailureModeModal({
             </div>
 
             {/* Team */}
+            {/* Reported By */}
             <div className="space-y-2">
-              <Label htmlFor="team">Team</Label>
-              <Select value={team} onValueChange={setTeam}>
-                <SelectTrigger id="team">
-                  <SelectValue placeholder="Select team" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="operational">Operational</SelectItem>
-                  <SelectItem value="maintenance">Maintenance</SelectItem>
-                  <SelectItem value="sanitation">Sanitation</SelectItem>
-                  <SelectItem value="automation">Automation</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Assigned Owner */}
-            <div className="space-y-2">
-              <Label htmlFor="owner">Assigned Owner</Label>
-              <Select value={assignedOwner} onValueChange={setAssignedOwner}>
-                <SelectTrigger id="owner">
-                  <SelectValue placeholder="Select owner" />
+              <Label htmlFor="reportedBy">Reported By</Label>
+              <Select value={reportedBy} onValueChange={setReportedBy}>
+                <SelectTrigger id="reportedBy">
+                  <SelectValue placeholder="Select who reported" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="Olivia Rhye">Olivia Rhye</SelectItem>
@@ -309,17 +286,6 @@ export function AddFailureModeModal({
                   <SelectItem value="May 27">May 27</SelectItem>
                 </SelectContent>
               </Select>
-            </div>
-
-            {/* Duration */}
-            <div className="space-y-2">
-              <Label htmlFor="duration">Duration</Label>
-              <Input
-                id="duration"
-                value={duration}
-                onChange={(e) => setDuration(e.target.value)}
-                placeholder="4hrs"
-              />
             </div>
           </div>
         </div>

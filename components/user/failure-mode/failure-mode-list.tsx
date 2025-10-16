@@ -22,13 +22,11 @@ interface FailureMode {
   id: string;
   title: string;
   status: FailureModeStatus;
-  team: string;
-  assignedOwner: {
+  reportedBy: {
     name: string;
     avatar: string;
   };
   dueDate: string;
-  duration: string;
   isNew?: boolean;
 }
 
@@ -37,98 +35,82 @@ const mockFailureModes: FailureMode[] = [
     id: "1",
     title: "Inspect pressure gauge",
     status: "pending",
-    team: "Operational",
-    assignedOwner: {
+    reportedBy: {
       name: "Olivia Rhye",
       avatar: "/placeholder.svg?height=32&width=32",
     },
     dueDate: "May 24",
-    duration: "2hrs",
     isNew: true,
   },
   {
     id: "2",
     title: "Check oil levels",
     status: "completed",
-    team: "Sanitation",
-    assignedOwner: {
+    reportedBy: {
       name: "Phoenix Baker",
       avatar: "/placeholder.svg?height=32&width=32",
     },
     dueDate: "May 24",
-    duration: "2hrs",
   },
   {
     id: "3",
     title: "Test valve operation",
     status: "pending",
-    team: "Maintenance",
-    assignedOwner: {
-      name: "Phoenix Baker",
+    reportedBy: {
+      name: "Lana Steiner",
       avatar: "/placeholder.svg?height=32&width=32",
     },
     dueDate: "May 24",
-    duration: "2hrs",
   },
   {
     id: "4",
     title: "Inspect pressure gauge",
     status: "completed",
-    team: "Maintenance",
-    assignedOwner: {
-      name: "Lana Steiner",
+    reportedBy: {
+      name: "Olivia Rhye",
       avatar: "/placeholder.svg?height=32&width=32",
     },
     dueDate: "May 24",
-    duration: "2hrs",
   },
   {
     id: "5",
     title: "Check oil levels",
     status: "pending",
-    team: "Maintenance",
-    assignedOwner: {
+    reportedBy: {
       name: "Phoenix Baker",
       avatar: "/placeholder.svg?height=32&width=32",
     },
     dueDate: "May 24",
-    duration: "2hrs",
   },
   {
     id: "6",
     title: "Test valve operation",
     status: "pending",
-    team: "Automation",
-    assignedOwner: {
-      name: "Olivia Rhye",
+    reportedBy: {
+      name: "Lana Steiner",
       avatar: "/placeholder.svg?height=32&width=32",
     },
     dueDate: "May 24",
-    duration: "2hrs",
   },
   {
     id: "7",
     title: "Inspect pressure gauge",
     status: "declined",
-    team: "Automation",
-    assignedOwner: {
+    reportedBy: {
       name: "Phoenix Baker",
       avatar: "/placeholder.svg?height=32&width=32",
     },
     dueDate: "May 24",
-    duration: "2hrs",
   },
   {
     id: "8",
     title: "Check oil levels",
     status: "pending",
-    team: "Maintenance",
-    assignedOwner: {
-      name: "Phoenix Baker",
+    reportedBy: {
+      name: "Olivia Rhye",
       avatar: "/placeholder.svg?height=32&width=32",
     },
     dueDate: "May 24",
-    duration: "2hrs",
   },
 ];
 
@@ -161,13 +143,11 @@ export function FailureModeList() {
       id: String(failureModes.length + 1),
       title: data.title,
       status: "pending",
-      team: data.team,
-      assignedOwner: {
-        name: data.assignedOwner,
+      reportedBy: {
+        name: data.reportedBy,
         avatar: "/placeholder.svg?height=32&width=32",
       },
       dueDate: data.dueDate,
-      duration: data.duration,
       isNew: true,
     };
     setFailureModes([newFailureMode, ...failureModes]);
@@ -191,10 +171,7 @@ export function FailureModeList() {
               className="w-64 pl-9"
             />
           </div>
-          <Button
-            onClick={() => setIsModalOpen(true)}
-            className="bg-[#1e293b] hover:bg-[#334155]"
-          >
+          <Button onClick={() => setIsModalOpen(true)}>
             Add new Failure Mode
           </Button>
         </div>
@@ -250,13 +227,11 @@ export function FailureModeList() {
         </div>
 
         {/* Table Header */}
-        <div className="grid grid-cols-[2fr_1fr_1fr_1.5fr_1fr_1fr_0.5fr] gap-4 border-b border-border bg-muted/50 px-6 py-3 text-sm font-medium text-muted-foreground">
+        <div className="grid grid-cols-[2fr_1fr_1.5fr_1fr_0.5fr] gap-4 border-b border-border bg-muted/50 px-6 py-3 text-sm font-medium text-muted-foreground">
           <div>Failure Mode Title</div>
           <div>Status</div>
-          <div>Team</div>
-          <div>Assigned owner</div>
+          <div>Reported By</div>
           <div>Due Date</div>
-          <div>Duration (Hrs)</div>
           <div>Edit</div>
         </div>
 
@@ -265,7 +240,7 @@ export function FailureModeList() {
           {failureModes.map((mode) => (
             <div
               key={mode.id}
-              className="grid grid-cols-[2fr_1fr_1fr_1.5fr_1fr_1fr_0.5fr] gap-4 px-6 py-4 text-sm hover:bg-muted/50 transition-colors"
+              className="grid grid-cols-[2fr_1fr_1.5fr_1fr_0.5fr] gap-4 px-6 py-4 text-sm hover:bg-muted/50 transition-colors"
             >
               <div className="flex items-center gap-2 font-medium text-foreground">
                 {mode.isNew && (
@@ -287,28 +262,20 @@ export function FailureModeList() {
                   {mode.status.charAt(0).toUpperCase() + mode.status.slice(1)}
                 </Badge>
               </div>
-              <div className="flex items-center text-muted-foreground">
-                {mode.team}
-              </div>
               <div className="flex items-center gap-2">
                 <Avatar className="h-6 w-6">
                   <AvatarImage
-                    src={mode.assignedOwner.avatar || "/placeholder.svg"}
-                    alt={mode.assignedOwner.name}
+                    src={mode.reportedBy.avatar || "/placeholder.svg"}
+                    alt={mode.reportedBy.name}
                   />
                   <AvatarFallback>
-                    {mode.assignedOwner.name.charAt(0)}
+                    {mode.reportedBy.name.charAt(0)}
                   </AvatarFallback>
                 </Avatar>
-                <span className="text-foreground">
-                  {mode.assignedOwner.name}
-                </span>
+                <span className="text-foreground">{mode.reportedBy.name}</span>
               </div>
               <div className="flex items-center text-muted-foreground">
                 {mode.dueDate}
-              </div>
-              <div className="flex items-center text-muted-foreground">
-                {mode.duration}
               </div>
               <div className="flex items-center gap-2">
                 <Button
