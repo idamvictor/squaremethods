@@ -17,6 +17,10 @@ type NewJobData = {
 };
 
 interface JobStore {
+  // Search state
+  searchQuery: string;
+  setSearchQuery: (query: string) => void;
+
   // Modal state
   isAddModalOpen: boolean;
   newJob: NewJobData;
@@ -49,6 +53,10 @@ const initialNewJob = {
 };
 
 export const useJobStore = create<JobStore>((set, get) => ({
+  // Search state
+  searchQuery: "",
+  setSearchQuery: (query: string) => set({ searchQuery: query }),
+
   // Modal state
   isAddModalOpen: false,
   newJob: initialNewJob,
