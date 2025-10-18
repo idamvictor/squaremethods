@@ -1,56 +1,66 @@
-"use client"
+"use client";
 
-import { Button } from "@/components/ui/button"
-import { ChevronLeft, ChevronRight } from 'lucide-react'
-import { useTaskStore } from "@/store/task-store"
+import { Button } from "@/components/ui/button";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
-export function TaskPagination() {
-  const { currentPage, getTotalPages, setCurrentPage } = useTaskStore()
-  const totalPages = getTotalPages()
+interface TaskPaginationProps {
+  currentPage: number;
+  totalPages: number;
+  onPageChange: (page: number) => void;
+}
 
+export function TaskPagination({
+  currentPage,
+  totalPages,
+  onPageChange,
+}: TaskPaginationProps) {
   const handlePreviousPage = () => {
     if (currentPage > 1) {
-      setCurrentPage(currentPage - 1)
+      onPageChange(currentPage - 1);
     }
-  }
+  };
 
   const handleNextPage = () => {
     if (currentPage < totalPages) {
-      setCurrentPage(currentPage + 1)
+      onPageChange(currentPage + 1);
     }
-  }
+  };
 
   const handlePageClick = (page: number) => {
-    setCurrentPage(page)
-  }
+    onPageChange(page);
+  };
 
   const getVisiblePages = () => {
-    const delta = 2
-    const range = []
-    const rangeWithDots = []
+    const delta = 2;
+    const range = [];
+    const rangeWithDots = [];
 
-    for (let i = Math.max(2, currentPage - delta); i <= Math.min(totalPages - 1, currentPage + delta); i++) {
-      range.push(i)
+    for (
+      let i = Math.max(2, currentPage - delta);
+      i <= Math.min(totalPages - 1, currentPage + delta);
+      i++
+    ) {
+      range.push(i);
     }
 
     if (currentPage - delta > 2) {
-      rangeWithDots.push(1, '...')
+      rangeWithDots.push(1, "...");
     } else {
-      rangeWithDots.push(1)
+      rangeWithDots.push(1);
     }
 
-    rangeWithDots.push(...range)
+    rangeWithDots.push(...range);
 
     if (currentPage + delta < totalPages - 1) {
-      rangeWithDots.push('...', totalPages)
+      rangeWithDots.push("...", totalPages);
     } else if (totalPages > 1) {
-      rangeWithDots.push(totalPages)
+      rangeWithDots.push(totalPages);
     }
 
-    return rangeWithDots
-  }
+    return rangeWithDots;
+  };
 
-  if (totalPages <= 1) return null
+  if (totalPages <= 1) return null;
 
   return (
     <div className="flex items-center justify-center gap-2 py-4">
@@ -68,7 +78,7 @@ export function TaskPagination() {
       <div className="flex items-center gap-1">
         {getVisiblePages().map((page, index) => (
           <div key={index}>
-            {page === '...' ? (
+            {page === "..." ? (
               <span className="px-3 py-2 text-gray-500">...</span>
             ) : (
               <Button
@@ -95,5 +105,5 @@ export function TaskPagination() {
         <ChevronRight className="w-4 h-4" />
       </Button>
     </div>
-  )
+  );
 }

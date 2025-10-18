@@ -9,26 +9,37 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
 import { TaskList } from "./task-list";
 import { TaskPagination } from "./task-pagination";
-import { Filter, Plus, Search } from "lucide-react";
-import { useTaskStore } from "@/store/task-store";
+import { Plus, Search } from "lucide-react";
+import { useState } from "react";
+import { useTasks } from "@/services/tasks/tasks-queries";
+import { NewTaskDialog } from "./new-task-dialog";
 
 export function TaskManagement() {
-  const { filters, searchQuery, setFilter, resetFilters, setSearchQuery } =
-    useTaskStore();
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(20);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isNewTaskDialogOpen, setIsNewTaskDialogOpen] = useState(false);
 
-  const handleFilterChange = (key: keyof typeof filters, value: string) => {
-    setFilter(key, value);
+  const { data: taskData } = useTasks({
+    page: currentPage,
+    limit: itemsPerPage,
+    search: searchQuery,
+  });
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
   };
 
-  const handleResetFilters = () => {
-    resetFilters();
+  const handleLimitChange = (value: string) => {
+    setItemsPerPage(Number(value));
+    setCurrentPage(1); // Reset to first page when changing limit
   };
 
   const handleSearchChange = (value: string) => {
     setSearchQuery(value);
+    setCurrentPage(1); // Reset to first page when searching
   };
 
   return (
@@ -46,10 +57,14 @@ export function TaskManagement() {
               className="pl-10 w-64"
             />
           </div>
-          <Button className="">
+          <Button className="" onClick={() => setIsNewTaskDialogOpen(true)}>
             <Plus className="w-4 h-4 mr-2" />
             New Task
           </Button>
+          <NewTaskDialog
+            isOpen={isNewTaskDialogOpen}
+            onClose={() => setIsNewTaskDialogOpen(false)}
+          />
         </div>
       </div>
 
@@ -57,60 +72,32 @@ export function TaskManagement() {
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
-            <Filter className="w-4 h-4 text-gray-500" />
             <Select
-              value={filters.count}
-              onValueChange={(value) => handleFilterChange("count", value)}
+              value={String(itemsPerPage)}
+              onValueChange={handleLimitChange}
             >
               <SelectTrigger className="w-24">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All</SelectItem>
-                <SelectItem value="50">50</SelectItem>
-                <SelectItem value="25">25</SelectItem>
-                <SelectItem value="10">10</SelectItem>
+                <SelectItem value="10">10 per page</SelectItem>
+                <SelectItem value="20">20 per page</SelectItem>
+                <SelectItem value="50">50 per page</SelectItem>
               </SelectContent>
             </Select>
           </div>
-
-          <div className="flex items-center gap-2">
-            <Badge
-              variant={
-                filters.category === "equipment" ? "default" : "secondary"
-              }
-              className="cursor-pointer"
-              onClick={() => handleFilterChange("category", "equipment")}
-            >
-              Equipment
-            </Badge>
-            <Badge
-              variant={filters.category === "recent" ? "default" : "secondary"}
-              className="cursor-pointer"
-              onClick={() => handleFilterChange("category", "recent")}
-            >
-              Recent
-            </Badge>
-          </div>
         </div>
-
-        <Button
-          variant="ghost"
-          className="text-gray-500 hover:text-gray-700"
-          onClick={handleResetFilters}
-        >
-          Reset Filter
-        </Button>
       </div>
 
-      {/* Top Pagination */}
-      <TaskPagination />
-
       {/* Task List */}
-      <TaskList />
+      <TaskList page={currentPage} limit={itemsPerPage} search={searchQuery} />
 
-      {/* Bottom Pagination */}
-      <TaskPagination />
+      {/* Pagination */}
+      <TaskPagination
+        currentPage={currentPage}
+        totalPages={taskData?.pagination.pages || 1}
+        onPageChange={handlePageChange}
+      />
     </div>
   );
 }
