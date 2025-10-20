@@ -190,3 +190,22 @@ export interface UpdateJobAidPrecautionInput {
   instruction: string;
   image: string;
 }
+
+export interface DuplicateJobAidInput {
+  title: string;
+}
+
+export interface GenerateQRCodeResponse {
+  status: string;
+  data: {
+    qrKey: string;
+  };
+  message: string;
+}
+
+export interface GetQRCodeResponse {
+  status: string;
+  data: {
+    url: string;
+  };
+}

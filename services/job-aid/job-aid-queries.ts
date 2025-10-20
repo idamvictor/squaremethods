@@ -14,6 +14,9 @@ import {
   JobAidPrecautionResponse,
   PrecautionsListResponse,
   UpdateJobAidPrecautionInput,
+  DuplicateJobAidInput,
+  GenerateQRCodeResponse,
+  GetQRCodeResponse,
 } from "./job-aid-types";
 
 //=============================== List Company Job Aids ===============================
@@ -346,5 +349,129 @@ export const useDeleteJobAidPrecaution = (jobAidId: string) => {
       queryClient.invalidateQueries({ queryKey: ["precautions"] });
       queryClient.invalidateQueries({ queryKey: ["job-aid", jobAidId] });
     },
+  });
+};
+
+//=============================== Duplicate Job Aid ===============================
+
+// Fetch function separate from the mutation
+export const duplicateJobAid = async ({
+  id,
+  data,
+}: {
+  id: string;
+  data: DuplicateJobAidInput;
+}) => {
+  const response = await axiosInstance.post<JobAidResponse>(
+    `/job-aids/${id}/duplicate`,
+    data
+  );
+  return response.data;
+};
+
+// Mutation function using the fetch function
+export const useDuplicateJobAid = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: DuplicateJobAidInput }) =>
+      duplicateJobAid({ id, data }),
+    onSuccess: () => {
+      // Invalidate and refetch the job aids list
+      queryClient.invalidateQueries({ queryKey: ["job-aids"] });
+    },
+  });
+};
+
+//=============================== Publish Job Aid ===============================
+
+// Fetch function separate from the mutation
+export const publishJobAid = async (id: string) => {
+  const response = await axiosInstance.post<JobAidResponse>(
+    `/job-aids/${id}/publish`
+  );
+  return response.data;
+};
+
+// Mutation function using the fetch function
+export const usePublishJobAid = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: publishJobAid,
+    onSuccess: (data) => {
+      // Invalidate and refetch both the job aids list and the specific job aid
+      queryClient.invalidateQueries({ queryKey: ["job-aids"] });
+      queryClient.invalidateQueries({ queryKey: ["job-aid", data.data.id] });
+    },
+  });
+};
+
+//=============================== Unpublish Job Aid ===============================
+
+// Fetch function separate from the mutation
+export const unpublishJobAid = async (id: string) => {
+  const response = await axiosInstance.post<JobAidResponse>(
+    `/job-aids/${id}/unpublish`
+  );
+  return response.data;
+};
+
+// Mutation function using the fetch function
+export const useUnpublishJobAid = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: unpublishJobAid,
+    onSuccess: (data) => {
+      // Invalidate and refetch both the job aids list and the specific job aid
+      queryClient.invalidateQueries({ queryKey: ["job-aids"] });
+      queryClient.invalidateQueries({ queryKey: ["job-aid", data.data.id] });
+    },
+  });
+};
+
+// ============================== Generate Job Aid QR code ===============================
+
+// Fetch function separate from the mutation
+export const generateJobAidQRCode = async (id: string) => {
+  const response = await axiosInstance.post<GenerateQRCodeResponse>(
+    `/job-aids/${id}/qrcode`
+  );
+  return response.data;
+};
+
+// Mutation function using the fetch function
+export const useGenerateJobAidQRCode = (jobAidId: string) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: generateJobAidQRCode,
+    onSuccess: () => {
+      // Invalidate and refetch both the job aids list and the specific job aid
+      queryClient.invalidateQueries({ queryKey: ["job-aids"] });
+      queryClient.invalidateQueries({ queryKey: ["job-aid", jobAidId] });
+      // Also invalidate the QR code URL query
+      queryClient.invalidateQueries({ queryKey: ["job-aid-qr", jobAidId] });
+    },
+  });
+};
+
+// ============================== Get Job Aid QR code ===============================
+
+// Fetch function separate from the query
+export const fetchJobAidQRCode = async (id: string) => {
+  const response = await axiosInstance.get<GetQRCodeResponse>(
+    `/job-aids/${id}/qrcode`
+  );
+  return response.data;
+};
+
+// Query function using the fetch function
+export const useJobAidQRCode = (id: string) => {
+  return useQuery({
+    queryKey: ["job-aid-qr", id],
+    queryFn: () => fetchJobAidQRCode(id),
+    enabled: !!id, // Only fetch when id is available
   });
 };
