@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { AnnotationState, Renderer } from "@markerjs/markerjs3";
+import Image from "next/image";
 
 type Props = {
   targetImageSrc: string;
@@ -32,11 +33,13 @@ const Viewer = ({ targetImageSrc, annotation }: Props) => {
         ref={renderedImageContainer}
         className="flex overflow-hidden w-full h-full"
       >
-        <img
+        <Image
           ref={renderedImage}
           src={targetImageSrc}
           className="object-contain"
           alt="rendered image"
+          width={300}
+          height={300}
         />
       </div>
     </div>
