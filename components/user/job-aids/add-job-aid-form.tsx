@@ -31,7 +31,7 @@ export default function AddJobAidForm() {
 
   return (
     <main className="min-h-screen bg-background">
-      <div className="w-full max-w-4xl mx-auto px-4 py-8">
+      <div className="w-full  p-4">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
@@ -46,16 +46,6 @@ export default function AddJobAidForm() {
             <Download className="w-4 h-4" />
             Import
           </Button>
-        </div>
-
-        {/* Illustration placeholder */}
-        <div className="mb-8 flex justify-end">
-          <div className="w-32 h-32 bg-gradient-to-br from-blue-100 to-blue-50 rounded-lg flex items-center justify-center">
-            <div className="text-center">
-              <div className="text-4xl mb-2">📋</div>
-              <p className="text-xs text-muted-foreground">Visual guide</p>
-            </div>
-          </div>
         </div>
 
         {/* Form sections */}

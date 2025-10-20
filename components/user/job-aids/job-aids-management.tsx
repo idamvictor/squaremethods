@@ -13,7 +13,6 @@ import { JobAidGrid } from "./job-aid-grid";
 import { DeleteJobAidModal } from "./delete-job-aid-modal";
 import { EditJobAidModal } from "./edit-job-aid-modal";
 import { Grid3X3, List, Search } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import {
   useDeleteJobAid,
@@ -23,8 +22,12 @@ import {
 import { JobAidStatus } from "@/services/job-aid/job-aid-types";
 import { toast } from "sonner";
 
-export function JobAidsManagement() {
-  const router = useRouter();
+interface JobAidsManagementProps {
+  onCreateClick: () => void;
+}
+
+export function JobAidsManagement({ onCreateClick }: JobAidsManagementProps) {
+  // const router = useRouter();
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [searchQuery, setSearchQuery] = useState("");
   const [status, setStatus] = useState<JobAidStatus | undefined>();
@@ -96,9 +99,7 @@ export function JobAidsManagement() {
               className="pl-10 w-64"
             />
           </div>
-          <Button onClick={() => router.push("/job-aids/create")}>
-            Create
-          </Button>
+          <Button onClick={onCreateClick}>Create</Button>
         </div>
       </div>
 
