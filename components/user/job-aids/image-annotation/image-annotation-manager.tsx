@@ -4,6 +4,8 @@ import React, { useState } from "react";
 import Editor from "./editor";
 import { AnnotationState } from "@markerjs/markerjs3";
 import sampleImage from "@/public/sample-images/phone-modules.jpg";
+import Viewer from "./viewer";
+import Renderer from "./renderer";
 
 export default function ImageAnnotationManager() {
   const [annotation, setAnnotation] = useState<AnnotationState | null>(null);
@@ -19,6 +21,10 @@ export default function ImageAnnotationManager() {
             console.log("Annotation saved:", newAnnotation);
           }}
         />
+
+        <Viewer targetImageSrc={sampleImage.src} annotation={annotation} />
+
+        <Renderer targetImageSrc={sampleImage.src} annotation={annotation} />
       </div>
     </div>
   );
