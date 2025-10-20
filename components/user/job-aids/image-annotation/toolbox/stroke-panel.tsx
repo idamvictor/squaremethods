@@ -2,13 +2,12 @@
 
 import { FC, SVGProps, useEffect, useState } from "react";
 
-import {
-  ArrowBothIcon,
-  ArrowEndIcon,
-  ArrowNoneIcon,
-  ArrowStartIcon,
-  StrokeIcon,
-} from "../ui/icons";
+import Image from "next/image";
+import StrokeIcon from "@/public/icons/border-style-2.svg";
+import ArrowNoneIcon from "@/public/icons/minus.svg";
+import ArrowStartIcon from "@/public/icons/arrow-narrow-left.svg";
+import ArrowEndIcon from "@/public/icons/arrow-narrow-right.svg";
+import ArrowBothIcon from "@/public/icons/arrows-horizontal.svg";
 
 import ToolboxPanel, { PanelProps } from "../ui/toolbox-panel";
 import { Label } from "@/components/ui/label";
@@ -133,16 +132,40 @@ const StrokePanel = ({ markerEditor, variant = "ghost" }: PanelProps) => {
             onValueChange={handleArrowTypeChange}
           >
             <ToggleGroupItem value="none" title="None">
-              <ArrowNoneIcon />
+              <Image
+                src={ArrowNoneIcon}
+                alt="None"
+                width={20}
+                height={20}
+                className="opacity-70"
+              />
             </ToggleGroupItem>
             <ToggleGroupItem value="start" title="Start">
-              <ArrowStartIcon />
+              <Image
+                src={ArrowStartIcon}
+                alt="Start"
+                width={20}
+                height={20}
+                className="opacity-70"
+              />
             </ToggleGroupItem>
             <ToggleGroupItem value="end" title="End">
-              <ArrowEndIcon />
+              <Image
+                src={ArrowEndIcon}
+                alt="End"
+                width={20}
+                height={20}
+                className="opacity-70"
+              />
             </ToggleGroupItem>
             <ToggleGroupItem value="both" title="Both">
-              <ArrowBothIcon />
+              <Image
+                src={ArrowBothIcon}
+                alt="Both"
+                width={20}
+                height={20}
+                className="opacity-70"
+              />
             </ToggleGroupItem>
           </ToggleGroup>
         </div>

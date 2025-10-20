@@ -1,11 +1,12 @@
 import { Button } from "@/components/ui/button";
-import { LoaderIcon, type IconComponent } from "./icons";
 import { ToolbarAction } from "@/models/toolbar";
 import { Toggle } from "@/components/ui/toggle";
 import { cn } from "@/lib/utils";
+import Image from "next/image";
+import LoaderIcon from "@/public/icons/loader-2.svg";
 
 type Props = {
-  icon: IconComponent;
+  icon: string;
   title: string;
   buttonType?: "button" | "toggle";
   variant?: "ghost" | "outline";
@@ -18,7 +19,7 @@ type Props = {
 };
 
 const ToolbarActionButton = ({
-  icon: Icon,
+  icon,
   title,
   buttonType,
   variant = "ghost",
@@ -40,8 +41,23 @@ const ToolbarActionButton = ({
           disabled={disabled}
           onClick={() => onAction(action)}
         >
-          {loading && <LoaderIcon className="animate-spin" />}
-          {!loading && <Icon />}
+          {loading ? (
+            <Image
+              src={LoaderIcon}
+              alt="Loading"
+              width={20}
+              height={20}
+              className="animate-spin opacity-70"
+            />
+          ) : (
+            <Image
+              src={icon}
+              alt={title}
+              width={20}
+              height={20}
+              className="opacity-70"
+            />
+          )}
         </Button>
       )}
       {buttonType === "toggle" && (
@@ -53,7 +69,13 @@ const ToolbarActionButton = ({
           disabled={disabled}
           onClick={() => onAction(action)}
         >
-          <Icon />
+          <Image
+            src={icon}
+            alt={title}
+            width={20}
+            height={20}
+            className="opacity-70"
+          />
         </Toggle>
       )}
     </>

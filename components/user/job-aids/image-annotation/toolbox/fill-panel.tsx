@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-import { FillIcon } from "../ui/icons";
+import FillIcon from "@/public/icons/droplet-half-2.svg";
 import ToolboxPanel, { PanelProps } from "../ui/toolbox-panel";
 import ColorPicker from "../ui/color-picker";
 import { defaultColorsWithTransparent } from "@/models/colors";

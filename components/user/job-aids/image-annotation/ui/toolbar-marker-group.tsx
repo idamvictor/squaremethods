@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-
+import Image from "next/image";
 import { Toggle } from "@/components/ui/toggle";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/popover";
 
 import { MarkerTypeGroup, MarkerTypeItem } from "@/models/toolbar";
-import { ChevronDownIcon } from "./icons";
+import ChevronDownIcon from "@/public/icons/chevron-down.svg";
 
 type Props = {
   markers: MarkerTypeGroup;
@@ -47,17 +47,30 @@ const ToolbarMarkerGroup = ({
         className="rounded-r-none border-r-0"
         onClick={() => handleMarkerSelection(currentMarkerType)}
       >
-        <span dangerouslySetInnerHTML={{ __html: currentMarkerType.icon }} />
+        <Image
+          src={currentMarkerType.icon}
+          alt={currentMarkerType.name}
+          width={20}
+          height={20}
+          className="opacity-70"
+        />
       </Toggle>
       <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
         <PopoverTrigger asChild>
           <Button
             variant={variant}
             title={markers.name}
-            className="rounded-l-none border-l-0 bg-transparent"
+            size="icon"
+            className="rounded-l-none border-l-0 bg-transparent px-2"
             onClick={() => setPopoverOpen(!popoverOpen)}
           >
-            <ChevronDownIcon className="-mx-4 h-4 w-4" />
+            <Image
+              src={ChevronDownIcon}
+              alt="More options"
+              width={16}
+              height={16}
+              className="opacity-60"
+            />
           </Button>
         </PopoverTrigger>
         <PopoverContent className="flex flex-wrap w-auto p-2">
@@ -69,7 +82,13 @@ const ToolbarMarkerGroup = ({
               title={markerType.name}
               onClick={() => handleMarkerSelection(markerType)}
             >
-              <span dangerouslySetInnerHTML={{ __html: markerType.icon }} />
+              <Image
+                src={markerType.icon}
+                alt={markerType.name}
+                width={20}
+                height={20}
+                className="opacity-70"
+              />
             </Button>
           ))}
         </PopoverContent>

@@ -31,23 +31,23 @@ import {
   ToolbarAction,
 } from "@/models/toolbar";
 import { EditorState } from "@/models/editor";
-import {
-  ArrowIcon,
-  CalloutIcon,
-  CaptionFrameIcon,
-  CoverIcon,
-  EllipseFrameIcon,
-  EllipseIcon,
-  FrameIcon,
-  FreehandIcon,
-  HighlightIcon,
-  LineIcon,
-  MeasurementIcon,
-  CurveIcon,
-  PolygonIcon,
-  TextIcon,
-} from "./ui/icons";
 import { emojis } from "./ui/emojis";
+
+// Import marker icons
+import FrameIcon from "@/public/icons/markers/rectangle.svg";
+import CoverIcon from "@/public/icons/markers/rectangle-filled.svg";
+import EllipseFrameIcon from "@/public/icons/markers/oval-vertical.svg";
+import EllipseIcon from "@/public/icons/markers/oval-vertical-filled.svg";
+import HighlightIcon from "@/public/icons/markers/highlight.svg";
+import ArrowIcon from "@/public/icons/markers/arrow-narrow-right.svg";
+import LineIcon from "@/public/icons/markers/line.svg";
+import MeasurementIcon from "@/public/icons/markers/ruler-measure.svg";
+import CurveIcon from "@/public/icons/markers/vector-spline.svg";
+import TextIcon from "@/public/icons/markers/text-size.svg";
+import CalloutIcon from "@/public/icons/markers/bubble-text.svg";
+import CaptionFrameIcon from "@/public/icons/markers/text-resize.svg";
+import FreehandIcon from "@/public/icons/markers/scribble.svg";
+import PolygonIcon from "@/public/icons/markers/polygon.svg";
 
 const markerTypes: MarkerTypeList = [
   {

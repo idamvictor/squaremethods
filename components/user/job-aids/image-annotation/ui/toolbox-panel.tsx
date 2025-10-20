@@ -1,7 +1,7 @@
 "use client";
 
 import { ReactNode, useState } from "react";
-
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -10,11 +10,10 @@ import {
 } from "@/components/ui/popover";
 import { MarkerBaseEditor } from "@markerjs/markerjs3";
 import { cn } from "@/lib/utils";
-import { IconComponent } from "./icons";
 
 type Props = {
   title: string;
-  icon: IconComponent;
+  icon: string;
   variant?: "ghost" | "outline";
   children: ReactNode;
 } & React.ComponentProps<"div">;
@@ -26,7 +25,7 @@ export type PanelProps = {
 
 const ToolboxPanel = ({
   title,
-  icon: Icon,
+  icon,
   variant = "ghost",
   children,
   className,
@@ -43,7 +42,13 @@ const ToolboxPanel = ({
             title={title}
             onClick={() => setPopoverOpen(!popoverOpen)}
           >
-            <Icon />
+            <Image
+              src={icon}
+              alt={title}
+              width={20}
+              height={20}
+              className="opacity-70"
+            />
           </Button>
         </PopoverTrigger>
         <PopoverContent className="min-w-48 w-auto p-4">

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-import { OpacityIcon } from "../ui/icons";
+import OpacityIcon from "@/public/icons/circle-half-2.svg";
 import ToolboxPanel, { PanelProps } from "../ui/toolbox-panel";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";

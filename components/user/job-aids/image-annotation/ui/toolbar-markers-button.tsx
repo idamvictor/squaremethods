@@ -14,7 +14,8 @@ import {
   MarkerTypeItem,
   isMarkerTypeGroup,
 } from "@/models/toolbar";
-import { AddIcon } from "./icons";
+import Image from "next/image";
+import AddIcon from "@/public/icons/square-plus.svg";
 
 type Props = {
   markerList: MarkerTypeList;
@@ -44,7 +45,13 @@ const ToolbarMarkersButton = ({
             className="bg-transparent"
             onClick={() => setPopoverOpen(!popoverOpen)}
           >
-            <AddIcon />
+            <Image
+              src={AddIcon}
+              alt="Add Marker"
+              width={20}
+              height={20}
+              className="opacity-70"
+            />
           </Button>
         </PopoverTrigger>
         <PopoverContent className="flex flex-col w-auto max-w-60 p-2">
@@ -63,8 +70,12 @@ const ToolbarMarkersButton = ({
                       title={markerType.name}
                       onClick={() => handleMarkerSelection(markerType)}
                     >
-                      <span
-                        dangerouslySetInnerHTML={{ __html: markerType.icon }}
+                      <Image
+                        src={markerType.icon}
+                        alt={markerType.name}
+                        width={20}
+                        height={20}
+                        className="opacity-70"
                       />
                     </Button>
                   ))}

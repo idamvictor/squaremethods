@@ -1,11 +1,10 @@
 import { ToolbarAction } from "@/models/toolbar";
-import {
-  RedoIcon,
-  UndoIcon,
-  ZoomInIcon,
-  ZoomOutIcon,
-  ZoomResetIcon,
-} from "./ui/icons";
+// Import UI icons
+import UndoIcon from "@/public/icons/arrow-back-up.svg";
+import RedoIcon from "@/public/icons/arrow-forward-up.svg";
+import ZoomInIcon from "@/public/icons/plus.svg";
+import ZoomOutIcon from "@/public/icons/minus.svg";
+import ZoomResetIcon from "@/public/icons/relation-one-to-one.svg";
 import ToolbarActionButton from "./ui/toolbar-action-button";
 import { EditorState } from "@/models/editor";
 import {

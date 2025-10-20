@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-import { FontIcon } from "../ui/icons";
+import FontIcon from "@/public/icons/typography.svg";
 import ToolboxPanel, { PanelProps } from "../ui/toolbox-panel";
 import { Label } from "@/components/ui/label";
 import ColorPicker from "../ui/color-picker";
