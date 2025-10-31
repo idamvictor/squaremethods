@@ -6,7 +6,15 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Download, Edit2, Plus, Upload } from "lucide-react";
 
-export default function AddJobAidForm() {
+interface AddJobAidFormProps {
+  onNewInstructionClick: () => void;
+  onNewStepClick: () => void;
+}
+
+export default function AddJobAidForm({
+  onNewInstructionClick,
+  onNewStepClick,
+}: AddJobAidFormProps) {
   const [formData, setFormData] = useState({
     title: "",
     category: "",
@@ -209,12 +217,12 @@ export default function AddJobAidForm() {
           <Card className="p-6">
             <div className="flex items-start justify-between mb-4">
               <div className="flex-1">
-                <h3 className="text-lg font-semibold text-foreground mb-1">
+                <h3 className="text-lg font-semibold text-gray-900 mb-1">
                   Job aid Procedures
                 </h3>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-gray-500">
                   Build visual step-by-step instructions. Add a new step or{" "}
-                  <button className="text-primary hover:underline">
+                  <button className="text-blue-600 hover:underline">
                     import pdf
                   </button>
                   .
@@ -223,7 +231,7 @@ export default function AddJobAidForm() {
               <Button
                 variant="ghost"
                 size="sm"
-                className="gap-2 text-muted-foreground hover:text-foreground"
+                className="gap-2 text-gray-500 hover:text-gray-700"
               >
                 <Upload className="w-4 h-4" />
                 Upload
@@ -232,15 +240,21 @@ export default function AddJobAidForm() {
 
             {/* Add buttons */}
             <div className="grid grid-cols-2 gap-4">
-              <button className="border-2 border-dashed border-border rounded-lg p-6 hover:bg-muted/50 transition-colors flex flex-col items-center gap-2">
-                <Plus className="w-6 h-6 text-muted-foreground" />
-                <span className="text-sm font-medium text-foreground">
+              <button
+                onClick={onNewInstructionClick}
+                className="border-2 border-dashed border-gray-200 rounded-lg p-6 hover:bg-gray-50 transition-colors flex flex-col items-center gap-2"
+              >
+                <Plus className="w-6 h-6 text-gray-500" />
+                <span className="text-sm font-medium text-gray-900">
                   New Instruction
                 </span>
               </button>
-              <button className="border-2 border-dashed border-border rounded-lg p-6 hover:bg-muted/50 transition-colors flex flex-col items-center gap-2">
-                <Plus className="w-6 h-6 text-muted-foreground" />
-                <span className="text-sm font-medium text-foreground">
+              <button
+                onClick={onNewStepClick}
+                className="border-2 border-dashed border-gray-200 rounded-lg p-6 hover:bg-gray-50 transition-colors flex flex-col items-center gap-2"
+              >
+                <Plus className="w-6 h-6 text-gray-500" />
+                <span className="text-sm font-medium text-gray-900">
                   New Steps
                 </span>
               </button>
