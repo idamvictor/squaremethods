@@ -33,6 +33,7 @@ export interface FailureMode {
   image: string | null;
   title: string;
   status: "open" | "resolved" | "in_progress";
+  priority: "low" | "medium" | "high";
   resolutions: string[];
   due_date: string | null;
   equipment: Equipment;
@@ -69,6 +70,7 @@ export interface CreateFailureModeInput {
   image?: string;
   title: string;
   status: "open" | "resolved" | "in_progress";
+  priority: "low" | "medium" | "high";
   resolutions: string[];
   due_date?: string;
 }
@@ -76,6 +78,7 @@ export interface CreateFailureModeInput {
 export interface UpdateFailureModeInput {
   title?: string;
   status?: "open" | "resolved" | "in_progress";
+  priority?: "low" | "medium" | "high";
   resolutions?: string[];
   due_date?: string;
 }
