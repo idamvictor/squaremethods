@@ -11,6 +11,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useProfile } from "@/services/users/users-querries";
+import { useCreateFailureMode } from "@/services/failure-mode/failure-mode-queries";
+import { CreateFailureModeInput } from "@/services/failure-mode/failure-mode-types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -60,6 +62,8 @@ export function AddFailureModeModal({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { data: profileData } = useProfile();
+  const createFailureModeMutation = useCreateFailureMode();
+
   const reportedBy = profileData?.data
     ? `${profileData.data.first_name} ${profileData.data.last_name}`
     : "";
@@ -96,24 +100,71 @@ export function AddFailureModeModal({
     setResolutions(resolutions.filter((res) => res.id !== id));
   };
 
-  const handleSubmit = () => {
-    onSubmit({
+  const handleSubmit = async () => {
+    if (!profileData?.data?.id) {
+      console.error("User profile not loaded");
+      return;
+    }
+
+    if (!title || !equipment) {
+      console.error("Required fields missing");
+      return;
+    }
+
+    // Convert date string to ISO format with time
+    const formattedDueDate = dueDate
+      ? new Date(dueDate).toISOString()
+      : undefined;
+
+    // Convert base64 image to proper format if needed
+    // Note: You might need to implement an image upload endpoint first
+    // and then use the returned path here
+    const formattedImage = imagePreview
+      ? "/uploads/failures/failure-image.jpg"
+      : undefined;
+
+    const failureModeInput: CreateFailureModeInput = {
       title,
-      resolutions,
-      equipment,
-      reportedBy,
-      dueDate,
-      image: imagePreview,
-    });
-    // Reset form
-    setTitle("");
-    setResolutions([]);
-    setNewResolution("");
-    setEquipment("");
-    setEquipmentName("");
-    setDueDate("");
-    setImagePreview(null);
-    onOpenChange(false);
+      equipment_id: equipment,
+      reported_by: profileData.data.id,
+      status: "open",
+      resolutions: resolutions.map((r) => r.text),
+      due_date: formattedDueDate,
+      image: formattedImage,
+    };
+
+    try {
+      await createFailureModeMutation.mutateAsync(failureModeInput);
+
+      // Reset form
+      setTitle("");
+      setResolutions([]);
+      setNewResolution("");
+      setEquipment("");
+      setEquipmentName("");
+      setDueDate("");
+      setImagePreview(null);
+      onOpenChange(false);
+
+      // Notify parent component
+      onSubmit({
+        title,
+        resolutions,
+        equipment,
+        reportedBy,
+        dueDate,
+        image: imagePreview,
+      });
+    } catch (error) {
+      const err = error as { response?: { data?: unknown; status?: number } };
+      console.error("Failed to create failure mode:", {
+        error,
+        data: err.response?.data,
+        status: err.response?.status,
+        requestData: failureModeInput,
+      });
+      // You might want to show an error toast here
+    }
   };
 
   return (
@@ -307,10 +358,14 @@ export function AddFailureModeModal({
           <div className="border-t border-border px-6 py-4">
             <Button
               onClick={handleSubmit}
-              disabled={!title}
+              disabled={
+                !title || !equipment || createFailureModeMutation.isPending
+              }
               className="w-full bg-[#1e293b] hover:bg-[#334155]"
             >
-              Create Failure Mode
+              {createFailureModeMutation.isPending
+                ? "Creating..."
+                : "Create Failure Mode"}
             </Button>
           </div>
         </DialogContent>

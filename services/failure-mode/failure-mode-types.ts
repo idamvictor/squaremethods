@@ -70,7 +70,6 @@ export interface CreateFailureModeInput {
   image?: string;
   title: string;
   status: "open" | "resolved" | "in_progress";
-  priority: "low" | "medium" | "high";
   resolutions: string[];
   due_date?: string;
 }
