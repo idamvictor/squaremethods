@@ -13,10 +13,11 @@ import {
   PaginationItem,
   PaginationLink,
 } from "@/components/ui/pagination";
-import { Search, Pencil, Trash2 } from "lucide-react";
+import { Search, Pencil, Trash2, Eye } from "lucide-react";
 import { AddFailureModeModal } from "./add-failure-mode-modal";
 import { EditFailureModeModal } from "./edit-failure-mode-modal";
 import { DeleteConfirmationModal } from "./delete-confirmation-modal";
+import { FailureModeDetailsModal } from "./failure-mode-details-modal";
 import type { FailureModeData } from "./add-failure-mode-modal";
 
 import { FailureMode } from "@/services/failure-mode/failure-mode-types";
@@ -40,6 +41,7 @@ export function FailureModeList() {
   const [currentPage, setCurrentPage] = useState(1);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [selectedFailureMode, setSelectedFailureMode] =
     useState<FailureMode | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -71,6 +73,11 @@ export function FailureModeList() {
   const handleEdit = (mode: FailureMode) => {
     setSelectedFailureMode(mode);
     setIsEditModalOpen(true);
+  };
+
+  const handleViewDetails = (mode: FailureMode) => {
+    setSelectedFailureMode(mode);
+    setIsDetailsModalOpen(true);
   };
 
   return (
@@ -179,9 +186,9 @@ export function FailureModeList() {
                     variant="ghost"
                     size="icon"
                     className="h-8 w-8"
-                    onClick={() => handleDeleteClick(mode)}
+                    onClick={() => handleViewDetails(mode)}
                   >
-                    <Trash2 className="h-4 w-4 text-muted-foreground hover:text-destructive" />
+                    <Eye className="h-4 w-4 text-muted-foreground hover:text-foreground" />
                   </Button>
                   <Button
                     variant="ghost"
@@ -190,6 +197,14 @@ export function FailureModeList() {
                     onClick={() => handleEdit(mode)}
                   >
                     <Pencil className="h-4 w-4 text-muted-foreground hover:text-foreground" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8"
+                    onClick={() => handleDeleteClick(mode)}
+                  >
+                    <Trash2 className="h-4 w-4 text-muted-foreground hover:text-destructive" />
                   </Button>
                 </div>
               </div>
@@ -269,6 +284,14 @@ export function FailureModeList() {
           onOpenChange={setIsDeleteModalOpen}
           failureModeId={failureModeToDelete.id}
           failureModeTitle={failureModeToDelete.title}
+        />
+      )}
+
+      {selectedFailureMode && (
+        <FailureModeDetailsModal
+          failureModeId={selectedFailureMode.id}
+          open={isDetailsModalOpen}
+          onOpenChange={setIsDetailsModalOpen}
         />
       )}
     </div>
