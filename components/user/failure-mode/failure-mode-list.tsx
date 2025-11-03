@@ -16,6 +16,7 @@ import {
 import { Search, Pencil, Trash2 } from "lucide-react";
 import { AddFailureModeModal } from "./add-failure-mode-modal";
 import { EditFailureModeModal } from "./edit-failure-mode-modal";
+import { DeleteConfirmationModal } from "./delete-confirmation-modal";
 import type { FailureModeData } from "./add-failure-mode-modal";
 
 import { FailureMode } from "@/services/failure-mode/failure-mode-types";
@@ -41,6 +42,11 @@ export function FailureModeList() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedFailureMode, setSelectedFailureMode] =
     useState<FailureMode | null>(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [failureModeToDelete, setFailureModeToDelete] = useState<{
+    id: string;
+    title: string;
+  } | null>(null);
   const [limit] = useState(10);
 
   const { data: failureModesResponse, isLoading } = useFailureModes({
@@ -51,9 +57,9 @@ export function FailureModeList() {
   const failureModes = failureModesResponse?.data || [];
   const totalPages = failureModesResponse?.pagination?.pages || 1;
 
-  const handleDelete = (id: string) => {
-    console.log("Delete failure mode:", id);
-    // We'll implement the delete functionality later
+  const handleDeleteClick = (mode: FailureMode) => {
+    setFailureModeToDelete({ id: mode.id, title: mode.title });
+    setIsDeleteModalOpen(true);
   };
 
   const handleAddFailureMode = (data: FailureModeData) => {
@@ -173,7 +179,7 @@ export function FailureModeList() {
                     variant="ghost"
                     size="icon"
                     className="h-8 w-8"
-                    onClick={() => handleDelete(mode.id)}
+                    onClick={() => handleDeleteClick(mode)}
                   >
                     <Trash2 className="h-4 w-4 text-muted-foreground hover:text-destructive" />
                   </Button>
@@ -254,6 +260,15 @@ export function FailureModeList() {
           failureMode={selectedFailureMode}
           open={isEditModalOpen}
           onOpenChange={setIsEditModalOpen}
+        />
+      )}
+
+      {failureModeToDelete && (
+        <DeleteConfirmationModal
+          open={isDeleteModalOpen}
+          onOpenChange={setIsDeleteModalOpen}
+          failureModeId={failureModeToDelete.id}
+          failureModeTitle={failureModeToDelete.title}
         />
       )}
     </div>
