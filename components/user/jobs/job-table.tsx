@@ -32,6 +32,7 @@ import {
 } from "@tanstack/react-query";
 import { JobFilters } from "./job-filters";
 import { DeleteDialog } from "./delete-dialog";
+import { JobDetailsModal } from "./job-details-modal";
 
 import { JobStatus, DeleteJobResponse } from "@/services/jobs/jobs-types";
 import { avatarImage } from "@/constants/images";
@@ -41,6 +42,7 @@ export function JobTable() {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<JobStatus | "all">("all");
   const [deleteJobId, setDeleteJobId] = useState<string | null>(null);
+  const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
 
   const { data, isLoading } = useJobs({
     page,
@@ -163,7 +165,11 @@ export function JobTable() {
           </TableHeader>
           <TableBody>
             {jobs.map((job: Job) => (
-              <TableRow key={job.id}>
+              <TableRow
+                key={job.id}
+                className="cursor-pointer hover:bg-gray-50"
+                onClick={() => setSelectedJobId(job.id)}
+              >
                 <TableCell>
                   <div className="flex items-center gap-2">
                     <span className="font-medium">{job.title}</span>
@@ -196,7 +202,7 @@ export function JobTable() {
                     {job.estimated_duration}
                   </span>
                 </TableCell>
-                <TableCell>
+                <TableCell onClick={(e) => e.stopPropagation()}>
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => {
@@ -281,6 +287,12 @@ export function JobTable() {
         onClose={() => setDeleteJobId(null)}
         onConfirm={handleDelete}
         isDeleting={deleteJobMutation.isPending}
+      />
+
+      <JobDetailsModal
+        jobId={selectedJobId}
+        isOpen={!!selectedJobId}
+        onClose={() => setSelectedJobId(null)}
       />
     </div>
   );
