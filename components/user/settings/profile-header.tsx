@@ -11,6 +11,10 @@ interface ProfileHeaderProps {
   avatarUrl?: string;
   isVerified?: boolean;
   onEdit?: () => void;
+  onAvatarChange?: (newAvatarUrl: string) => void;
+  onSave?: () => void;
+  isSaving?: boolean;
+  hasChanges?: boolean;
 }
 
 export function ProfileHeader({
@@ -20,19 +24,51 @@ export function ProfileHeader({
   avatarUrl,
   isVerified = false,
   onEdit,
+  onAvatarChange,
+  onSave,
+  isSaving = false,
+  hasChanges = false,
 }: ProfileHeaderProps) {
   return (
     <div className="flex items-center justify-between p-6 bg-white rounded-lg border">
       <div className="flex items-center gap-4">
-        <Avatar className="h-16 w-16">
-          <AvatarImage src={avatarUrl || "/placeholder.svg"} alt={name} />
-          <AvatarFallback className="bg-purple-100 text-purple-600 text-lg font-semibold">
-            {name
-              .split(" ")
-              .map((n) => n[0])
-              .join("")}
-          </AvatarFallback>
-        </Avatar>
+        <div className="relative group">
+          <Avatar className="h-16 w-16">
+            <AvatarImage src={avatarUrl || "/placeholder.svg"} alt={name} />
+            <AvatarFallback className="bg-purple-100 text-purple-600 text-lg font-semibold">
+              {name
+                .split(" ")
+                .map((n) => n[0])
+                .join("")}
+            </AvatarFallback>
+          </Avatar>
+          {onAvatarChange && (
+            <label
+              className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 rounded-full cursor-pointer transition-opacity"
+              htmlFor="avatar-upload"
+            >
+              <Edit className="h-5 w-5 text-white" />
+            </label>
+          )}
+          <input
+            type="file"
+            id="avatar-upload"
+            className="hidden"
+            accept="image/*"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file && onAvatarChange) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                  if (typeof e.target?.result === "string") {
+                    onAvatarChange(e.target.result);
+                  }
+                };
+                reader.readAsDataURL(file);
+              }
+            }}
+          />
+        </div>
         <div className="space-y-1">
           <div className="flex items-center gap-2">
             <h3 className="text-lg font-semibold text-gray-900">{name}</h3>
@@ -42,10 +78,22 @@ export function ProfileHeader({
           <p className="text-sm text-gray-500">{location}</p>
         </div>
       </div>
-      <Button variant="outline" size="sm" onClick={onEdit}>
-        <Edit className="h-4 w-4 mr-2" />
-        Edit
-      </Button>
+      <div className="flex items-center gap-2">
+        {hasChanges && onSave && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onSave}
+            disabled={isSaving}
+          >
+            {isSaving ? "Saving..." : "Save Avatar"}
+          </Button>
+        )}
+        <Button variant="outline" size="sm" onClick={onEdit}>
+          <Edit className="h-4 w-4 mr-2" />
+          Edit
+        </Button>
+      </div>
     </div>
   );
 }

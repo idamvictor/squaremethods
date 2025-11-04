@@ -72,6 +72,7 @@ export interface UpdateProfileRequest {
   phone?: string;
   current_password?: string;
   new_password?: string;
+  avatar_url?: string;
 }
 
 export interface DashboardStats {
