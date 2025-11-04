@@ -16,6 +16,7 @@ import { useTeamDetails } from "@/services/teams/teams";
 import Link from "next/link";
 import { UpdateTeamModal } from "./update-team-modal";
 import { DeleteTeamModal } from "./delete-team-modal";
+import { SelectUserModal } from "./select-user-modal";
 
 interface TeamCardProps {
   team: Team;
@@ -25,6 +26,7 @@ export function TeamCard({ team }: TeamCardProps) {
   const { data: teamDetails } = useTeamDetails(team.id);
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isSelectUserModalOpen, setIsSelectUserModalOpen] = useState(false);
   return (
     <Card className="relative group hover:shadow-md transition-shadow">
       <CardHeader className="pb-3">
@@ -42,6 +44,7 @@ export function TeamCard({ team }: TeamCardProps) {
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
+                setIsSelectUserModalOpen(true);
               }}
             >
               <Plus className="h-3 w-3" />
@@ -99,12 +102,24 @@ export function TeamCard({ team }: TeamCardProps) {
           isOpen={isDeleteModalOpen}
           onClose={() => setIsDeleteModalOpen(false)}
         />
+        <SelectUserModal
+          open={isSelectUserModalOpen}
+          onClose={() => setIsSelectUserModalOpen(false)}
+          teamId={team.id}
+          currentMembers={[
+            ...(teamDetails?.data.members?.map((m) => m.id) ?? []),
+            ...(teamDetails?.data.otherMembers?.map((m) => m.id) ?? []),
+          ]}
+        />
 
         <Link href={`/teams/${team.id}`} className="block">
           {/* Avatar Group */}
           <div className="flex items-center justify-between">
             <div className="flex -space-x-2">
-              {(teamDetails?.data.members ?? [])
+              {[
+                ...(teamDetails?.data.members ?? []),
+                ...(teamDetails?.data.otherMembers ?? []),
+              ]
                 .slice(0, 4)
                 .map((member: TeamMember) => {
                   const avatarUrl =
@@ -131,18 +146,26 @@ export function TeamCard({ team }: TeamCardProps) {
                     </Avatar>
                   );
                 })}
-              {(teamDetails?.data.members?.length ?? 0) > 4 && (
-                <div className="w-8 h-8 rounded-full bg-gray-100 border-2 border-white flex items-center justify-center">
-                  <span className="text-xs text-gray-600">
-                    +{(teamDetails?.data.members?.length ?? 0) - 4}
-                  </span>
-                </div>
-              )}
+              {(() => {
+                const totalMembers =
+                  (teamDetails?.data.members?.length ?? 0) +
+                  (teamDetails?.data.otherMembers?.length ?? 0);
+                return totalMembers > 4 ? (
+                  <div className="w-8 h-8 rounded-full bg-gray-100 border-2 border-white flex items-center justify-center">
+                    <span className="text-xs text-gray-600">
+                      +{totalMembers - 4}
+                    </span>
+                  </div>
+                ) : null;
+              })()}
             </div>
 
             <div className="flex items-center gap-1 text-sm text-gray-500">
               <Users className="w-3 h-3" />
-              <span>{teamDetails?.data.members.length ?? 0}</span>
+              <span>
+                {(teamDetails?.data.members?.length ?? 0) +
+                  (teamDetails?.data.otherMembers?.length ?? 0)}
+              </span>
             </div>
           </div>
 

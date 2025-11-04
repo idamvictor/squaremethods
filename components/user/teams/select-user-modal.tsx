@@ -18,6 +18,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { useUsers } from "@/services/users/users-querries";
 import { useAddTeamMember } from "@/services/teams/teams";
+import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import type { User } from "@/services/users/users-types";
 
@@ -37,6 +38,8 @@ export function SelectUserModal({
   const { data: usersData, isLoading } = useUsers({ limit: 100 });
   const addTeamMember = useAddTeamMember(teamId);
 
+  const queryClient = useQueryClient();
+
   const handleUserSelect = async (user: User) => {
     if (currentMembers.includes(user.id)) {
       return; // Don't allow selection of current members
@@ -47,6 +50,8 @@ export function SelectUserModal({
         user_id: user.id,
         role: "member",
       });
+      // Invalidate the specific team's data to force a refresh
+      queryClient.invalidateQueries({ queryKey: ["teams", "detail", teamId] });
       toast.success(`${user.first_name} ${user.last_name} added to team`);
       onClose();
     } catch (error) {
