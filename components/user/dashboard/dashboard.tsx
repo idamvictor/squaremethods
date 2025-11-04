@@ -20,12 +20,20 @@ import { useEffect } from "react";
 // Chart data now comes from the dashboard store
 
 export default function Dashboard() {
-  const { totalSOPs, sopChartData, isLoading, fetchTotalSOPs } =
-    useDashboardStore();
+  const {
+    totalSOPs,
+    sopChartData,
+    totalEquipment,
+    equipmentChartData,
+    isLoading,
+    fetchTotalSOPs,
+    fetchTotalEquipment,
+  } = useDashboardStore();
 
   useEffect(() => {
     fetchTotalSOPs();
-  }, [fetchTotalSOPs]);
+    fetchTotalEquipment();
+  }, [fetchTotalSOPs, fetchTotalEquipment]);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -72,7 +80,10 @@ export default function Dashboard() {
             value={isLoading ? "..." : totalSOPs.toString()}
             icon={TrendingUp}
           />
-          <MetricCard title="Total Equipment Registered" value="41" />
+          <MetricCard
+            title="Total Equipment Registered"
+            value={isLoading ? "..." : totalEquipment.toString()}
+          />
           <MetricCard title="Total Tasks" value="120" />
           <MetricCard title="Completed Tasks" value="96" />
           <div className="col-span-2 sm:col-span-1">
@@ -93,6 +104,12 @@ export default function Dashboard() {
                     Total SOP Created
                   </TabsTrigger>
                   <TabsTrigger
+                    value="total-equipment"
+                    className="text-xs sm:text-sm px-2 sm:px-3 py-2 whitespace-nowrap"
+                  >
+                    Total Equipment Registered
+                  </TabsTrigger>
+                  <TabsTrigger
                     value="total-task"
                     className="text-xs sm:text-sm px-2 sm:px-3 py-2 whitespace-nowrap"
                   >
@@ -103,12 +120,6 @@ export default function Dashboard() {
                     className="text-xs sm:text-sm px-2 sm:px-3 py-2 whitespace-nowrap"
                   >
                     Completed Task
-                  </TabsTrigger>
-                  <TabsTrigger
-                    value="pending-task"
-                    className="text-xs sm:text-sm px-2 sm:px-3 py-2 whitespace-nowrap"
-                  >
-                    Pending Task
                   </TabsTrigger>
                 </TabsList>
               </div>
@@ -123,6 +134,24 @@ export default function Dashboard() {
                   </span>
                 </div>
                 <SOPChart data={sopChartData} title="SOP created" />
+              </TabsContent>
+
+              <TabsContent
+                value="total-equipment"
+                className="space-y-4 sm:space-y-6"
+              >
+                <div className="flex items-baseline gap-4">
+                  <span className="text-3xl sm:text-4xl font-bold">
+                    {isLoading ? "..." : totalEquipment}
+                  </span>
+                  <span className="text-sm text-green-600 font-medium">
+                    ↗ 8.2% from last period
+                  </span>
+                </div>
+                <SOPChart
+                  data={equipmentChartData}
+                  title="Equipment registered"
+                />
               </TabsContent>
 
               <TabsContent
