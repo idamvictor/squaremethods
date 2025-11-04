@@ -109,7 +109,8 @@ export function OverdueJobs() {
                         />
                       </Avatar>
                       <span>
-                        {job.assignedUser.first_name} {job.assignedUser.last_name}
+                        {job.assignedUser.first_name}{" "}
+                        {job.assignedUser.last_name}
                       </span>
                     </div>
                   </div>
