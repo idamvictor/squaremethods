@@ -91,7 +91,7 @@ export interface CreateJobInput {
   due_date: string;
   estimated_duration: number;
   safety_notes: string;
-  job_aid_ids: string[];
+  task_ids: string[];
 }
 
 export interface JobAid {

@@ -62,7 +62,7 @@ export function AddJobModal() {
         !newJobData.team ||
         !newJobData.assignedOwner ||
         !newJobData.dueDate ||
-        !newJobData.job_aid_ids.length
+        !newJobData.task_ids.length
       ) {
         console.error("Required fields missing");
         return;
@@ -85,7 +85,7 @@ export function AddJobModal() {
         due_date: dueDate.toISOString(),
         estimated_duration: Math.round(parseFloat(newJobData.duration) * 60),
         safety_notes: newJobData.safety_notes || "No safety notes provided",
-        job_aid_ids: newJobData.job_aid_ids,
+        task_ids: newJobData.task_ids,
       };
       await createJobMutation.mutateAsync(jobInput);
       closeAddModal();
@@ -129,7 +129,7 @@ export function AddJobModal() {
               </div>
               <div className="space-y-3">
                 <div className="flex flex-wrap gap-2">
-                  {newJob.job_aid_ids.map((id) => {
+                  {newJob.task_ids.map((id) => {
                     const task = tasksData?.data.find((t) => t.id === id);
                     if (!task) return null;
                     return (
@@ -141,10 +141,8 @@ export function AddJobModal() {
                         <button
                           onClick={() => {
                             updateNewJob(
-                              "job_aid_ids",
-                              newJob.job_aid_ids.filter(
-                                (taskId) => taskId !== id
-                              )
+                              "task_ids",
+                              newJob.task_ids.filter((taskId) => taskId !== id)
                             );
                           }}
                           className="hover:text-red-500"
@@ -159,11 +157,8 @@ export function AddJobModal() {
                 <Select
                   disabled={isTasksLoading}
                   onValueChange={(value) => {
-                    if (!newJob.job_aid_ids.includes(value)) {
-                      updateNewJob("job_aid_ids", [
-                        ...newJob.job_aid_ids,
-                        value,
-                      ]);
+                    if (!newJob.task_ids.includes(value)) {
+                      updateNewJob("task_ids", [...newJob.task_ids, value]);
                     }
                   }}
                 >
@@ -181,7 +176,7 @@ export function AddJobModal() {
                       </div>
                     ) : (
                       tasksData?.data
-                        .filter((task) => !newJob.job_aid_ids.includes(task.id))
+                        .filter((task) => !newJob.task_ids.includes(task.id))
                         .map((task) => (
                           <SelectItem key={task.id} value={task.id}>
                             {task.title}
@@ -414,7 +409,8 @@ export function AddJobModal() {
                 !newJob.assignedOwner ||
                 !newJob.dueDate ||
                 !newJob.duration ||
-                !newJob.priority
+                !newJob.priority ||
+                !newJob.task_ids.length
               }
             >
               Create Job

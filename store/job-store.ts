@@ -13,7 +13,7 @@ type NewJobData = {
   equipmentName: string;
   priority: JobPriority;
   safety_notes: string;
-  job_aid_ids: string[];
+  task_ids: string[];
 };
 
 interface JobStore {
@@ -48,7 +48,7 @@ const initialNewJob: NewJobData = {
   equipmentName: "",
   priority: "medium" as JobPriority,
   safety_notes: "",
-  job_aid_ids: [],
+  task_ids: [],
 };
 
 export const useJobStore = create<JobStore>((set, get) => ({
