@@ -11,6 +11,7 @@ import {
   Settings,
   // HelpCircle,
   Calendar,
+  CircleX,
 } from "lucide-react";
 
 // import { Button } from "@/components/ui/button";
@@ -51,6 +52,11 @@ const mainNavItems = [
     title: "Jobs",
     url: "/technician/jobs",
     icon: Briefcase,
+  },
+  {
+    title: "Failure Mode",
+    url: "/technician/failure-mode",
+    icon: CircleX,
   },
   {
     title: "Calendar",
