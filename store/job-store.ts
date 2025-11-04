@@ -5,7 +5,6 @@ import { useCreateJob as useCreateJobMutation } from "@/services/jobs/jobs-queri
 type NewJobData = {
   title: string;
   description: string;
-  taskList: string[];
   team: string;
   assignedOwner: string;
   dueDate: string;
@@ -14,6 +13,7 @@ type NewJobData = {
   equipmentName: string;
   priority: JobPriority;
   safety_notes: string;
+  job_aid_ids: string[];
 };
 
 interface JobStore {
@@ -32,16 +32,14 @@ interface JobStore {
     field: K,
     value: NewJobData[K]
   ) => void;
-  addTaskToList: (task: string) => void;
-  removeTaskFromList: (index: number) => void;
+
   createJob: () => Promise<NewJobData>;
   resetNewJob: () => void;
 }
 
-const initialNewJob = {
+const initialNewJob: NewJobData = {
   title: "",
   description: "",
-  taskList: [],
   team: "",
   assignedOwner: "",
   dueDate: "",
@@ -50,6 +48,7 @@ const initialNewJob = {
   equipmentName: "",
   priority: "medium" as JobPriority,
   safety_notes: "",
+  job_aid_ids: [],
 };
 
 export const useJobStore = create<JobStore>((set, get) => ({
@@ -77,26 +76,6 @@ export const useJobStore = create<JobStore>((set, get) => ({
   ) => {
     set((state) => ({
       newJob: { ...state.newJob, [field]: value },
-    }));
-  },
-
-  addTaskToList: (task: string) => {
-    if (task.trim()) {
-      set((state) => ({
-        newJob: {
-          ...state.newJob,
-          taskList: [...state.newJob.taskList, task.trim()],
-        },
-      }));
-    }
-  },
-
-  removeTaskFromList: (index: number) => {
-    set((state) => ({
-      newJob: {
-        ...state.newJob,
-        taskList: state.newJob.taskList.filter((_, i) => i !== index),
-      },
     }));
   },
 

@@ -10,7 +10,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Plus, Loader2, Calendar } from "lucide-react";
+import { Loader2, Calendar } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -31,19 +31,14 @@ import { useJobStore } from "@/store/job-store";
 import { EquipmentHierarchyModal } from "./equipment-hierarchy-modal";
 import { useTeams, useTeamMembers } from "@/services/teams/teams";
 import { useCreateJob } from "@/services/jobs/jobs-queries";
+import { useTasks } from "@/services/tasks/tasks-queries";
 import { CreateJobInput } from "@/services/jobs/jobs-types";
 
 export function AddJobModal() {
-  const {
-    isAddModalOpen,
-    newJob,
-    closeAddModal,
-    updateNewJob,
-    addTaskToList,
-    removeTaskFromList,
-    createJob,
-  } = useJobStore();
+  const { isAddModalOpen, newJob, closeAddModal, updateNewJob, createJob } =
+    useJobStore();
 
+  const { data: tasksData, isLoading: isTasksLoading } = useTasks();
   const {
     data: teamsData,
     isLoading: isTeamsLoading,
@@ -54,15 +49,7 @@ export function AddJobModal() {
     isLoading: isTeamMembersLoading,
     error: teamMembersError,
   } = useTeamMembers(newJob.team || ""); // Will only fetch when team ID is not empty
-  const [newTaskInput, setNewTaskInput] = useState("");
   const [isEquipmentModalOpen, setEquipmentModalOpen] = useState(false);
-
-  const handleAddTask = () => {
-    if (newTaskInput.trim()) {
-      addTaskToList(newTaskInput);
-      setNewTaskInput("");
-    }
-  };
 
   const createJobMutation = useCreateJob();
 
@@ -74,7 +61,8 @@ export function AddJobModal() {
         !newJobData.title ||
         !newJobData.team ||
         !newJobData.assignedOwner ||
-        !newJobData.dueDate
+        !newJobData.dueDate ||
+        !newJobData.job_aid_ids.length
       ) {
         console.error("Required fields missing");
         return;
@@ -87,21 +75,20 @@ export function AddJobModal() {
         return;
       }
 
+      // Create a job with all selected tasks
       const jobInput: CreateJobInput = {
         title: newJobData.title,
         description: newJobData.description || "No description provided",
         team_id: newJobData.team,
         assigned_to: newJobData.assignedOwner,
         priority: newJobData.priority,
-        due_date: dueDate.toISOString(), // This will format as YYYY-MM-DDTHH:mm:ssZ
-        estimated_duration: Math.round(parseFloat(newJobData.duration) * 60), // Convert hours to minutes and ensure it's an integer
+        due_date: dueDate.toISOString(),
+        estimated_duration: Math.round(parseFloat(newJobData.duration) * 60),
         safety_notes: newJobData.safety_notes || "No safety notes provided",
-        job_aid_id: "", // TODO: Implement job aid selection
+        job_aid_ids: newJobData.job_aid_ids,
       };
-
       await createJobMutation.mutateAsync(jobInput);
       closeAddModal();
-      setNewTaskInput("");
     } catch (error) {
       console.error("Failed to create job:", error);
       // TODO: Handle error (show toast notification, etc.)
@@ -130,44 +117,80 @@ export function AddJobModal() {
               />
             </div>
 
-            {/* Task List */}
+            {/* Task Selection */}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label className="text-sm font-medium">Task List</Label>
+                <Label className="text-sm font-medium">
+                  Select Task <span className="text-red-500">*</span>
+                </Label>
                 <span className="text-xs text-gray-400">
-                  Click + to task from your task list
+                  Choose a task from your list
                 </span>
               </div>
-              <div className="flex gap-2">
-                <Input
-                  placeholder="Add task"
-                  value={newTaskInput}
-                  onChange={(e) => setNewTaskInput(e.target.value)}
-                  onKeyPress={(e) => e.key === "Enter" && handleAddTask()}
-                />
-                <Button size="icon" variant="outline" onClick={handleAddTask}>
-                  <Plus className="h-4 w-4" />
-                </Button>
-              </div>
-
-              {newJob.taskList.length > 0 && (
-                <div className="space-y-2">
-                  {newJob.taskList.map((task, index) => (
-                    <div key={index} className="flex items-center gap-2">
-                      <div className="flex-1 p-2 bg-gray-50 rounded">
-                        {task}
-                      </div>
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        onClick={() => removeTaskFromList(index)}
+              <div className="space-y-3">
+                <div className="flex flex-wrap gap-2">
+                  {newJob.job_aid_ids.map((id) => {
+                    const task = tasksData?.data.find((t) => t.id === id);
+                    if (!task) return null;
+                    return (
+                      <div
+                        key={id}
+                        className="flex items-center gap-2 bg-gray-100 px-3 py-1 rounded-full text-sm"
                       >
-                        &times;
-                      </Button>
-                    </div>
-                  ))}
+                        {task.title}
+                        <button
+                          onClick={() => {
+                            updateNewJob(
+                              "job_aid_ids",
+                              newJob.job_aid_ids.filter(
+                                (taskId) => taskId !== id
+                              )
+                            );
+                          }}
+                          className="hover:text-red-500"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    );
+                  })}
                 </div>
-              )}
+
+                <Select
+                  disabled={isTasksLoading}
+                  onValueChange={(value) => {
+                    if (!newJob.job_aid_ids.includes(value)) {
+                      updateNewJob("job_aid_ids", [
+                        ...newJob.job_aid_ids,
+                        value,
+                      ]);
+                    }
+                  }}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Choose tasks" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {isTasksLoading ? (
+                      <div className="flex items-center justify-center p-2">
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      </div>
+                    ) : tasksData?.data?.length === 0 ? (
+                      <div className="p-2 text-sm text-gray-500 text-center">
+                        No tasks found
+                      </div>
+                    ) : (
+                      tasksData?.data
+                        .filter((task) => !newJob.job_aid_ids.includes(task.id))
+                        .map((task) => (
+                          <SelectItem key={task.id} value={task.id}>
+                            {task.title}
+                          </SelectItem>
+                        ))
+                    )}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
 
             {/* Attached Equipment */}

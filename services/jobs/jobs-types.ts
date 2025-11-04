@@ -83,7 +83,6 @@ export interface JobsQueryParams {
 }
 
 export interface CreateJobInput {
-  job_aid_id: string;
   team_id: string;
   assigned_to: string;
   title: string;
@@ -92,6 +91,7 @@ export interface CreateJobInput {
   due_date: string;
   estimated_duration: number;
   safety_notes: string;
+  job_aid_ids: string[];
 }
 
 export interface JobAid {
