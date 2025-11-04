@@ -4,7 +4,8 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Download, Edit2, Plus, Upload } from "lucide-react";
+import { Download, Edit2, Plus, Upload, X } from "lucide-react";
+import { EquipmentHierarchyModal } from "../jobs/equipment-hierarchy-modal";
 
 interface AddJobAidFormProps {
   onNewInstructionClick: () => void;
@@ -15,6 +16,12 @@ export default function AddJobAidForm({
   onNewInstructionClick,
   onNewStepClick,
 }: AddJobAidFormProps) {
+  const [isEquipmentModalOpen, setIsEquipmentModalOpen] = useState(false);
+  const [selectedEquipment, setSelectedEquipment] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
+
   const [formData, setFormData] = useState({
     title: "",
     category: "",
@@ -155,17 +162,37 @@ export default function AddJobAidForm({
                 variant="ghost"
                 size="icon"
                 className="text-primary hover:bg-primary/10"
+                onClick={() => setIsEquipmentModalOpen(true)}
               >
                 <Plus className="w-5 h-5" />
               </Button>
             </div>
 
-            {/* Empty state */}
-            <div className="border-2 border-dashed border-border rounded-lg p-8 text-center">
-              <p className="text-muted-foreground text-sm">
-                No equipment assigned yet. Click the + button to add equipment.
-              </p>
-            </div>
+            {selectedEquipment ? (
+              <div className="flex items-center justify-between p-4 border rounded-lg">
+                <div>
+                  <h4 className="font-medium">{selectedEquipment.name}</h4>
+                  <p className="text-sm text-muted-foreground">
+                    ID: {selectedEquipment.id}
+                  </p>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="text-destructive"
+                  onClick={() => setSelectedEquipment(null)}
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
+            ) : (
+              <div className="border-2 border-dashed border-border rounded-lg p-8 text-center">
+                <p className="text-muted-foreground text-sm">
+                  No equipment assigned yet. Click the + button to add
+                  equipment.
+                </p>
+              </div>
+            )}
           </Card>
 
           {/* Safety Precautions */}
@@ -275,6 +302,14 @@ export default function AddJobAidForm({
           </div>
         </div>
       </div>
+
+      <EquipmentHierarchyModal
+        isOpen={isEquipmentModalOpen}
+        onClose={() => setIsEquipmentModalOpen(false)}
+        onAttach={(id, name) => {
+          setSelectedEquipment({ id, name });
+        }}
+      />
     </main>
   );
 }
