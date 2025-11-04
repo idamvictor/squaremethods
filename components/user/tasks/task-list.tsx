@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import axios from "axios";
 import { useState } from "react";
 import { EditTaskDialog } from "./edit-task-dialog";
+import { DeleteTaskDialog } from "./delete-task-dialog";
 
 export function TaskList({
   page,
@@ -19,11 +20,19 @@ export function TaskList({
 }) {
   const { data: taskData, isLoading } = useTasks({ page, limit, search });
   const deleteTaskMutation = useDeleteTask();
+  const [taskToDelete, setTaskToDelete] = useState<string | null>(null);
 
   const handleDeleteTask = async (taskId: string) => {
+    setTaskToDelete(taskId);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!taskToDelete) return;
+
     try {
-      await deleteTaskMutation.mutateAsync(taskId);
+      await deleteTaskMutation.mutateAsync(taskToDelete);
       toast.success("Task deleted successfully");
+      setTaskToDelete(null);
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
         const message =
@@ -107,6 +116,11 @@ export function TaskList({
         task={editingTask}
         isOpen={!!editingTask}
         onClose={handleCloseEditDialog}
+      />
+      <DeleteTaskDialog
+        isOpen={!!taskToDelete}
+        onClose={() => setTaskToDelete(null)}
+        onConfirm={handleConfirmDelete}
       />
     </>
   );
