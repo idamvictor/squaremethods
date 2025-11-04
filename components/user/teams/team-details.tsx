@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { SelectUserModal } from "./select-user-modal";
 import {
   Select,
   SelectContent,
@@ -47,6 +48,7 @@ export function TeamDetails({ teamId }: TeamDetailsProps) {
   });
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isAddMemberModalOpen, setIsAddMemberModalOpen] = useState(false);
 
   const handleFilterChange = (key: keyof TeamFilters, value: string) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
@@ -112,7 +114,12 @@ export function TeamDetails({ teamId }: TeamDetailsProps) {
               </div>
             )}
           </div>
-          <Button size="icon" variant="ghost" className="h-8 w-8">
+          <Button
+            size="icon"
+            variant="ghost"
+            className="h-8 w-8"
+            onClick={() => setIsAddMemberModalOpen(true)}
+          >
             <Plus className="h-4 w-4" />
           </Button>
           <DropdownMenu>
@@ -144,6 +151,12 @@ export function TeamDetails({ teamId }: TeamDetailsProps) {
             team={teamDetails.data}
             isOpen={isDeleteModalOpen}
             onClose={() => setIsDeleteModalOpen(false)}
+          />
+          <SelectUserModal
+            open={isAddMemberModalOpen}
+            onClose={() => setIsAddMemberModalOpen(false)}
+            teamId={teamId}
+            currentMembers={teamDetails.data.members.map((member) => member.id)}
           />
         </div>
       </div>
