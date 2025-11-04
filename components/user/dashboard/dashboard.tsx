@@ -1,3 +1,5 @@
+"use client";
+
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Select,
@@ -12,48 +14,19 @@ import { MetricCard } from "./metric-card";
 import { SOPChart } from "./sop-chart";
 import { ExportSection } from "./export-section";
 import { AlertBanner } from "./alert-banner";
+import { useDashboardStore } from "@/store/dashboard-store";
+import { useEffect } from "react";
 
-const sopData = [
-  { date: "May 6", value: 23 },
-  { date: "May 7", value: 27 },
-  { date: "May 8", value: 28 },
-  { date: "May 9", value: 30 },
-  { date: "May 10", value: 35 },
-  { date: "May 11", value: 32 },
-  { date: "May 12", value: 28 },
-];
-
-const taskData = [
-  { date: "May 6", value: 45 },
-  { date: "May 7", value: 52 },
-  { date: "May 8", value: 48 },
-  { date: "May 9", value: 61 },
-  { date: "May 10", value: 55 },
-  { date: "May 11", value: 67 },
-  { date: "May 12", value: 60 },
-];
-
-const completedData = [
-  { date: "May 6", value: 38 },
-  { date: "May 7", value: 42 },
-  { date: "May 8", value: 45 },
-  { date: "May 9", value: 48 },
-  { date: "May 10", value: 52 },
-  { date: "May 11", value: 49 },
-  { date: "May 12", value: 46 },
-];
-
-const pendingData = [
-  { date: "May 6", value: 12 },
-  { date: "May 7", value: 15 },
-  { date: "May 8", value: 18 },
-  { date: "May 9", value: 16 },
-  { date: "May 10", value: 14 },
-  { date: "May 11", value: 19 },
-  { date: "May 12", value: 17 },
-];
+// Chart data now comes from the dashboard store
 
 export default function Dashboard() {
+  const { totalSOPs, sopChartData, isLoading, fetchTotalSOPs } =
+    useDashboardStore();
+
+  useEffect(() => {
+    fetchTotalSOPs();
+  }, [fetchTotalSOPs]);
+
   return (
     <div className="min-h-screen bg-gray-50">
       <AlertBanner />
@@ -94,7 +67,11 @@ export default function Dashboard() {
 
         {/* Metrics Grid - Mobile: 2x3, Desktop: 1x5 */}
         <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-6">
-          <MetricCard title="Total SOP Created" value="50" icon={TrendingUp} />
+          <MetricCard
+            title="Total SOP Created"
+            value={isLoading ? "..." : totalSOPs.toString()}
+            icon={TrendingUp}
+          />
           <MetricCard title="Total Equipment Registered" value="41" />
           <MetricCard title="Total Tasks" value="120" />
           <MetricCard title="Completed Tasks" value="96" />
@@ -138,12 +115,14 @@ export default function Dashboard() {
 
               <TabsContent value="total-sop" className="space-y-4 sm:space-y-6">
                 <div className="flex items-baseline gap-4">
-                  <span className="text-3xl sm:text-4xl font-bold">50</span>
+                  <span className="text-3xl sm:text-4xl font-bold">
+                    {isLoading ? "..." : totalSOPs}
+                  </span>
                   <span className="text-sm text-green-600 font-medium">
                     ↗ 10.5% from last period
                   </span>
                 </div>
-                <SOPChart data={sopData} title="SOP created" />
+                <SOPChart data={sopChartData} title="SOP created" />
               </TabsContent>
 
               <TabsContent
@@ -156,7 +135,7 @@ export default function Dashboard() {
                     ↗ 8.2% from last period
                   </span>
                 </div>
-                <SOPChart data={taskData} title="Tasks created" />
+                <SOPChart data={[]} title="Tasks created" />
               </TabsContent>
 
               <TabsContent
@@ -169,7 +148,7 @@ export default function Dashboard() {
                     ↗ 12.3% from last period
                   </span>
                 </div>
-                <SOPChart data={completedData} title="Tasks completed" />
+                <SOPChart data={[]} title="Tasks completed" />
               </TabsContent>
 
               <TabsContent
@@ -182,7 +161,7 @@ export default function Dashboard() {
                     ↗ 5.1% from last period
                   </span>
                 </div>
-                <SOPChart data={pendingData} title="Tasks pending" />
+                <SOPChart data={[]} title="Tasks pending" />
               </TabsContent>
             </Tabs>
 

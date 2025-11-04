@@ -17,15 +17,7 @@ interface SOPChartProps {
   title: string;
 }
 
-const defaultData = [
-  { date: "May 6", value: 23 },
-  { date: "May 7", value: 27 },
-  { date: "May 8", value: 28 },
-  { date: "May 9", value: 30 },
-  { date: "May 10", value: 35 },
-  { date: "May 11", value: 32 },
-  { date: "May 12", value: 28 },
-];
+// Remove defaultData as we'll use data from the store
 
 const chartConfig = {
   value: {
@@ -34,7 +26,7 @@ const chartConfig = {
   },
 };
 
-export function SOPChart({ data = defaultData, title }: SOPChartProps) {
+export function SOPChart({ data = [], title }: SOPChartProps) {
   return (
     <div className="w-full h-[250px] sm:h-[300px]">
       <ChartContainer config={chartConfig} className="h-full w-full">

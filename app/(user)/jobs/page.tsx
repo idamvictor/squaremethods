@@ -6,7 +6,7 @@ import { Plus } from "lucide-react";
 import { useJobStore } from "@/store/job-store";
 import { JobTable } from "@/components/user/jobs/job-table";
 import { AddJobModal } from "@/components/user/jobs/add-job-modal";
-import { OverdueJobs } from "@/components/user/jobs/overdue-jobs";
+// import { OverdueJobs } from "@/components/user/jobs/overdue-jobs";
 
 export default function JobManagementPage() {
   const { openAddModal } = useJobStore();
@@ -26,7 +26,7 @@ export default function JobManagementPage() {
         </CardHeader>
         <CardContent className="space-y-4">
           <JobTable />
-          <OverdueJobs />
+          {/* <OverdueJobs /> */}
         </CardContent>
       </Card>
       <AddJobModal />
