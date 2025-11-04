@@ -6,12 +6,14 @@ import { Plus } from "lucide-react";
 import { useJobStore } from "@/store/job-store";
 import { JobTable } from "@/components/user/jobs/job-table";
 import { AddJobModal } from "@/components/user/jobs/add-job-modal";
+import { OverdueJobs } from "@/components/user/jobs/overdue-jobs";
 
 export default function JobManagementPage() {
   const { openAddModal } = useJobStore();
 
   return (
     <div className="container mx-auto p-6 space-y-6">
+      {/* Main Jobs Table */}
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
@@ -24,6 +26,7 @@ export default function JobManagementPage() {
         </CardHeader>
         <CardContent className="space-y-4">
           <JobTable />
+          <OverdueJobs />
         </CardContent>
       </Card>
       <AddJobModal />
