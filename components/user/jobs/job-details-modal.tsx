@@ -4,11 +4,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { useJobById } from "@/services/jobs/jobs-queries";
+import { useJobById, JOBS_QUERY_KEY } from "@/services/jobs/jobs-queries";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { avatarImage } from "@/constants/images";
 import { Badge } from "@/components/ui/badge";
 import { Loader2 } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
+import { JobActions } from "./job-actions";
 
 interface JobDetailsModalProps {
   jobId: string | null;
@@ -22,6 +24,7 @@ export function JobDetailsModal({
   onClose,
 }: JobDetailsModalProps) {
   const { data: job, isLoading } = useJobById(jobId || undefined);
+  const queryClient = useQueryClient();
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -71,31 +74,51 @@ export function JobDetailsModal({
         ) : job ? (
           <>
             <DialogHeader>
-              <DialogTitle className="text-2xl font-bold">
-                {job.title}
-              </DialogTitle>
+              <div className="space-y-4">
+                <DialogTitle className="text-2xl font-bold">
+                  {job.title || "Untitled Job"}
+                </DialogTitle>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    {job.status && (
+                      <Badge
+                        variant="secondary"
+                        className={`${getStatusColor(
+                          job.status || "pending"
+                        )} text-white`}
+                      >
+                        {(job.status || "pending")
+                          .replace("_", " ")
+                          .toUpperCase()}
+                      </Badge>
+                    )}
+                    {job.priority && (
+                      <Badge
+                        variant="secondary"
+                        className={`${getPriorityColor(
+                          job.priority
+                        )} text-white`}
+                      >
+                        {job.priority.toUpperCase()}
+                      </Badge>
+                    )}
+                  </div>
+                  {/* Job Actions */}
+                  {job.id && (
+                    <JobActions
+                      jobId={job.id}
+                      status={job.status || "pending"}
+                      onActionComplete={() => {
+                        queryClient.invalidateQueries({
+                          queryKey: [JOBS_QUERY_KEY, jobId],
+                        });
+                      }}
+                    />
+                  )}
+                </div>
+              </div>
             </DialogHeader>
             <div className="space-y-6 py-4">
-              {/* Status and Priority */}
-              <div className="flex items-center gap-4">
-                {job.status && (
-                  <Badge
-                    variant="secondary"
-                    className={`${getStatusColor(job.status)} text-white`}
-                  >
-                    {job.status.replace("_", " ").toUpperCase()}
-                  </Badge>
-                )}
-                {job.priority && (
-                  <Badge
-                    variant="secondary"
-                    className={`${getPriorityColor(job.priority)} text-white`}
-                  >
-                    {job.priority.toUpperCase()}
-                  </Badge>
-                )}
-              </div>
-
               {/* Description */}
               {job.description && (
                 <div>
@@ -157,31 +180,16 @@ export function JobDetailsModal({
 
               {/* Tasks */}
               {job.tasks && job.tasks.length > 0 && (
-                <div>
-                  <h3 className="text-lg font-semibold mb-2">Tasks</h3>
-                  <div className="space-y-2">
+                <div className=" rounded-lg">
+                  <h3 className="text-lg font-semibold mb-4">Tasks</h3>
+                  <div className="space-y-3">
                     {job.tasks.map((task) => (
-                      <div
-                        key={task.id}
-                        className="flex items-center justify-between p-3 border rounded-md"
-                      >
-                        <div>
-                          <p className="font-medium">{task.title}</p>
-                          <p className="text-sm text-gray-500">
+                      <div key={task.id} className="p-2 border rounded-md">
+                        <h4 className="font-medium">{task.title}</h4>
+                        {task.description && (
+                          <p className="text-sm text-gray-600">
                             {task.description}
                           </p>
-                        </div>
-                        {task.status && (
-                          <Badge
-                            variant="secondary"
-                            className={`${
-                              task.status === "completed"
-                                ? "bg-green-500"
-                                : "bg-yellow-500"
-                            } text-white`}
-                          >
-                            {task.status.toUpperCase()}
-                          </Badge>
                         )}
                       </div>
                     ))}
