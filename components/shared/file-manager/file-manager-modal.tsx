@@ -5,6 +5,7 @@ import type { FileItem } from "@/lib/static-files";
 import { FileUpload } from "./file-upload";
 import { FileList } from "./file-list";
 import { useFiles } from "@/services/files/files-queries";
+import { useUploadFile, useDeleteFile } from "@/services/upload/upload-queries";
 import {
   Dialog,
   DialogContent,
@@ -24,8 +25,10 @@ export function FileManagerModal({
   onOpenChange,
   onFileSelect,
 }: FileManagerModalProps) {
-  const { data: filesResponse, isLoading } = useFiles();
+  const { data: filesResponse, isLoading, refetch } = useFiles();
   const [uploadedFiles, setUploadedFiles] = useState<FileItem[]>([]);
+  const uploadMutation = useUploadFile();
+  const deleteMutation = useDeleteFile();
 
   // Transform API files to FileItem format
   const apiFiles: FileItem[] =
@@ -39,8 +42,15 @@ export function FileManagerModal({
 
   const allFiles = [...uploadedFiles, ...apiFiles];
 
-  const handleDelete = (id: string) => {
-    setUploadedFiles((prev) => prev.filter((f) => f.id !== id));
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteMutation.mutateAsync(id);
+      setUploadedFiles((prev) => prev.filter((f) => f.id !== id));
+      // Refetch files after deletion
+      refetch();
+    } catch (error) {
+      console.error("Failed to delete file:", error);
+    }
   };
 
   const handleSelect = (file: FileItem) => {
@@ -48,19 +58,17 @@ export function FileManagerModal({
     onOpenChange(false);
   };
 
-  const handleUpload = (file: File) => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const newFile: FileItem = {
-        id: Date.now().toString(),
+  const handleUpload = async (file: File) => {
+    try {
+      await uploadMutation.mutateAsync({
+        file,
         name: file.name,
-        url: e.target?.result as string,
-        createdAt: new Date().toISOString(),
-        size: file.size,
-      };
-      setUploadedFiles((prev) => [newFile, ...prev]);
-    };
-    reader.readAsDataURL(file);
+      });
+      // Refetch files after upload
+      refetch();
+    } catch (error) {
+      console.error("Failed to upload file:", error);
+    }
   };
 
   return (
