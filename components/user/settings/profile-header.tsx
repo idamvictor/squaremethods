@@ -1,8 +1,10 @@
 "use client";
 
+import { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Edit, CheckCircle } from "lucide-react";
+import { FileManagerModal } from "@/components/shared/file-manager/file-manager-modal";
 
 interface ProfileHeaderProps {
   name: string;
@@ -29,6 +31,14 @@ export function ProfileHeader({
   isSaving = false,
   hasChanges = false,
 }: ProfileHeaderProps) {
+  const [isFileManagerOpen, setIsFileManagerOpen] = useState(false);
+
+  const handleFileSelect = (fileUrl: string) => {
+    if (onAvatarChange) {
+      onAvatarChange(fileUrl);
+    }
+  };
+
   return (
     <div className="flex items-center justify-between p-6 bg-white rounded-lg border">
       <div className="flex items-center gap-4">
@@ -43,31 +53,14 @@ export function ProfileHeader({
             </AvatarFallback>
           </Avatar>
           {onAvatarChange && (
-            <label
+            <button
               className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 rounded-full cursor-pointer transition-opacity"
-              htmlFor="avatar-upload"
+              onClick={() => setIsFileManagerOpen(true)}
+              type="button"
             >
               <Edit className="h-5 w-5 text-white" />
-            </label>
+            </button>
           )}
-          <input
-            type="file"
-            id="avatar-upload"
-            className="hidden"
-            accept="image/*"
-            onChange={(e) => {
-              const file = e.target.files?.[0];
-              if (file && onAvatarChange) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                  if (typeof e.target?.result === "string") {
-                    onAvatarChange(e.target.result);
-                  }
-                };
-                reader.readAsDataURL(file);
-              }
-            }}
-          />
         </div>
         <div className="space-y-1">
           <div className="flex items-center gap-2">
@@ -94,6 +87,12 @@ export function ProfileHeader({
           Edit
         </Button>
       </div>
+
+      <FileManagerModal
+        open={isFileManagerOpen}
+        onOpenChange={setIsFileManagerOpen}
+        onFileSelect={handleFileSelect}
+      />
     </div>
   );
 }
