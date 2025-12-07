@@ -3,8 +3,8 @@ import axiosInstance from "@/lib/api/axios";
 import {
   UploadFileInput,
   UploadFileResponse,
-  UploadMultipleFilesInput,
-  UploadMultipleFilesResponse,
+  // UploadMultipleFilesInput,
+  // UploadMultipleFilesResponse,
   DeleteFileResponse,
 } from "./upload-types";
 
@@ -76,6 +76,8 @@ export const useUploadFile = () => {
   });
 };
 
+/* commented enpoint : upload multiple files 
+
 // ============================== Upload Multiple Files ==============================
 
 // Separate upload multiple files function
@@ -117,6 +119,8 @@ export const useUploadMultipleFiles = () => {
     },
   });
 };
+
+*/
 
 // ============================== Delete File ==============================
 

@@ -11,6 +11,13 @@ const nextConfig: NextConfig = {
         pathname: "/**",
         search: "",
       },
+      {
+        protocol: "https",
+        hostname: "virtual-offline-test.s3.amazonaws.com",
+        port: "",
+        pathname: "/**",
+        search: "",
+      },
     ],
   },
 };

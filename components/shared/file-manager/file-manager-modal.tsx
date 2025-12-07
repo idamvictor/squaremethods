@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import type { FileItem } from "@/lib/static-files";
-import { STATIC_FILES } from "@/lib/static-files";
 import { FileUpload } from "./file-upload";
 import { FileList } from "./file-list";
+import { useFiles } from "@/services/files/files-queries";
 import {
   Dialog,
   DialogContent,
@@ -24,10 +24,23 @@ export function FileManagerModal({
   onOpenChange,
   onFileSelect,
 }: FileManagerModalProps) {
-  const [files, setFiles] = useState<FileItem[]>(STATIC_FILES);
+  const { data: filesResponse, isLoading } = useFiles();
+  const [uploadedFiles, setUploadedFiles] = useState<FileItem[]>([]);
+
+  // Transform API files to FileItem format
+  const apiFiles: FileItem[] =
+    filesResponse?.data?.map((file) => ({
+      id: file.key,
+      name: file.originalName || file.name,
+      url: file.url,
+      createdAt: file.lastModified,
+      size: file.size,
+    })) || [];
+
+  const allFiles = [...uploadedFiles, ...apiFiles];
 
   const handleDelete = (id: string) => {
-    setFiles((prev) => prev.filter((f) => f.id !== id));
+    setUploadedFiles((prev) => prev.filter((f) => f.id !== id));
   };
 
   const handleSelect = (file: FileItem) => {
@@ -45,7 +58,7 @@ export function FileManagerModal({
         createdAt: new Date().toISOString(),
         size: file.size,
       };
-      setFiles((prev) => [newFile, ...prev]);
+      setUploadedFiles((prev) => [newFile, ...prev]);
     };
     reader.readAsDataURL(file);
   };
@@ -64,20 +77,28 @@ export function FileManagerModal({
           </TabsList>
 
           <TabsContent value="browse" className="space-y-4">
-            <FileList
-              files={files}
-              onDelete={handleDelete}
-              onSelect={handleSelect}
-            />
+            {isLoading ? (
+              <div className="rounded-lg border border-dashed border-border bg-muted/30 p-8 text-center">
+                <p className="text-sm text-muted-foreground">
+                  Loading files...
+                </p>
+              </div>
+            ) : (
+              <FileList
+                files={apiFiles}
+                onDelete={handleDelete}
+                onSelect={handleSelect}
+              />
+            )}
           </TabsContent>
 
           <TabsContent value="upload" className="space-y-4">
             <FileUpload onUpload={handleUpload} />
-            {files.length > 0 && (
+            {allFiles.length > 0 && (
               <div>
                 <p className="mb-3 text-sm font-medium">Recently Uploaded</p>
                 <FileList
-                  files={files.slice(0, 3)}
+                  files={allFiles.slice(0, 3)}
                   onDelete={handleDelete}
                   onSelect={handleSelect}
                 />

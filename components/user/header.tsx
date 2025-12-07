@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   Search,
   Bell,
@@ -19,10 +20,12 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useLogout } from "@/lib/api/auth";
 import { useAuthStore } from "@/store/auth-store";
+import { FileManagerModal } from "@/components/shared/file-manager/file-manager-modal";
 
 export function Header() {
   const user = useAuthStore((state) => state.user);
   const { mutate: logout, isPending: isLoggingOut } = useLogout();
+  const [isFileManagerOpen, setIsFileManagerOpen] = useState(false);
 
   // Get user initials for avatar fallback
   const getInitials = () => {
@@ -30,6 +33,11 @@ export function Header() {
     const firstInitial = user.first_name.charAt(0);
     const lastInitial = user.last_name.charAt(0);
     return `${firstInitial}${lastInitial}`.toUpperCase();
+  };
+
+  const handleFileSelect = (fileUrl: string) => {
+    // Handle file selection here
+    console.log("Selected file:", fileUrl);
   };
 
   return (
@@ -85,7 +93,7 @@ export function Header() {
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setIsFileManagerOpen(true)}>
                 <UserIcon className="mr-2 h-4 w-4" />
                 <span>Profile</span>
               </DropdownMenuItem>
@@ -101,6 +109,12 @@ export function Header() {
           </DropdownMenu>
         </div>
       </div>
+
+      <FileManagerModal
+        open={isFileManagerOpen}
+        onOpenChange={setIsFileManagerOpen}
+        onFileSelect={handleFileSelect}
+      />
     </header>
   );
 }
