@@ -7,6 +7,7 @@ import {
   useCompanyProfile,
   useUpdateCompanySettings,
 } from "@/services/company/company-queries";
+import { FileManagerModal } from "@/components/shared/file-manager/file-manager-modal";
 import { toast } from "sonner";
 
 export function CompanySettings() {
@@ -19,7 +20,8 @@ export function CompanySettings() {
     domain: "",
     address: "",
   });
-  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [logoUrl, setLogoUrl] = useState<string | null>(null);
+  const [isFileManagerOpen, setIsFileManagerOpen] = useState(false);
 
   // Initialize form with company profile data when available
   useEffect(() => {
@@ -32,17 +34,15 @@ export function CompanySettings() {
     }
   }, [companyProfile]);
 
+  const handleFileSelect = (fileUrl: string) => {
+    setLogoUrl(fileUrl);
+  };
+
   const handleInputChange = (field: string, value: string) => {
     setCompanyInfo((prev) => ({
       ...prev,
       [field]: value,
     }));
-  };
-
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.files && event.target.files[0]) {
-      setLogoFile(event.target.files[0]);
-    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -100,44 +100,46 @@ export function CompanySettings() {
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Company logo
             </label>
-            <div className="w-full border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-              <input
-                type="file"
-                id="logo-upload"
-                className="hidden"
-                accept="image/jpeg,image/png,image/gif,video/mp4,application/pdf"
-                onChange={handleFileChange}
-              />
-              <label
-                htmlFor="logo-upload"
-                className="cursor-pointer flex flex-col items-center"
-              >
-                <svg
-                  className="w-8 h-8 text-gray-400 mb-2"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+            <button
+              type="button"
+              onClick={() => setIsFileManagerOpen(true)}
+              className="w-full border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors"
+            >
+              {logoUrl ? (
+                <div className="flex flex-col items-center">
+                  <img
+                    src={logoUrl}
+                    alt="Company logo preview"
+                    className="h-16 w-16 object-cover rounded mb-2"
                   />
-                </svg>
-                <span className="text-sm text-gray-600">
-                  Choose a file or drag & drop it here.
-                </span>
-                <span className="text-xs text-gray-400 mt-1">
-                  JPEG, PNG, PDF, and MP4 formats, up to 50 MB.
-                </span>
-              </label>
-              {logoFile && (
-                <div className="mt-2 text-sm text-gray-600">
-                  Selected file: {logoFile.name}
+                  <span className="text-sm text-gray-600">
+                    Click to change logo
+                  </span>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center">
+                  <svg
+                    className="w-8 h-8 text-gray-400 mb-2"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                    />
+                  </svg>
+                  <span className="text-sm text-gray-600">
+                    Click to select or upload logo
+                  </span>
+                  <span className="text-xs text-gray-400 mt-1">
+                    Image formats accepted
+                  </span>
                 </div>
               )}
-            </div>
+            </button>
           </div>
 
           <div>
@@ -163,6 +165,12 @@ export function CompanySettings() {
           {updateCompanySettings.isPending ? "Saving..." : "Save Changes"}
         </Button>
       </form>
+
+      <FileManagerModal
+        open={isFileManagerOpen}
+        onOpenChange={setIsFileManagerOpen}
+        onFileSelect={handleFileSelect}
+      />
     </div>
   );
 }
