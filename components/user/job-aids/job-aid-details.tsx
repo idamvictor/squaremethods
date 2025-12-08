@@ -88,7 +88,7 @@ export function JobAidDetails({ jobAidId }: JobAidDetailsProps) {
                   <Input value={jobAid.title} readOnly />
                 </div>
 
-                {/* Author, Difficulty, Date Created */}
+                {/* Author, Category, Date Created */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -101,38 +101,42 @@ export function JobAidDetails({ jobAidId }: JobAidDetailsProps) {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Difficulty Level
+                      Category
                     </label>
-                    <Input value={jobAid.difficulty_level} readOnly />
+                    <Input value={jobAid.category || "Not assigned"} readOnly />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Date Created
                     </label>
                     <Input
-                      value={new Date(jobAid.created_at).toLocaleDateString()}
+                      value={new Date(jobAid.createdAt).toLocaleDateString()}
                       readOnly
                     />
                   </div>
                 </div>
 
-                {/* Safety Notes */}
+                {/* Precautions */}
                 <div>
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-2">
-                      <h3 className="text-lg font-medium">Safety Notes</h3>
+                      <h3 className="text-lg font-medium">Precautions</h3>
                       <div className="w-4 h-4 bg-orange-500 rounded-full flex items-center justify-center">
                         <span className="text-white text-xs">!</span>
                       </div>
                     </div>
                   </div>
-                  {jobAid.safety_notes ? (
-                    <div className="text-gray-700 whitespace-pre-wrap">
-                      {jobAid.safety_notes}
-                    </div>
+                  {jobAid.precautions && jobAid.precautions.length > 0 ? (
+                    <ul className="space-y-2">
+                      {jobAid.precautions.map((precaution, index) => (
+                        <li key={index} className="text-gray-700">
+                          {precaution.instruction}
+                        </li>
+                      ))}
+                    </ul>
                   ) : (
                     <p className="text-gray-500">
-                      No safety notes added. Protect your team by adding
+                      No precautions added. Protect your team by adding
                       essential precautions.
                     </p>
                   )}
@@ -143,26 +147,30 @@ export function JobAidDetails({ jobAidId }: JobAidDetailsProps) {
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-lg font-medium">Instructions</h3>
                   </div>
-                  {jobAid.instructions ? (
+                  {jobAid.instruction ? (
                     <div className="text-gray-700 whitespace-pre-wrap">
-                      {jobAid.instructions}
+                      {jobAid.instruction}
                     </div>
                   ) : (
                     <p className="text-gray-500">No instructions added yet.</p>
                   )}
                 </div>
 
-                {/* Content */}
+                {/* Procedures */}
                 <div>
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-medium">Content</h3>
+                    <h3 className="text-lg font-medium">Procedures</h3>
                   </div>
-                  {jobAid.content ? (
-                    <div className="text-gray-700 whitespace-pre-wrap">
-                      {jobAid.content}
-                    </div>
+                  {jobAid.procedures && jobAid.procedures.length > 0 ? (
+                    <ol className="space-y-4 list-decimal list-inside">
+                      {jobAid.procedures.map((procedure, index) => (
+                        <li key={index} className="text-gray-700">
+                          {procedure.instruction}
+                        </li>
+                      ))}
+                    </ol>
                   ) : (
-                    <p className="text-gray-500">No content added yet.</p>
+                    <p className="text-gray-500">No procedures added yet.</p>
                   )}
                 </div>
 
@@ -204,9 +212,9 @@ export function JobAidDetails({ jobAidId }: JobAidDetailsProps) {
                     Equipment Details
                   </h3>
                   <div className="aspect-video relative rounded-lg overflow-hidden bg-gray-100 mb-4">
-                    {jobAid.image_url ? (
+                    {jobAid.image ? (
                       <Image
-                        src={jobAid.image_url}
+                        src={jobAid.image}
                         alt={jobAid.title}
                         fill
                         className="object-cover"
@@ -219,26 +227,26 @@ export function JobAidDetails({ jobAidId }: JobAidDetailsProps) {
                   </div>
                 </div>
 
-                {/* Equipment Type */}
+                {/* Assigned Equipment List */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Equipment type
+                    Assigned Equipment
                   </label>
-                  <Input
-                    value={jobAid.equipment_type_id || "Not assigned"}
-                    readOnly
-                  />
-                </div>
-
-                {/* Location */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Location ID
-                  </label>
-                  <Input
-                    value={jobAid.location_id || "Not assigned"}
-                    readOnly
-                  />
+                  {jobAid.assignedEquipments &&
+                  jobAid.assignedEquipments.length > 0 ? (
+                    <ul className="space-y-2">
+                      {jobAid.assignedEquipments.map((equipment) => (
+                        <li
+                          key={equipment.id}
+                          className="p-2 border rounded text-gray-700"
+                        >
+                          {equipment.name}
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="text-gray-500">No equipment assigned.</p>
+                  )}
                 </div>
 
                 {/* View Equipment Button */}

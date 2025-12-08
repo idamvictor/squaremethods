@@ -72,9 +72,7 @@ export function SelectableJobAidTable({
               <TableCell>
                 <div className="w-24 h-16 relative rounded overflow-hidden">
                   <Image
-                    src={
-                      jobAid.image_url || "/placeholder.svg?height=64&width=96"
-                    }
+                    src={jobAid.image || "/placeholder.svg?height=64&width=96"}
                     alt={jobAid.title}
                     fill
                     className="object-cover"
@@ -84,7 +82,7 @@ export function SelectableJobAidTable({
               <TableCell>
                 <div className="font-medium text-gray-900">{jobAid.title}</div>
                 <div className="text-gray-500 text-sm">
-                  {jobAid.description}
+                  {jobAid.instruction}
                 </div>
               </TableCell>
               <TableCell>

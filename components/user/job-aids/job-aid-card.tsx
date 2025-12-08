@@ -67,7 +67,7 @@ export function JobAidCard({
           <>
             <div className="aspect-video relative">
               <Image
-                src={jobAid.image_url || "/placeholder.svg"}
+                src={jobAid.image || "/placeholder.svg"}
                 alt={jobAid.title}
                 fill
                 className="object-cover"
@@ -78,7 +78,7 @@ export function JobAidCard({
                   <h3 className="font-semibold text-white text-lg">
                     {jobAid.title}
                   </h3>
-                  <p className="text-white/90 text-sm">{jobAid.description}</p>
+                  <p className="text-white/90 text-sm">{jobAid.instruction}</p>
                 </div>
               </CardContent>
             </div>
@@ -88,7 +88,7 @@ export function JobAidCard({
             <div className="flex items-center gap-4">
               <div className="w-20 h-20 relative flex-shrink-0">
                 <Image
-                  src={jobAid.image_url || "/placeholder.svg"}
+                  src={jobAid.image || "/placeholder.svg"}
                   alt={jobAid.title}
                   fill
                   className="object-cover rounded"
@@ -96,10 +96,10 @@ export function JobAidCard({
               </div>
               <div className="flex-1">
                 <h3 className="font-medium text-gray-900">{jobAid.title}</h3>
-                <p className="text-gray-600">{jobAid.description}</p>
+                <p className="text-gray-600">{jobAid.instruction}</p>
                 <p className="text-sm text-gray-500 mt-1">
                   By {jobAid.creator.first_name} {jobAid.creator.last_name} •{" "}
-                  {new Date(jobAid.created_at).toLocaleDateString()}
+                  {new Date(jobAid.createdAt).toLocaleDateString()}
                 </p>
               </div>
             </div>

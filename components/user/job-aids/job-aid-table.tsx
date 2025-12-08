@@ -62,8 +62,7 @@ export function JobAidsTable({ jobAids, onDelete, onEdit }: JobAidsTableProps) {
                   <div className="w-24 h-16 relative rounded overflow-hidden">
                     <Image
                       src={
-                        jobAid.image_url ||
-                        "/placeholder.svg?height=64&width=96"
+                        jobAid.image || "/placeholder.svg?height=64&width=96"
                       }
                       alt={jobAid.title}
                       fill
@@ -81,7 +80,7 @@ export function JobAidsTable({ jobAids, onDelete, onEdit }: JobAidsTableProps) {
                     {jobAid.title}
                   </div>
                   <div className="text-gray-500 text-sm">
-                    {jobAid.description}
+                    {jobAid.instruction}
                   </div>
                 </Link>
               </TableCell>
@@ -93,7 +92,7 @@ export function JobAidsTable({ jobAids, onDelete, onEdit }: JobAidsTableProps) {
               </TableCell>
               <TableCell>
                 <span className="text-gray-600">
-                  {new Date(jobAid.created_at).toLocaleDateString()}
+                  {new Date(jobAid.createdAt).toLocaleDateString()}
                 </span>
               </TableCell>
               <TableCell>
