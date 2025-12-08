@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -107,10 +108,12 @@ export function CompanySettings() {
             >
               {logoUrl ? (
                 <div className="flex flex-col items-center">
-                  <img
+                  <Image
                     src={logoUrl}
                     alt="Company logo preview"
-                    className="h-16 w-16 object-cover rounded mb-2"
+                    width={64}
+                    height={64}
+                    className="object-cover rounded mb-2"
                   />
                   <span className="text-sm text-gray-600">
                     Click to change logo

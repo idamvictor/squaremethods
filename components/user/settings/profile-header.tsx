@@ -5,6 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Edit, CheckCircle } from "lucide-react";
 import { FileManagerModal } from "@/components/shared/file-manager/file-manager-modal";
+import { useAuthStore } from "@/store/auth-store";
 
 interface ProfileHeaderProps {
   name: string;
@@ -32,10 +33,13 @@ export function ProfileHeader({
   hasChanges = false,
 }: ProfileHeaderProps) {
   const [isFileManagerOpen, setIsFileManagerOpen] = useState(false);
+  const setUser = useAuthStore((state) => state.setUser);
 
   const handleFileSelect = (fileUrl: string) => {
     if (onAvatarChange) {
       onAvatarChange(fileUrl);
+      // Update auth store
+      setUser({ avatar_url: fileUrl });
     }
   };
 
