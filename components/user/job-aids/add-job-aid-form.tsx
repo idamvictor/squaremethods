@@ -4,10 +4,20 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Download, Edit2, Plus, Upload, X, Loader2 } from "lucide-react";
+import {
+  Download,
+  Edit2,
+  Plus,
+  Upload,
+  X,
+  Loader2,
+  Image as ImageIcon,
+} from "lucide-react";
 import { EquipmentHierarchyModal } from "../jobs/equipment-hierarchy-modal";
+import { FileManagerModal } from "@/components/shared/file-manager/file-manager-modal";
 import { useCreateJobAid } from "@/services/job-aid/job-aid-queries";
 import { toast } from "sonner";
+import NextImage from "next/image";
 
 interface AddJobAidFormProps {
   onNewInstructionClick: () => void;
@@ -19,6 +29,7 @@ export default function AddJobAidForm({
   onNewStepClick,
 }: AddJobAidFormProps) {
   const [isEquipmentModalOpen, setIsEquipmentModalOpen] = useState(false);
+  const [isFileManagerOpen, setIsFileManagerOpen] = useState(false);
   const [selectedEquipment, setSelectedEquipment] = useState<{
     id: string;
     name: string;
@@ -27,15 +38,23 @@ export default function AddJobAidForm({
   const [formData, setFormData] = useState({
     title: "",
     category: "",
+    instruction: "",
+    image: "",
+    estimated_duration: "",
   });
 
   const createJobAidMutation = useCreateJobAid();
 
-  const handleInputChange = (field: string, value: string) => {
+  const handleInputChange = (field: string, value: string | number) => {
     setFormData((prev) => ({
       ...prev,
       [field]: value,
     }));
+  };
+
+  const handleFileSelect = (fileUrl: string) => {
+    handleInputChange("image", fileUrl);
+    toast.success("Image selected successfully!");
   };
 
   const validateForm = () => {
@@ -51,6 +70,14 @@ export default function AddJobAidForm({
       toast.error("Please assign equipment to this job aid");
       return false;
     }
+    if (!formData.instruction.trim()) {
+      toast.error("Please add instructions");
+      return false;
+    }
+    if (!formData.image.trim()) {
+      toast.error("Please select an image");
+      return false;
+    }
     return true;
   };
 
@@ -59,15 +86,25 @@ export default function AddJobAidForm({
 
     try {
       await createJobAidMutation.mutateAsync({
-        equipment_id: selectedEquipment!.id,
+        equipment_ids: [selectedEquipment!.id],
         title: formData.title,
-        description: formData.category,
+        category: formData.category,
+        instruction: formData.instruction,
+        image: formData.image,
+        estimated_duration: formData.estimated_duration
+          ? parseInt(formData.estimated_duration)
+          : 0,
         status: "published",
-        safety_notes: "",
       });
       toast.success("Job aid published successfully!");
       // Reset form
-      setFormData({ title: "", category: "" });
+      setFormData({
+        title: "",
+        category: "",
+        instruction: "",
+        image: "",
+        estimated_duration: "",
+      });
       setSelectedEquipment(null);
     } catch (error) {
       toast.error("Failed to publish job aid. Please try again.");
@@ -80,15 +117,25 @@ export default function AddJobAidForm({
 
     try {
       await createJobAidMutation.mutateAsync({
-        equipment_id: selectedEquipment!.id,
+        equipment_ids: [selectedEquipment!.id],
         title: formData.title,
-        description: formData.category,
+        category: formData.category,
+        instruction: formData.instruction,
+        image: formData.image,
+        estimated_duration: formData.estimated_duration
+          ? parseInt(formData.estimated_duration)
+          : 0,
         status: "draft",
-        safety_notes: "",
       });
       toast.success("Job aid saved as draft!");
       // Reset form
-      setFormData({ title: "", category: "" });
+      setFormData({
+        title: "",
+        category: "",
+        instruction: "",
+        image: "",
+        estimated_duration: "",
+      });
       setSelectedEquipment(null);
     } catch (error) {
       toast.error("Failed to save job aid as draft. Please try again.");
@@ -166,6 +213,80 @@ export default function AddJobAidForm({
                     <option value="safety">Safety</option>
                     <option value="operations">Operations</option>
                   </select>
+                </div>
+              </div>
+
+              {/* Instructions field */}
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-2">
+                  Instructions <span className="text-destructive">*</span>
+                </label>
+                <textarea
+                  placeholder="Enter job aid instructions"
+                  value={formData.instruction}
+                  onChange={(e) =>
+                    handleInputChange("instruction", e.target.value)
+                  }
+                  className="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring min-h-32"
+                />
+              </div>
+
+              {/* Image and Duration - Two column layout */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Image field */}
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-2">
+                    Image <span className="text-destructive">*</span>
+                  </label>
+                  {formData.image ? (
+                    <div className="relative w-full h-32 bg-muted rounded-lg overflow-hidden">
+                      <NextImage
+                        src={formData.image}
+                        alt="Job Aid Image"
+                        fill
+                        className="object-cover"
+                      />
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        className="absolute top-2 right-2"
+                        onClick={() => handleInputChange("image", "")}
+                      >
+                        <X className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="w-full h-32 border-dashed bg-transparent"
+                      onClick={() => setIsFileManagerOpen(true)}
+                    >
+                      <div className="flex flex-col items-center gap-2">
+                        <ImageIcon className="w-6 h-6 text-muted-foreground" />
+                        <span className="text-sm text-muted-foreground">
+                          Click to select image
+                        </span>
+                      </div>
+                    </Button>
+                  )}
+                </div>
+
+                {/* Estimated Duration field */}
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-2">
+                    Estimated Duration (minutes)
+                  </label>
+                  <Input
+                    type="number"
+                    placeholder="e.g., 15"
+                    value={formData.estimated_duration}
+                    onChange={(e) =>
+                      handleInputChange("estimated_duration", e.target.value)
+                    }
+                    className="w-full"
+                    min="0"
+                  />
                 </div>
               </div>
             </div>
@@ -352,6 +473,12 @@ export default function AddJobAidForm({
         onAttach={(id, name) => {
           setSelectedEquipment({ id, name });
         }}
+      />
+
+      <FileManagerModal
+        open={isFileManagerOpen}
+        onOpenChange={setIsFileManagerOpen}
+        onFileSelect={handleFileSelect}
       />
     </main>
   );

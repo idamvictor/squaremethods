@@ -90,11 +90,13 @@ export interface JobAidsQueryParams {
 }
 
 export interface CreateJobAidInput {
-  equipment_id: string;
+  equipment_ids: string[];
   title: string;
-  description: string;
+  category: string;
+  instruction: string;
+  image: string;
+  estimated_duration: number;
   status: JobAidStatus;
-  safety_notes: string;
 }
 
 export interface UpdateJobAidInput {
