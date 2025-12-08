@@ -27,9 +27,8 @@ interface EditJobAidModalProps {
   onClose: () => void;
   onSubmit: (data: {
     title: string;
-    description: string;
+    instruction: string;
     status: JobAidStatus;
-    safety_notes: string;
   }) => void;
 }
 
@@ -43,18 +42,16 @@ export function EditJobAidModal({
   const { register, handleSubmit, reset, setValue } = useForm({
     defaultValues: {
       title: "",
-      description: "",
+      instruction: "",
       status: "draft" as JobAidStatus,
-      safety_notes: "",
     },
   });
 
   useEffect(() => {
     if (jobAid) {
       setValue("title", jobAid.title);
-      setValue("description", jobAid.description);
+      setValue("instruction", jobAid.instruction || "");
       setValue("status", jobAid.status);
-      setValue("safety_notes", jobAid.safety_notes);
     }
   }, [jobAid, setValue]);
 
@@ -77,12 +74,12 @@ export function EditJobAidModal({
               />
             </div>
             <div className="grid gap-2">
-              <label htmlFor="description" className="text-sm font-medium">
-                Description
+              <label htmlFor="instruction" className="text-sm font-medium">
+                Instructions
               </label>
               <Textarea
-                id="description"
-                {...register("description", { required: true })}
+                id="instruction"
+                {...register("instruction", { required: true })}
                 disabled={isLoading}
               />
             </div>
@@ -105,16 +102,6 @@ export function EditJobAidModal({
                   <SelectItem value="published">Published</SelectItem>
                 </SelectContent>
               </Select>
-            </div>
-            <div className="grid gap-2">
-              <label htmlFor="safety_notes" className="text-sm font-medium">
-                Safety Notes
-              </label>
-              <Textarea
-                id="safety_notes"
-                {...register("safety_notes", { required: true })}
-                disabled={isLoading}
-              />
             </div>
           </div>
           <DialogFooter>

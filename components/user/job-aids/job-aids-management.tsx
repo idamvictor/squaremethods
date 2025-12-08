@@ -66,9 +66,8 @@ export function JobAidsManagement({ onCreateClick }: JobAidsManagementProps) {
 
   const handleUpdate = async (data: {
     title: string;
-    description: string;
+    instruction: string;
     status: JobAidStatus;
-    safety_notes: string;
   }) => {
     if (!editId) return;
 
