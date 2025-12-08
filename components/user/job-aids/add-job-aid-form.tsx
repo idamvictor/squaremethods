@@ -4,8 +4,10 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Download, Edit2, Plus, Upload, X } from "lucide-react";
+import { Download, Edit2, Plus, Upload, X, Loader2 } from "lucide-react";
 import { EquipmentHierarchyModal } from "../jobs/equipment-hierarchy-modal";
+import { useCreateJobAid } from "@/services/job-aid/job-aid-queries";
+import { toast } from "sonner";
 
 interface AddJobAidFormProps {
   onNewInstructionClick: () => void;
@@ -25,9 +27,9 @@ export default function AddJobAidForm({
   const [formData, setFormData] = useState({
     title: "",
     category: "",
-    createdBy: "",
-    dateCreated: "",
   });
+
+  const createJobAidMutation = useCreateJobAid();
 
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({
@@ -36,12 +38,62 @@ export default function AddJobAidForm({
     }));
   };
 
-  const handlePublish = () => {
-    console.log("Publishing job aid:", formData);
+  const validateForm = () => {
+    if (!formData.title.trim()) {
+      toast.error("Please enter a job aid title");
+      return false;
+    }
+    if (!formData.category.trim()) {
+      toast.error("Please select a category");
+      return false;
+    }
+    if (!selectedEquipment) {
+      toast.error("Please assign equipment to this job aid");
+      return false;
+    }
+    return true;
   };
 
-  const handleSaveDraft = () => {
-    console.log("Saving draft:", formData);
+  const handlePublish = async () => {
+    if (!validateForm()) return;
+
+    try {
+      await createJobAidMutation.mutateAsync({
+        equipment_id: selectedEquipment!.id,
+        title: formData.title,
+        description: formData.category,
+        status: "published",
+        safety_notes: "",
+      });
+      toast.success("Job aid published successfully!");
+      // Reset form
+      setFormData({ title: "", category: "" });
+      setSelectedEquipment(null);
+    } catch (error) {
+      toast.error("Failed to publish job aid. Please try again.");
+      console.error("Publish error:", error);
+    }
+  };
+
+  const handleSaveDraft = async () => {
+    if (!validateForm()) return;
+
+    try {
+      await createJobAidMutation.mutateAsync({
+        equipment_id: selectedEquipment!.id,
+        title: formData.title,
+        description: formData.category,
+        status: "draft",
+        safety_notes: "",
+      });
+      toast.success("Job aid saved as draft!");
+      // Reset form
+      setFormData({ title: "", category: "" });
+      setSelectedEquipment(null);
+    } catch (error) {
+      toast.error("Failed to save job aid as draft. Please try again.");
+      console.error("Draft save error:", error);
+    }
   };
 
   return (
@@ -82,21 +134,21 @@ export default function AddJobAidForm({
             </div>
 
             <div className="space-y-4">
-              {/* Title field */}
-              <div>
-                <label className="block text-sm font-medium text-foreground mb-2">
-                  Title <span className="text-destructive">*</span>
-                </label>
-                <Input
-                  placeholder="Enter job aid title"
-                  value={formData.title}
-                  onChange={(e) => handleInputChange("title", e.target.value)}
-                  className="w-full"
-                />
-              </div>
+              {/* Title and Category - Two column layout */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Title field */}
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-2">
+                    Title <span className="text-destructive">*</span>
+                  </label>
+                  <Input
+                    placeholder="Enter job aid title"
+                    value={formData.title}
+                    onChange={(e) => handleInputChange("title", e.target.value)}
+                    className="w-full"
+                  />
+                </div>
 
-              {/* Three column layout for Category, Created By, Date Created */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {/* Category */}
                 <div>
                   <label className="block text-sm font-medium text-foreground mb-2">
@@ -114,34 +166,6 @@ export default function AddJobAidForm({
                     <option value="safety">Safety</option>
                     <option value="operations">Operations</option>
                   </select>
-                </div>
-
-                {/* Created By */}
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">
-                    Created By <span className="text-destructive">*</span>
-                  </label>
-                  <Input
-                    placeholder="Your name"
-                    value={formData.createdBy}
-                    onChange={(e) =>
-                      handleInputChange("createdBy", e.target.value)
-                    }
-                  />
-                </div>
-
-                {/* Date Created */}
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">
-                    Date Created <span className="text-destructive">*</span>
-                  </label>
-                  <Input
-                    type="date"
-                    value={formData.dateCreated}
-                    onChange={(e) =>
-                      handleInputChange("dateCreated", e.target.value)
-                    }
-                  />
                 </div>
               </div>
             </div>
@@ -288,16 +312,35 @@ export default function AddJobAidForm({
             </div>
           </Card>
 
-          {/* Action buttons */}
-          <div className="flex gap-3 justify-end pt-6 border-t border-border">
-            <Button variant="outline" onClick={handleSaveDraft}>
-              Save as draft
+          {/* Action buttons - Fixed at bottom right */}
+          <div className="fixed bottom-6 right-6 flex gap-3">
+            <Button
+              variant="outline"
+              onClick={handleSaveDraft}
+              disabled={createJobAidMutation.isPending}
+            >
+              {createJobAidMutation.isPending ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                "Save as draft"
+              )}
             </Button>
             <Button
               onClick={handlePublish}
+              disabled={createJobAidMutation.isPending}
               className="bg-primary text-primary-foreground hover:bg-primary/90"
             >
-              Publish
+              {createJobAidMutation.isPending ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Publishing...
+                </>
+              ) : (
+                "Publish"
+              )}
             </Button>
           </div>
         </div>
