@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import Editor from "./editor";
-import { AnnotationState } from "@markerjs/markerjs3";
+import { AnnotationState, Renderer, MarkerArea } from "@markerjs/markerjs3";
 import sampleImage from "@/public/sample-images/phone-modules.jpg";
 import StepsGrid from "./steps-grid";
 import { Button } from "@/components/ui/button";
@@ -17,41 +17,17 @@ interface Step {
   description: string;
 }
 
+interface EditorRefType {
+  getEditor: () => MarkerArea | null;
+}
+
 export default function ImageAnnotationManager({
   type,
 }: ImageAnnotationManagerProps) {
+  const editorRef = useRef<EditorRefType>(null);
   const [annotation, setAnnotation] = useState<AnnotationState | null>(null);
   const [steps, setSteps] = useState<Step[]>([]);
-  const [demoSteps] = useState([
-    {
-      imageUrl: sampleImage.src,
-      description:
-        "Lorem ipsum dolor sit amet consectetur. Ut consequat elit eget bibendum tortor aliquam aliquam.",
-    },
-    {
-      imageUrl: sampleImage.src,
-      description: "Lorem ipsum dolor sit amet consectetur.",
-    },
-    {
-      imageUrl: sampleImage.src,
-      description: "Lorem ipsum dolor sit amet consectetur.",
-    },
-    {
-      imageUrl: sampleImage.src,
-      description:
-        "Lorem ipsum dolor sit amet consectetur. Ut consequat elit eget bibendum tortor aliquam aliquam.",
-    },
-    {
-      imageUrl: sampleImage.src,
-      description:
-        "Lorem ipsum dolor sit amet consectetur. Ut consequat elit eget bibendum tortor aliquam aliquam.",
-    },
-    {
-      imageUrl: sampleImage.src,
-      description:
-        "Lorem ipsum dolor sit amet consectetur. Ut consequat elit eget bibendum tortor aliquam aliquam.",
-    },
-  ]);
+  const [savedSteps, setSavedSteps] = useState<Step[]>([]);
 
   const addStep = () => {
     setSteps([
@@ -73,11 +49,52 @@ export default function ImageAnnotationManager({
     setSteps(newSteps);
   };
 
-  const handleSaveDraft = () => {
-    console.log("Saving draft:", {
-      steps,
-      annotation,
-    });
+  const handleSaveDraft = async () => {
+    if (steps.length === 0) {
+      console.warn("No steps to save");
+      return;
+    }
+
+    try {
+      // Get the annotated image from the editor
+      let annotatedImageUrl = sampleImage.src;
+
+      if (editorRef.current && annotation) {
+        const editor = editorRef.current.getEditor?.();
+        if (editor) {
+          console.log("Editor found, rendering annotated image");
+          const renderer = new Renderer();
+          renderer.targetImage = editor.targetImage;
+          renderer.naturalSize = true;
+          renderer.imageType = "image/png";
+
+          annotatedImageUrl = await renderer.rasterize(annotation);
+          console.log(
+            "Annotated image rendered:",
+            annotatedImageUrl?.substring(0, 50)
+          );
+        }
+      } else {
+        console.warn("No editor or annotation found, using original image");
+      }
+
+      // Add all current steps to the saved steps list with annotated image and instruction as description
+      const stepsWithAnnotation = steps.map((step) => ({
+        ...step,
+        imageUrl: annotatedImageUrl,
+        description: step.instruction, // Use instruction as description for display
+      }));
+
+      setSavedSteps([...savedSteps, ...stepsWithAnnotation]);
+
+      // Reset the editor for new steps
+      setSteps([]);
+      setAnnotation(null);
+
+      console.log("Steps saved with annotated image:", stepsWithAnnotation);
+    } catch (error) {
+      console.error("Error saving steps:", error);
+    }
   };
 
   const handlePublish = () => {
@@ -92,8 +109,8 @@ export default function ImageAnnotationManager({
   };
 
   const handleRemoveStep = (index: number) => {
-    const newSteps = steps.filter((_, i) => i !== index);
-    setSteps(newSteps);
+    const newSteps = savedSteps.filter((_, i) => i !== index);
+    setSavedSteps(newSteps);
   };
   return (
     <div className="container mx-auto p-4">
@@ -115,6 +132,7 @@ export default function ImageAnnotationManager({
                 <h3 className="text-sm font-medium text-gray-900">Editor</h3>
                 <div className="h-[600px] w-full rounded-lg border border-gray-200 overflow-hidden">
                   <Editor
+                    ref={editorRef}
                     targetImageSrc={sampleImage.src}
                     annotation={annotation}
                     onSave={(newAnnotation) => {
@@ -196,7 +214,7 @@ export default function ImageAnnotationManager({
           </div>
 
           <StepsGrid
-            steps={demoSteps}
+            steps={savedSteps}
             onEdit={handleEditStep}
             onRemove={handleRemoveStep}
           />

@@ -1,7 +1,6 @@
 "use client";
 
 import { Edit, Trash2 } from "lucide-react";
-import Image from "next/image";
 
 interface Step {
   imageUrl: string;
@@ -33,12 +32,15 @@ export default function StepsGrid({ steps, onEdit, onRemove }: StepsGridProps) {
             </div>
 
             {/* Image */}
-            <div className="relative aspect-video w-full">
-              <Image
+            <div className="relative w-full" style={{ aspectRatio: "16/9" }}>
+              <img
                 src={step.imageUrl}
                 alt={`Step ${index + 1}`}
-                fill
-                className="object-cover"
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                }}
               />
             </div>
 
