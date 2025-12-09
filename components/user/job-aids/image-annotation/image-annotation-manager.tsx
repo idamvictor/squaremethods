@@ -1,11 +1,16 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Editor from "./editor";
 import { AnnotationState, Renderer, MarkerArea } from "@markerjs/markerjs3";
 import sampleImage from "@/public/sample-images/phone-modules.jpg";
 import StepsGrid from "./steps-grid";
 import { Button } from "@/components/ui/button";
+import { useJobAidStore } from "@/store/job-aid-store";
+import {
+  useProceduresByJobAidId,
+  usePrecautionsByJobAidId,
+} from "@/services/job-aid/job-aid-queries";
 
 interface ImageAnnotationManagerProps {
   type: "precaution" | "procedure";
@@ -25,9 +30,72 @@ export default function ImageAnnotationManager({
   type,
 }: ImageAnnotationManagerProps) {
   const editorRef = useRef<EditorRefType>(null);
+  const { currentJobAid } = useJobAidStore();
   const [annotation, setAnnotation] = useState<AnnotationState | null>(null);
   const [steps, setSteps] = useState<Step[]>([]);
   const [savedSteps, setSavedSteps] = useState<Step[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Fetch procedures or precautions by job aid ID
+  const { data: proceduresData } = useProceduresByJobAidId(
+    currentJobAid?.id || ""
+  );
+
+  const { data: precautionsData } = usePrecautionsByJobAidId(
+    currentJobAid?.id || ""
+  );
+
+  // Load procedures/precautions based on type from API endpoints
+  useEffect(() => {
+    if (!currentJobAid) {
+      setIsLoading(false);
+      setSavedSteps([]);
+      return;
+    }
+
+    try {
+      let existingSteps: Step[] = [];
+
+      if (type === "procedure") {
+        // Load procedures from API endpoint
+        if (proceduresData?.data && proceduresData.data.length > 0) {
+          existingSteps = proceduresData.data.map((proc) => ({
+            instruction: proc.instruction,
+            imageUrl: proc.image,
+            description: proc.instruction,
+          }));
+          console.log(
+            `Loaded ${existingSteps.length} procedures for job aid ${currentJobAid.id}:`,
+            existingSteps
+          );
+        } else {
+          console.log(`No procedures found for job aid ${currentJobAid.id}`);
+        }
+      } else if (type === "precaution") {
+        // Load precautions from API endpoint
+        if (precautionsData?.data && precautionsData.data.length > 0) {
+          existingSteps = precautionsData.data.map((prec) => ({
+            instruction: prec.instruction,
+            imageUrl: prec.image,
+            description: prec.instruction,
+          }));
+          console.log(
+            `Loaded ${existingSteps.length} precautions for job aid ${currentJobAid.id}:`,
+            existingSteps
+          );
+        } else {
+          console.log(`No precautions found for job aid ${currentJobAid.id}`);
+        }
+      }
+
+      setSavedSteps(existingSteps);
+    } catch (error) {
+      console.error("Error loading existing steps:", error);
+      setSavedSteps([]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [currentJobAid, type, proceduresData, precautionsData]);
 
   const addStep = () => {
     setSteps([
@@ -52,6 +120,11 @@ export default function ImageAnnotationManager({
   const handleSaveDraft = async () => {
     if (steps.length === 0) {
       console.warn("No steps to save");
+      return;
+    }
+
+    if (!currentJobAid) {
+      console.error("No job aid selected");
       return;
     }
 
@@ -87,6 +160,13 @@ export default function ImageAnnotationManager({
 
       setSavedSteps([...savedSteps, ...stepsWithAnnotation]);
 
+      // TODO: Save to API when mutation hooks are implemented
+      // For now, just update local state
+      console.log(
+        `Steps would be saved to ${type} endpoint for job aid ${currentJobAid.id}:`,
+        stepsWithAnnotation
+      );
+
       // Reset the editor for new steps
       setSteps([]);
       setAnnotation(null);
@@ -112,6 +192,30 @@ export default function ImageAnnotationManager({
     const newSteps = savedSteps.filter((_, i) => i !== index);
     setSavedSteps(newSteps);
   };
+
+  // Show loading or error state if no job aid is selected
+  if (!currentJobAid) {
+    return (
+      <div className="container mx-auto p-4">
+        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
+          <p className="text-yellow-800">
+            Please select a job aid first before creating {type}s.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <div className="container mx-auto p-4">
+        <div className="flex items-center justify-center h-96">
+          <p className="text-gray-500">Loading {type}s...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="container mx-auto p-4">
       <div className="mb-6">

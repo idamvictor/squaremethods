@@ -179,6 +179,44 @@ export const useProcedures = (params: JobAidsQueryParams = {}) => {
   });
 };
 
+// =============================== Get Procedure by ID ===============================
+
+// Fetch function separate from the query
+export const fetchProcedureById = async (id: string) => {
+  const { data } = await axiosInstance.get<JobAidProcedureResponse>(
+    `/procedures/${id}`
+  );
+  return data;
+};
+
+// Query function using the fetch function
+export const useProcedureById = (id: string) => {
+  return useQuery({
+    queryKey: ["procedure", id],
+    queryFn: () => fetchProcedureById(id),
+    enabled: !!id, // Only fetch when id is available
+  });
+};
+
+// =============================== Get Procedures by Job Aid ID ===============================
+
+// Fetch function separate from the query
+export const fetchProceduresByJobAidId = async (jobAidId: string) => {
+  const { data } = await axiosInstance.get<JobAidProceduresListResponse>(
+    `/procedures/job-aid/${jobAidId}`
+  );
+  return data;
+};
+
+// Query function using the fetch function
+export const useProceduresByJobAidId = (jobAidId: string) => {
+  return useQuery({
+    queryKey: ["procedures-by-job-aid", jobAidId],
+    queryFn: () => fetchProceduresByJobAidId(jobAidId),
+    enabled: !!jobAidId, // Only fetch when jobAidId is available
+  });
+};
+
 // =============================== Update Job Aid Procedure ===============================
 
 // Fetch function separate from the mutation
@@ -286,6 +324,44 @@ export const usePrecautions = (params: JobAidsQueryParams = {}) => {
   return useQuery({
     queryKey: ["precautions", params],
     queryFn: () => fetchPrecautions(params),
+  });
+};
+
+// =============================== Get Precaution by ID ===============================
+
+// Fetch function separate from the query
+export const fetchPrecautionById = async (id: string) => {
+  const { data } = await axiosInstance.get<JobAidPrecautionResponse>(
+    `/precautions/${id}`
+  );
+  return data;
+};
+
+// Query function using the fetch function
+export const usePrecautionById = (id: string) => {
+  return useQuery({
+    queryKey: ["precaution", id],
+    queryFn: () => fetchPrecautionById(id),
+    enabled: !!id, // Only fetch when id is available
+  });
+};
+
+// =============================== Get Precautions by Job Aid ID ===============================
+
+// Fetch function separate from the query
+export const fetchPrecautionsByJobAidId = async (jobAidId: string) => {
+  const { data } = await axiosInstance.get<PrecautionsListResponse>(
+    `/precautions/job-aid/${jobAidId}`
+  );
+  return data;
+};
+
+// Query function using the fetch function
+export const usePrecautionsByJobAidId = (jobAidId: string) => {
+  return useQuery({
+    queryKey: ["precautions-by-job-aid", jobAidId],
+    queryFn: () => fetchPrecautionsByJobAidId(jobAidId),
+    enabled: !!jobAidId, // Only fetch when jobAidId is available
   });
 };
 
