@@ -3,13 +3,15 @@
 import React, { useState, useRef, useEffect } from "react";
 import Editor from "./editor";
 import { AnnotationState, Renderer, MarkerArea } from "@markerjs/markerjs3";
-import sampleImage from "@/public/sample-images/phone-modules.jpg";
+import sampleImage from "@/public/sample-images/image.png";
 import StepsGrid from "./steps-grid";
 import { Button } from "@/components/ui/button";
 import { useJobAidStore } from "@/store/job-aid-store";
 import {
   useProceduresByJobAidId,
   usePrecautionsByJobAidId,
+  useDeleteJobAidProcedure,
+  useDeleteJobAidPrecaution,
 } from "@/services/job-aid/job-aid-queries";
 
 interface ImageAnnotationManagerProps {
@@ -44,6 +46,10 @@ export default function ImageAnnotationManager({
   const { data: precautionsData } = usePrecautionsByJobAidId(
     type === "precaution" && currentJobAid?.id ? currentJobAid.id : ""
   );
+
+  // Delete mutations
+  const deleteProc = useDeleteJobAidProcedure(currentJobAid?.id || "");
+  const deletePrec = useDeleteJobAidPrecaution(currentJobAid?.id || "");
 
   // Load procedures/precautions based on type from API endpoints
   useEffect(() => {
@@ -206,9 +212,47 @@ export default function ImageAnnotationManager({
     console.log("Editing step:", index);
   };
 
-  const handleRemoveStep = (index: number) => {
-    const newSteps = savedSteps.filter((_, i) => i !== index);
-    setSavedSteps(newSteps);
+  const handleRemoveStep = async (index: number) => {
+    try {
+      // Get the step ID to delete
+      const stepToDelete = savedSteps[index];
+
+      if (!stepToDelete) {
+        console.error("Step not found");
+        return;
+      }
+
+      // Find the corresponding procedure or precaution in the API data
+      let stepId: string | null = null;
+
+      if (type === "procedure") {
+        const procedureData = proceduresData?.data?.[index];
+        stepId = procedureData?.id || null;
+      } else if (type === "precaution") {
+        const precautionData = precautionsData?.data?.[index];
+        stepId = precautionData?.id || null;
+      }
+
+      if (!stepId) {
+        console.error("Step ID not found, cannot delete");
+        return;
+      }
+
+      // Call the appropriate delete mutation
+      if (type === "procedure") {
+        await deleteProc.mutateAsync(stepId);
+        console.log(`Procedure ${stepId} deleted successfully`);
+      } else if (type === "precaution") {
+        await deletePrec.mutateAsync(stepId);
+        console.log(`Precaution ${stepId} deleted successfully`);
+      }
+
+      // Update local state
+      const newSteps = savedSteps.filter((_, i) => i !== index);
+      setSavedSteps(newSteps);
+    } catch (error) {
+      console.error("Error deleting step:", error);
+    }
   };
 
   // Show loading or error state if no job aid is selected
