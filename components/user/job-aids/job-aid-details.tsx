@@ -229,7 +229,7 @@ export function JobAidDetails({ jobAidId }: JobAidDetailsProps) {
                   >
                     <div className="text-center">
                       <Plus className="w-6 h-6 mx-auto mb-2" />
-                      <span>New Precaution</span>
+                      <span>New Procedure</span>
                     </div>
                   </Button>
                   <Button
@@ -239,7 +239,7 @@ export function JobAidDetails({ jobAidId }: JobAidDetailsProps) {
                   >
                     <div className="text-center">
                       <Plus className="w-6 h-6 mx-auto mb-2" />
-                      <span>New Procedure</span>
+                      <span>New Precaution</span>
                     </div>
                   </Button>
                 </div>

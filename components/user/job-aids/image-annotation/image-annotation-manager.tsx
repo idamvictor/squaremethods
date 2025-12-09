@@ -36,13 +36,13 @@ export default function ImageAnnotationManager({
   const [savedSteps, setSavedSteps] = useState<Step[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Fetch procedures or precautions by job aid ID
+  // Only fetch the data we need based on type
   const { data: proceduresData } = useProceduresByJobAidId(
-    currentJobAid?.id || ""
+    type === "procedure" && currentJobAid?.id ? currentJobAid.id : ""
   );
 
   const { data: precautionsData } = usePrecautionsByJobAidId(
-    currentJobAid?.id || ""
+    type === "precaution" && currentJobAid?.id ? currentJobAid.id : ""
   );
 
   // Load procedures/precautions based on type from API endpoints
@@ -58,6 +58,12 @@ export default function ImageAnnotationManager({
 
       if (type === "procedure") {
         // Load procedures from API endpoint
+        console.log(
+          "Loading procedures for type:",
+          type,
+          "Data:",
+          proceduresData
+        );
         if (proceduresData?.data && proceduresData.data.length > 0) {
           existingSteps = proceduresData.data.map((proc) => ({
             instruction: proc.instruction,
@@ -69,10 +75,19 @@ export default function ImageAnnotationManager({
             existingSteps
           );
         } else {
-          console.log(`No procedures found for job aid ${currentJobAid.id}`);
+          console.log(
+            `No procedures found for job aid ${currentJobAid.id}`,
+            proceduresData
+          );
         }
       } else if (type === "precaution") {
         // Load precautions from API endpoint
+        console.log(
+          "Loading precautions for type:",
+          type,
+          "Data:",
+          precautionsData
+        );
         if (precautionsData?.data && precautionsData.data.length > 0) {
           existingSteps = precautionsData.data.map((prec) => ({
             instruction: prec.instruction,
@@ -84,7 +99,10 @@ export default function ImageAnnotationManager({
             existingSteps
           );
         } else {
-          console.log(`No precautions found for job aid ${currentJobAid.id}`);
+          console.log(
+            `No precautions found for job aid ${currentJobAid.id}`,
+            precautionsData
+          );
         }
       }
 
