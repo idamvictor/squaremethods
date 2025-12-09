@@ -70,12 +70,13 @@ export function EquipmentDetails({ node }: EquipmentDetailsProps) {
   return (
     <div className="space-y-6">
       <Tabs defaultValue="equipment-details" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="equipment-details" className="text-blue-600">
             Equipment details
           </TabsTrigger>
           <TabsTrigger value="job-aids">Attached Job Aids</TabsTrigger>
           <TabsTrigger value="tasks">Attached Tasks</TabsTrigger>
+          <TabsTrigger value="failure-mode">Failure Mode</TabsTrigger>
         </TabsList>
 
         <TabsContent value="equipment-details" className="space-y-6">
@@ -236,15 +237,145 @@ export function EquipmentDetails({ node }: EquipmentDetailsProps) {
         </TabsContent>
 
         <TabsContent value="job-aids" className="space-y-4">
-          <div className="text-center text-gray-500 py-12">
-            <p>No job aids attached to this equipment.</p>
-          </div>
+          {equipment.jobAids && equipment.jobAids.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+              {equipment.jobAids.map((jobAid) => (
+                <div
+                  key={jobAid.id}
+                  className="border rounded-lg p-4 hover:shadow-lg transition-shadow"
+                >
+                  {jobAid.image && (
+                    <div className="relative w-full h-40 mb-4 rounded-lg overflow-hidden">
+                      <Image
+                        src={jobAid.image}
+                        alt={jobAid.title}
+                        fill
+                        className="object-cover"
+                        unoptimized
+                      />
+                    </div>
+                  )}
+                  <div className="space-y-2">
+                    <div className="flex items-start justify-between">
+                      <h3 className="font-semibold text-foreground">
+                        {jobAid.title}
+                      </h3>
+                      <span
+                        className={`text-xs px-2 py-1 rounded-full ${
+                          jobAid.status === "published"
+                            ? "bg-green-100 text-green-700"
+                            : "bg-yellow-100 text-yellow-700"
+                        }`}
+                      >
+                        {jobAid.status}
+                      </span>
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      {jobAid.category}
+                    </p>
+                    <p className="text-sm text-foreground">
+                      {jobAid.instruction}
+                    </p>
+                    <div className="flex items-center justify-between text-xs text-muted-foreground pt-2">
+                      <span>Duration: {jobAid.estimated_duration} mins</span>
+                      <span>Views: {jobAid.view_count}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center text-gray-500 py-12">
+              <p>No job aids attached to this equipment.</p>
+            </div>
+          )}
         </TabsContent>
 
         <TabsContent value="tasks" className="space-y-4">
           <div className="text-center text-gray-500 py-12">
             <p>No tasks attached to this equipment.</p>
           </div>
+        </TabsContent>
+
+        <TabsContent value="failure-mode" className="space-y-4">
+          {equipment.failureModes && equipment.failureModes.length > 0 ? (
+            <div className="space-y-4 mt-4">
+              {equipment.failureModes.map((failureMode) => (
+                <div
+                  key={failureMode.id}
+                  className="border rounded-lg p-4 hover:shadow-lg transition-shadow"
+                >
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {/* Left: Image */}
+                    {failureMode.image && (
+                      <div className="relative w-full h-40 rounded-lg overflow-hidden">
+                        <Image
+                          src={failureMode.image}
+                          alt={failureMode.title}
+                          fill
+                          className="object-cover"
+                          unoptimized
+                        />
+                      </div>
+                    )}
+
+                    {/* Middle: Details */}
+                    <div
+                      className={
+                        failureMode.image ? "md:col-span-1" : "md:col-span-2"
+                      }
+                    >
+                      <div className="space-y-2">
+                        <div className="flex items-start justify-between">
+                          <h3 className="font-semibold text-foreground">
+                            {failureMode.title}
+                          </h3>
+                          <span
+                            className={`text-xs px-2 py-1 rounded-full ${
+                              failureMode.status === "open"
+                                ? "bg-red-100 text-red-700"
+                                : "bg-green-100 text-green-700"
+                            }`}
+                          >
+                            {failureMode.status}
+                          </span>
+                        </div>
+                        <p className="text-sm text-muted-foreground">
+                          Reported by: {failureMode.reporter.first_name}{" "}
+                          {failureMode.reporter.last_name}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          Due:{" "}
+                          {new Date(failureMode.due_date).toLocaleDateString()}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Right: Resolutions */}
+                    <div>
+                      <h4 className="font-semibold text-sm mb-2 text-foreground">
+                        Resolutions
+                      </h4>
+                      <ul className="space-y-1">
+                        {failureMode.resolutions.map((resolution, idx) => (
+                          <li
+                            key={idx}
+                            className="text-sm text-muted-foreground list-disc list-inside"
+                          >
+                            {resolution}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center text-gray-500 py-12">
+              <p>No failure modes defined for this equipment.</p>
+            </div>
+          )}
         </TabsContent>
       </Tabs>
     </div>
