@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -8,7 +9,6 @@ import {
   Download,
   Edit2,
   Plus,
-  Upload,
   X,
   Loader2,
   Image as ImageIcon,
@@ -19,15 +19,8 @@ import { useCreateJobAid } from "@/services/job-aid/job-aid-queries";
 import { toast } from "sonner";
 import NextImage from "next/image";
 
-interface AddJobAidFormProps {
-  onNewInstructionClick: () => void;
-  onNewStepClick: () => void;
-}
-
-export default function AddJobAidForm({
-  onNewInstructionClick,
-  onNewStepClick,
-}: AddJobAidFormProps) {
+export default function AddJobAidForm() {
+  const router = useRouter();
   const [isEquipmentModalOpen, setIsEquipmentModalOpen] = useState(false);
   const [isFileManagerOpen, setIsFileManagerOpen] = useState(false);
   const [selectedEquipment, setSelectedEquipment] = useState<{
@@ -85,7 +78,7 @@ export default function AddJobAidForm({
     if (!validateForm()) return;
 
     try {
-      await createJobAidMutation.mutateAsync({
+      const response = await createJobAidMutation.mutateAsync({
         equipment_ids: [selectedEquipment!.id],
         title: formData.title,
         category: formData.category,
@@ -106,6 +99,10 @@ export default function AddJobAidForm({
         estimated_duration: "",
       });
       setSelectedEquipment(null);
+      // Navigate to the new job aid
+      if (response?.data.id) {
+        router.push(`/job-aids/${response.data.id}`);
+      }
     } catch (error) {
       toast.error("Failed to publish job aid. Please try again.");
       console.error("Publish error:", error);
@@ -116,7 +113,7 @@ export default function AddJobAidForm({
     if (!validateForm()) return;
 
     try {
-      await createJobAidMutation.mutateAsync({
+      const response = await createJobAidMutation.mutateAsync({
         equipment_ids: [selectedEquipment!.id],
         title: formData.title,
         category: formData.category,
@@ -137,6 +134,10 @@ export default function AddJobAidForm({
         estimated_duration: "",
       });
       setSelectedEquipment(null);
+      // Navigate to the new job aid
+      if (response?.data.id) {
+        router.push(`/job-aids/${response.data.id}`);
+      }
     } catch (error) {
       toast.error("Failed to save job aid as draft. Please try again.");
       console.error("Draft save error:", error);
@@ -338,99 +339,6 @@ export default function AddJobAidForm({
                 </p>
               </div>
             )}
-          </Card>
-
-          {/* Safety Precautions */}
-          <Card className="p-6">
-            <div className="flex items-start justify-between mb-4">
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-1">
-                  <h3 className="text-lg font-semibold text-foreground">
-                    Safety Precautions
-                  </h3>
-                  <span className="inline-block w-2 h-2 bg-yellow-500 rounded-full" />
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  Add critical safety steps or warnings or{" "}
-                  <button className="text-primary hover:underline">
-                    upload an existing safety guide
-                  </button>
-                  .
-                </p>
-              </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="gap-2 text-muted-foreground hover:text-foreground"
-              >
-                <Upload className="w-4 h-4" />
-                Upload
-              </Button>
-            </div>
-
-            {/* Add buttons */}
-            <div className="grid grid-cols-2 gap-4">
-              <button className="border-2 border-dashed border-border rounded-lg p-6 hover:bg-muted/50 transition-colors flex flex-col items-center gap-2">
-                <Plus className="w-6 h-6 text-muted-foreground" />
-                <span className="text-sm font-medium text-foreground">
-                  New Instruction
-                </span>
-              </button>
-              <button className="border-2 border-dashed border-border rounded-lg p-6 hover:bg-muted/50 transition-colors flex flex-col items-center gap-2">
-                <Plus className="w-6 h-6 text-muted-foreground" />
-                <span className="text-sm font-medium text-foreground">
-                  New Steps
-                </span>
-              </button>
-            </div>
-          </Card>
-
-          {/* Job aid Procedures */}
-          <Card className="p-6">
-            <div className="flex items-start justify-between mb-4">
-              <div className="flex-1">
-                <h3 className="text-lg font-semibold text-gray-900 mb-1">
-                  Job aid Procedures
-                </h3>
-                <p className="text-sm text-gray-500">
-                  Build visual step-by-step instructions. Add a new step or{" "}
-                  <button className="text-blue-600 hover:underline">
-                    import pdf
-                  </button>
-                  .
-                </p>
-              </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="gap-2 text-gray-500 hover:text-gray-700"
-              >
-                <Upload className="w-4 h-4" />
-                Upload
-              </Button>
-            </div>
-
-            {/* Add buttons */}
-            <div className="grid grid-cols-2 gap-4">
-              <button
-                onClick={onNewInstructionClick}
-                className="border-2 border-dashed border-gray-200 rounded-lg p-6 hover:bg-gray-50 transition-colors flex flex-col items-center gap-2"
-              >
-                <Plus className="w-6 h-6 text-gray-500" />
-                <span className="text-sm font-medium text-gray-900">
-                  New Instruction
-                </span>
-              </button>
-              <button
-                onClick={onNewStepClick}
-                className="border-2 border-dashed border-gray-200 rounded-lg p-6 hover:bg-gray-50 transition-colors flex flex-col items-center gap-2"
-              >
-                <Plus className="w-6 h-6 text-gray-500" />
-                <span className="text-sm font-medium text-gray-900">
-                  New Steps
-                </span>
-              </button>
-            </div>
           </Card>
 
           {/* Action buttons - Fixed at bottom right */}

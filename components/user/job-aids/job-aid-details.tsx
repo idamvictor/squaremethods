@@ -296,11 +296,6 @@ export function JobAidDetails({ jobAidId }: JobAidDetailsProps) {
                     <p className="text-gray-500">No equipment assigned.</p>
                   )}
                 </div>
-
-                {/* View Equipment Button */}
-                <Button variant="outline" className="w-full bg-transparent">
-                  View equipment
-                </Button>
               </CardContent>
             </Card>
           </div>
