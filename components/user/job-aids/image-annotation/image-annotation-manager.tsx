@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import Editor from "./editor";
 import { AnnotationState, Renderer, MarkerArea } from "@markerjs/markerjs3";
-import sampleImage from "@/public/sample-images/image.png";
+import sampleImage from "@/public/sample-images/phone-modules.jpg";
 import StepsGrid from "./steps-grid";
 import { Button } from "@/components/ui/button";
 import { useJobAidStore } from "@/store/job-aid-store";
@@ -12,7 +12,10 @@ import {
   usePrecautionsByJobAidId,
   useDeleteJobAidProcedure,
   useDeleteJobAidPrecaution,
+  useCreateJobAidProcedure,
+  useCreateJobAidPrecaution,
 } from "@/services/job-aid/job-aid-queries";
+import { useUploadFile } from "@/services/upload/upload-queries";
 
 interface ImageAnnotationManagerProps {
   type: "precaution" | "procedure";
@@ -50,6 +53,13 @@ export default function ImageAnnotationManager({
   // Delete mutations
   const deleteProc = useDeleteJobAidProcedure(currentJobAid?.id || "");
   const deletePrec = useDeleteJobAidPrecaution(currentJobAid?.id || "");
+
+  // Create mutations
+  const createProc = useCreateJobAidProcedure(currentJobAid?.id || "");
+  const createPrec = useCreateJobAidPrecaution(currentJobAid?.id || "");
+
+  // Upload mutation
+  const uploadFile = useUploadFile();
 
   // Load procedures/precautions based on type from API endpoints
   useEffect(() => {
@@ -132,6 +142,20 @@ export default function ImageAnnotationManager({
     ]);
   };
 
+  // Helper function to convert base64 string to File
+  const base64ToFile = (base64String: string, fileName: string): File => {
+    const arr = base64String.split(",");
+    const mimeMatch = arr[0].match(/:(.*?);/);
+    const mime = mimeMatch ? mimeMatch[1] : "image/png";
+    const bstr = atob(arr[1]);
+    const n = bstr.length;
+    const u8arr = new Uint8Array(n);
+    for (let i = 0; i < n; i++) {
+      u8arr[i] = bstr.charCodeAt(i);
+    }
+    return new File([u8arr], fileName, { type: mime });
+  };
+
   const updateStepInstruction = (index: number, instruction: string) => {
     const newSteps = [...steps];
     newSteps[index] = {
@@ -155,6 +179,7 @@ export default function ImageAnnotationManager({
     try {
       // Get the annotated image from the editor
       let annotatedImageUrl = sampleImage.src;
+      let isBase64Image = false;
 
       if (editorRef.current && annotation) {
         const editor = editorRef.current.getEditor?.();
@@ -166,6 +191,7 @@ export default function ImageAnnotationManager({
           renderer.imageType = "image/png";
 
           annotatedImageUrl = await renderer.rasterize(annotation);
+          isBase64Image = annotatedImageUrl?.startsWith("data:image");
           console.log(
             "Annotated image rendered:",
             annotatedImageUrl?.substring(0, 50)
@@ -175,27 +201,64 @@ export default function ImageAnnotationManager({
         console.warn("No editor or annotation found, using original image");
       }
 
-      // Add all current steps to the saved steps list with annotated image and instruction as description
-      const stepsWithAnnotation = steps.map((step) => ({
-        ...step,
-        imageUrl: annotatedImageUrl,
-        description: step.instruction, // Use instruction as description for display
-      }));
+      // Upload base64 image if needed to get a URL
+      if (isBase64Image) {
+        console.log("Converting and uploading base64 image to server...");
+        const file = base64ToFile(
+          annotatedImageUrl,
+          `annotation-${Date.now()}.png`
+        );
+        const uploadResponse = await uploadFile.mutateAsync({
+          file,
+          folder: "job-aids",
+        });
+        // Extract the image URL from the upload response
+        annotatedImageUrl = uploadResponse.data?.url || annotatedImageUrl;
+        console.log("Image uploaded successfully, URL:", annotatedImageUrl);
+      }
 
-      setSavedSteps([...savedSteps, ...stepsWithAnnotation]);
-
-      // TODO: Save to API when mutation hooks are implemented
-      // For now, just update local state
-      console.log(
-        `Steps would be saved to ${type} endpoint for job aid ${currentJobAid.id}:`,
-        stepsWithAnnotation
-      );
+      // Save each step to API
+      for (let index = 0; index < steps.length; index++) {
+        const step = steps[index];
+        try {
+          if (type === "procedure") {
+            const procedureInput = {
+              job_aid_id: currentJobAid.id,
+              title:
+                step.instruction || `Step ${savedSteps.length + index + 1}`,
+              step: savedSteps.length + index + 1,
+              instruction: step.instruction,
+              image: annotatedImageUrl,
+            };
+            await createProc.mutateAsync(procedureInput);
+            console.log(
+              `Procedure saved to API for job aid ${currentJobAid.id}:`,
+              procedureInput
+            );
+          } else if (type === "precaution") {
+            const precautionInput = {
+              job_aid_id: currentJobAid.id,
+              instruction: step.instruction,
+              image: annotatedImageUrl,
+            };
+            await createPrec.mutateAsync(precautionInput);
+            console.log(
+              `Precaution saved to API for job aid ${currentJobAid.id}:`,
+              precautionInput
+            );
+          }
+        } catch (error) {
+          console.error(`Error saving ${type} to API:`, error);
+        }
+      }
 
       // Reset the editor for new steps
       setSteps([]);
       setAnnotation(null);
 
-      console.log("Steps saved with annotated image:", stepsWithAnnotation);
+      console.log(
+        `All ${type}s saved successfully for job aid ${currentJobAid.id}`
+      );
     } catch (error) {
       console.error("Error saving steps:", error);
     }

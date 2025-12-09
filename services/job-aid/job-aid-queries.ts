@@ -139,7 +139,7 @@ export const createJobAidProcedure = async (
   input: CreateJobAidProcedureInput
 ) => {
   const response = await axiosInstance.post<JobAidProcedureResponse>(
-    `/job-aids/${input.job_aid_id}/procedures`,
+    `/procedures`,
     input
   );
   return response.data;

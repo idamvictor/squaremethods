@@ -108,6 +108,7 @@ export interface UpdateJobAidInput {
 
 export interface CreateJobAidProcedureInput {
   job_aid_id: string;
+  title: string;
   step: number;
   instruction: string;
   image: string;
