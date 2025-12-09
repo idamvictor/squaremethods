@@ -1,11 +1,12 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import Editor from "./editor";
 import { AnnotationState, Renderer, MarkerArea } from "@markerjs/markerjs3";
 import sampleImage from "@/public/sample-images/phone-modules.jpg";
 import StepsGrid from "./steps-grid";
-import { Button } from "@/components/ui/button";
+// import { Button } from "@/components/ui/button";
 import { useJobAidStore } from "@/store/job-aid-store";
 import {
   useProceduresByJobAidId,
@@ -36,6 +37,7 @@ export default function ImageAnnotationManager({
 }: ImageAnnotationManagerProps) {
   const editorRef = useRef<EditorRefType>(null);
   const { currentJobAid } = useJobAidStore();
+  const queryClient = useQueryClient();
   const [annotation, setAnnotation] = useState<AnnotationState | null>(null);
   const [steps, setSteps] = useState<Step[]>([]);
   const [savedSteps, setSavedSteps] = useState<Step[]>([]);
@@ -256,6 +258,17 @@ export default function ImageAnnotationManager({
       setSteps([]);
       setAnnotation(null);
 
+      // Invalidate and refetch the queries to update the steps grid
+      if (type === "procedure" && currentJobAid?.id) {
+        await queryClient.invalidateQueries({
+          queryKey: ["procedures-by-job-aid", currentJobAid.id],
+        });
+      } else if (type === "precaution" && currentJobAid?.id) {
+        await queryClient.invalidateQueries({
+          queryKey: ["precautions-by-job-aid", currentJobAid.id],
+        });
+      }
+
       console.log(
         `All ${type}s saved successfully for job aid ${currentJobAid.id}`
       );
@@ -264,12 +277,12 @@ export default function ImageAnnotationManager({
     }
   };
 
-  const handlePublish = () => {
-    console.log("Publishing:", {
-      steps,
-      annotation,
-    });
-  };
+  // const handlePublish = () => {
+  //   console.log("Publishing:", {
+  //     steps,
+  //     annotation,
+  //   });
+  // };
 
   const handleEditStep = (index: number) => {
     console.log("Editing step:", index);
@@ -389,13 +402,26 @@ export default function ImageAnnotationManager({
               <div className="space-y-4">
                 {/* Steps */}
                 {steps.map((step, index) => (
-                  <div key={index} className="relative pl-8">
-                    <div className="absolute left-0 top-2 flex items-center justify-center w-6 h-6 bg-blue-600 text-white rounded-full text-sm font-medium">
-                      {index + 1}
-                    </div>
+                  <div key={index} className="">
                     <div>
+                      {type === "procedure" && (
+                        <div className="mb-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                          <p className="text-sm text-blue-900 font-medium">
+                            Step {savedSteps.length + index + 1}
+                          </p>
+                        </div>
+                      )}
+                      {type === "precaution" && (
+                        <div className="mb-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                          <p className="text-sm text-amber-900 font-medium">
+                            Precaution {savedSteps.length + index + 1}
+                          </p>
+                        </div>
+                      )}
                       <label className="block text-sm font-medium text-gray-900 mb-2">
-                        Step Instruction
+                        {type === "procedure"
+                          ? "Step Instruction"
+                          : "Instruction"}
                       </label>
                       <textarea
                         value={step.instruction}
@@ -450,14 +476,14 @@ export default function ImageAnnotationManager({
         </div>
 
         {/* Action Buttons */}
-        <div className="fixed bottom-8 right-8 flex items-center gap-3 z-10">
+        {/* <div className="fixed bottom-8 right-8 flex items-center gap-3 z-10">
           <Button onClick={handleSaveDraft} size="lg" variant="outline">
             Save as draft
           </Button>
           <Button onClick={handlePublish} size="lg">
             Publish
           </Button>
-        </div>
+        </div> */}
       </div>
     </div>
   );
