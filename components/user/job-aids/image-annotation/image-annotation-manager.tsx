@@ -15,6 +15,8 @@ import {
   useDeleteJobAidPrecaution,
   useCreateJobAidProcedure,
   useCreateJobAidPrecaution,
+  useUpdateJobAidProcedure,
+  useUpdateJobAidPrecaution,
 } from "@/services/job-aid/job-aid-queries";
 import { useUploadFile } from "@/services/upload/upload-queries";
 
@@ -32,6 +34,12 @@ interface EditorRefType {
   getEditor: () => MarkerArea | null;
 }
 
+interface EditingStep {
+  index: number;
+  id: string;
+  type: "procedure" | "precaution";
+}
+
 export default function ImageAnnotationManager({
   type,
 }: ImageAnnotationManagerProps) {
@@ -42,6 +50,7 @@ export default function ImageAnnotationManager({
   const [steps, setSteps] = useState<Step[]>([]);
   const [savedSteps, setSavedSteps] = useState<Step[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [editingStep, setEditingStep] = useState<EditingStep | null>(null);
 
   // Only fetch the data we need based on type
   const { data: proceduresData } = useProceduresByJobAidId(
@@ -59,6 +68,10 @@ export default function ImageAnnotationManager({
   // Create mutations
   const createProc = useCreateJobAidProcedure(currentJobAid?.id || "");
   const createPrec = useCreateJobAidPrecaution(currentJobAid?.id || "");
+
+  // Update mutations
+  const updateProc = useUpdateJobAidProcedure(currentJobAid?.id || "");
+  const updatePrec = useUpdateJobAidPrecaution(currentJobAid?.id || "");
 
   // Upload mutation
   const uploadFile = useUploadFile();
@@ -223,31 +236,65 @@ export default function ImageAnnotationManager({
       for (let index = 0; index < steps.length; index++) {
         const step = steps[index];
         try {
-          if (type === "procedure") {
-            const procedureInput = {
-              job_aid_id: currentJobAid.id,
-              title:
-                step.instruction || `Step ${savedSteps.length + index + 1}`,
-              step: savedSteps.length + index + 1,
-              instruction: step.instruction,
-              image: annotatedImageUrl,
-            };
-            await createProc.mutateAsync(procedureInput);
-            console.log(
-              `Procedure saved to API for job aid ${currentJobAid.id}:`,
-              procedureInput
-            );
-          } else if (type === "precaution") {
-            const precautionInput = {
-              job_aid_id: currentJobAid.id,
-              instruction: step.instruction,
-              image: annotatedImageUrl,
-            };
-            await createPrec.mutateAsync(precautionInput);
-            console.log(
-              `Precaution saved to API for job aid ${currentJobAid.id}:`,
-              precautionInput
-            );
+          if (editingStep) {
+            // EDIT MODE - Update existing step
+            if (type === "procedure") {
+              const procedureInput = {
+                instruction: step.instruction,
+                step: editingStep.index + 1,
+                title: step.instruction || `Step ${editingStep.index + 1}`,
+                image: annotatedImageUrl,
+              };
+              await updateProc.mutateAsync({
+                id: editingStep.id,
+                data: procedureInput,
+              });
+              console.log(
+                `Procedure ${editingStep.id} updated:`,
+                procedureInput
+              );
+            } else if (type === "precaution") {
+              const precautionInput = {
+                instruction: step.instruction,
+                image: annotatedImageUrl,
+              };
+              await updatePrec.mutateAsync({
+                id: editingStep.id,
+                data: precautionInput,
+              });
+              console.log(
+                `Precaution ${editingStep.id} updated:`,
+                precautionInput
+              );
+            }
+          } else {
+            // CREATE MODE - Add new step
+            if (type === "procedure") {
+              const procedureInput = {
+                job_aid_id: currentJobAid.id,
+                title:
+                  step.instruction || `Step ${savedSteps.length + index + 1}`,
+                step: savedSteps.length + index + 1,
+                instruction: step.instruction,
+                image: annotatedImageUrl,
+              };
+              await createProc.mutateAsync(procedureInput);
+              console.log(
+                `Procedure saved to API for job aid ${currentJobAid.id}:`,
+                procedureInput
+              );
+            } else if (type === "precaution") {
+              const precautionInput = {
+                job_aid_id: currentJobAid.id,
+                instruction: step.instruction,
+                image: annotatedImageUrl,
+              };
+              await createPrec.mutateAsync(precautionInput);
+              console.log(
+                `Precaution saved to API for job aid ${currentJobAid.id}:`,
+                precautionInput
+              );
+            }
           }
         } catch (error) {
           console.error(`Error saving ${type} to API:`, error);
@@ -257,6 +304,7 @@ export default function ImageAnnotationManager({
       // Reset the editor for new steps
       setSteps([]);
       setAnnotation(null);
+      setEditingStep(null);
 
       // Invalidate and refetch the queries to update the steps grid
       if (type === "procedure" && currentJobAid?.id) {
@@ -285,7 +333,43 @@ export default function ImageAnnotationManager({
   // };
 
   const handleEditStep = (index: number) => {
-    console.log("Editing step:", index);
+    const stepToEdit = savedSteps[index];
+    let stepId: string | null = null;
+
+    if (type === "procedure") {
+      stepId = proceduresData?.data?.[index]?.id || null;
+    } else if (type === "precaution") {
+      stepId = precautionsData?.data?.[index]?.id || null;
+    }
+
+    if (!stepId) {
+      console.error("Step ID not found");
+      return;
+    }
+
+    // Populate the form with existing data
+    setSteps([
+      {
+        instruction: stepToEdit.instruction,
+        imageUrl: stepToEdit.imageUrl,
+        description: stepToEdit.description,
+      },
+    ]);
+
+    // Set editing mode
+    setEditingStep({
+      index,
+      id: stepId,
+      type,
+    });
+
+    console.log("Editing step:", index, stepId);
+  };
+
+  const cancelEdit = () => {
+    setSteps([]);
+    setAnnotation(null);
+    setEditingStep(null);
   };
 
   const handleRemoveStep = async (index: number) => {
@@ -358,7 +442,11 @@ export default function ImageAnnotationManager({
     <div className="container mx-auto p-4">
       <div className="mb-6">
         <h2 className="text-xl font-semibold text-gray-900">
-          {type === "precaution" ? "Create New Instruction" : "Create New Step"}
+          {editingStep
+            ? `Edit ${type === "precaution" ? "Instruction" : "Step"}`
+            : type === "precaution"
+            ? "Create New Instruction"
+            : "Create New Step"}
         </h2>
         <p className="text-sm text-gray-500 mt-1">
           Add annotations to your image to create clear visual instructions
@@ -392,10 +480,12 @@ export default function ImageAnnotationManager({
             <div className="p-6">
               <div className="mb-6">
                 <h3 className="text-sm font-medium text-gray-900 mb-1">
-                  Procedures
+                  {editingStep ? `Edit ${type}` : "Create New"}
                 </h3>
                 <p className="text-sm text-gray-500">
-                  Write your steps below, please stick to order
+                  {editingStep
+                    ? "Update your step details below"
+                    : "Write your steps below, please stick to order"}
                 </p>
               </div>
 
@@ -407,14 +497,20 @@ export default function ImageAnnotationManager({
                       {type === "procedure" && (
                         <div className="mb-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
                           <p className="text-sm text-blue-900 font-medium">
-                            Step {savedSteps.length + index + 1}
+                            Step{" "}
+                            {editingStep
+                              ? editingStep.index + 1
+                              : savedSteps.length + index + 1}
                           </p>
                         </div>
                       )}
                       {type === "precaution" && (
                         <div className="mb-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
                           <p className="text-sm text-amber-900 font-medium">
-                            Precaution {savedSteps.length + index + 1}
+                            Precaution{" "}
+                            {editingStep
+                              ? editingStep.index + 1
+                              : savedSteps.length + index + 1}
                           </p>
                         </div>
                       )}
@@ -435,22 +531,32 @@ export default function ImageAnnotationManager({
                   </div>
                 ))}
 
-                {/* Add Step Button */}
-                <button
-                  onClick={addStep}
-                  className="w-full py-2 px-4 border-2 border-dashed border-gray-200 rounded-lg text-gray-500 hover:text-gray-700 hover:border-gray-300 transition-colors"
-                >
-                  + Add Another Step
-                </button>
+                {/* Add Step Button - Only show when not editing */}
+                {!editingStep && (
+                  <button
+                    onClick={addStep}
+                    className="w-full py-2 px-4 border-2 border-dashed border-gray-200 rounded-lg text-gray-500 hover:text-gray-700 hover:border-gray-300 transition-colors"
+                  >
+                    + Add Another Step
+                  </button>
+                )}
 
-                {/* Save Button */}
-                <div className="pt-4 mt-6 border-t border-gray-200">
+                {/* Save/Update Button */}
+                <div className="pt-4 mt-6 border-t border-gray-200 space-y-2">
                   <button
                     onClick={handleSaveDraft}
                     className="w-full py-2 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                   >
-                    Save Instructions
+                    {editingStep ? "Update Step" : "Save Instructions"}
                   </button>
+                  {editingStep && (
+                    <button
+                      onClick={cancelEdit}
+                      className="w-full py-2 px-4 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                    >
+                      Cancel
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
