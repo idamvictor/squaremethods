@@ -8,7 +8,7 @@ import StepsGrid from "./steps-grid";
 import { Button } from "@/components/ui/button";
 
 interface ImageAnnotationManagerProps {
-  type: "instruction" | "step";
+  type: "precaution" | "procedure";
 }
 
 interface Step {
@@ -99,9 +99,7 @@ export default function ImageAnnotationManager({
     <div className="container mx-auto p-4">
       <div className="mb-6">
         <h2 className="text-xl font-semibold text-gray-900">
-          {type === "instruction"
-            ? "Create New Instruction"
-            : "Create New Step"}
+          {type === "precaution" ? "Create New Instruction" : "Create New Step"}
         </h2>
         <p className="text-sm text-gray-500 mt-1">
           Add annotations to your image to create clear visual instructions

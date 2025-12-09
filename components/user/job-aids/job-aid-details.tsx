@@ -6,8 +6,10 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, Search, X, Plus } from "lucide-react";
 import { useJobAidDetails } from "@/services/job-aid/job-aid-queries";
+import { useJobAidStore } from "@/store/job-aid-store";
 import Link from "next/link";
 import Image from "next/image";
+import ImageAnnotationManager from "@/components/user/job-aids/image-annotation/image-annotation-manager";
 
 interface JobAidDetailsProps {
   jobAidId: string;
@@ -16,6 +18,14 @@ interface JobAidDetailsProps {
 export function JobAidDetails({ jobAidId }: JobAidDetailsProps) {
   const { data: jobAidResponse, isLoading, error } = useJobAidDetails(jobAidId);
   const [searchQuery, setSearchQuery] = useState("");
+  const [showAnnotating, setShowAnnotating] = useState(false);
+  const [annotationType, setAnnotationType] = useState<
+    "procedure" | "precaution" | null
+  >(null);
+  const setCurrentJobAid = useJobAidStore((state) => state.setCurrentJobAid);
+  const setStoreAnnotationType = useJobAidStore(
+    (state) => state.setAnnotationType
+  );
 
   if (isLoading) {
     return <div className="p-6 text-center text-gray-600">Loading...</div>;
@@ -34,6 +44,42 @@ export function JobAidDetails({ jobAidId }: JobAidDetailsProps) {
   if (!jobAid) {
     return (
       <div className="p-6 text-center text-gray-600">Job aid not found.</div>
+    );
+  }
+
+  const handleNewProcedureClick = () => {
+    setCurrentJobAid(jobAid);
+    setStoreAnnotationType("procedure");
+    setAnnotationType("procedure");
+    setShowAnnotating(true);
+  };
+
+  const handleNewPrecautionClick = () => {
+    setCurrentJobAid(jobAid);
+    setStoreAnnotationType("precaution");
+    setAnnotationType("precaution");
+    setShowAnnotating(true);
+  };
+
+  if (showAnnotating && annotationType) {
+    return (
+      <div className="min-h-screen">
+        <div className="p-6">
+          <Button
+            variant="ghost"
+            className="mb-6"
+            onClick={() => {
+              setShowAnnotating(false);
+              setAnnotationType(null);
+            }}
+            size="sm"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Job Aid Details
+          </Button>
+          <ImageAnnotationManager type={annotationType} />
+        </div>
+      </div>
     );
   }
 
@@ -179,19 +225,21 @@ export function JobAidDetails({ jobAidId }: JobAidDetailsProps) {
                   <Button
                     variant="outline"
                     className="h-20 border-dashed bg-transparent"
+                    onClick={handleNewProcedureClick}
                   >
                     <div className="text-center">
                       <Plus className="w-6 h-6 mx-auto mb-2" />
-                      <span>New Instruction</span>
+                      <span>New Precaution</span>
                     </div>
                   </Button>
                   <Button
                     variant="outline"
                     className="h-20 border-dashed bg-transparent"
+                    onClick={handleNewPrecautionClick}
                   >
                     <div className="text-center">
                       <Plus className="w-6 h-6 mx-auto mb-2" />
-                      <span>New Steps</span>
+                      <span>New Procedure</span>
                     </div>
                   </Button>
                 </div>

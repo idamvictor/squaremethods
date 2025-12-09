@@ -11,7 +11,7 @@ export default function JobAidsPageContent() {
   const [isCreating, setIsCreating] = useState(false);
   const [isAnnotating, setIsAnnotating] = useState(false);
   const [annotationType, setAnnotationType] = useState<
-    "instruction" | "step" | null
+    "precaution" | "procedure" | null
   >(null);
 
   if (isAnnotating) {
@@ -30,7 +30,7 @@ export default function JobAidsPageContent() {
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Job Aid Form
           </Button>
-          <ImageAnnotationManager type={annotationType || "instruction"} />
+          <ImageAnnotationManager type={annotationType || "procedure"} />
         </div>
       </div>
     );
@@ -52,11 +52,11 @@ export default function JobAidsPageContent() {
           <AddJobAidForm
             onNewInstructionClick={() => {
               setIsAnnotating(true);
-              setAnnotationType("instruction");
+              setAnnotationType("precaution");
             }}
             onNewStepClick={() => {
               setIsAnnotating(true);
-              setAnnotationType("step");
+              setAnnotationType("procedure");
             }}
           />
         </div>
