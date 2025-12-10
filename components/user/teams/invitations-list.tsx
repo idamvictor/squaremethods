@@ -19,11 +19,18 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Copy, MoreVertical, Trash2, Eye } from "lucide-react";
 import { toast } from "sonner";
 import {
   useInvitations,
   useRevokeInvitation,
+  useInvitation,
 } from "@/services/invitations/invitation-queries";
 import { Invitation } from "@/services/invitations/invitation-types";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -33,6 +40,9 @@ export function InvitationsList() {
   const [invitationToDelete, setInvitationToDelete] = useState<string | null>(
     null
   );
+  const [selectedInvitationId, setSelectedInvitationId] = useState<
+    string | null
+  >(null);
 
   const {
     data: invitationsData,
@@ -42,6 +52,9 @@ export function InvitationsList() {
     page,
     limit: 10,
   });
+
+  const { data: selectedInvitationData, isLoading: isLoadingDetails } =
+    useInvitation(selectedInvitationId || "");
 
   const revokeInvitationMutation = useRevokeInvitation();
 
@@ -201,7 +214,9 @@ export function InvitationsList() {
                           <Copy className="w-4 h-4 mr-2" />
                           Copy Link
                         </DropdownMenuItem>
-                        <DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => setSelectedInvitationId(invitation.id)}
+                        >
                           <Eye className="w-4 h-4 mr-2" />
                           View Details
                         </DropdownMenuItem>
@@ -289,6 +304,136 @@ export function InvitationsList() {
           </div>
         </AlertDialog>
       )}
+
+      {/* View Details Dialog */}
+      <Dialog
+        open={!!selectedInvitationId}
+        onOpenChange={(open) => !open && setSelectedInvitationId(null)}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Invitation Details</DialogTitle>
+          </DialogHeader>
+
+          {isLoadingDetails ? (
+            <div className="space-y-4">
+              <Skeleton className="h-6 w-full" />
+              <Skeleton className="h-6 w-full" />
+              <Skeleton className="h-6 w-full" />
+            </div>
+          ) : selectedInvitationData?.data ? (
+            <div className="space-y-4">
+              {/* Creator Info */}
+              <div className="border-b pb-4">
+                <h3 className="text-sm font-semibold mb-3">Created By</h3>
+                <div className="flex items-center gap-3">
+                  {selectedInvitationData.data.creator?.avatar_url && (
+                    <Image
+                      src={selectedInvitationData.data.creator.avatar_url}
+                      alt={selectedInvitationData.data.creator.first_name}
+                      width={40}
+                      height={40}
+                      className="w-10 h-10 rounded-full"
+                    />
+                  )}
+                  <div>
+                    <div className="font-medium text-sm">
+                      {selectedInvitationData.data.creator?.first_name}{" "}
+                      {selectedInvitationData.data.creator?.last_name}
+                    </div>
+                    <div className="text-xs text-gray-500">
+                      {selectedInvitationData.data.creator?.email}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Role Info */}
+              <div className="border-b pb-4">
+                <h3 className="text-sm font-semibold mb-2">Role</h3>
+                <Badge variant="secondary">
+                  {formatRole(selectedInvitationData.data.role)}
+                </Badge>
+              </div>
+
+              {/* Recipients */}
+              <div className="border-b pb-4">
+                <h3 className="text-sm font-semibold mb-2">Recipients</h3>
+                {selectedInvitationData.data.emails ? (
+                  <div className="space-y-2">
+                    {selectedInvitationData.data.emails.map((email) => (
+                      <div key={email} className="text-sm text-gray-700">
+                        {email}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <span className="text-sm text-gray-500">Public link</span>
+                )}
+              </div>
+
+              {/* Expiration */}
+              <div className="border-b pb-4">
+                <h3 className="text-sm font-semibold mb-2">Expires</h3>
+                <div className="text-sm text-gray-700">
+                  {formatDate(selectedInvitationData.data.expires_at)}
+                </div>
+              </div>
+
+              {/* Usage Info */}
+              <div className="border-b pb-4">
+                <h3 className="text-sm font-semibold mb-2">Usage</h3>
+                <div className="text-sm text-gray-700">
+                  {selectedInvitationData.data.used_count}{" "}
+                  {selectedInvitationData.data.max_uses
+                    ? `of ${selectedInvitationData.data.max_uses}`
+                    : "unlimited"}{" "}
+                  used
+                </div>
+              </div>
+
+              {/* Status */}
+              <div>
+                <h3 className="text-sm font-semibold mb-2">Status</h3>
+                <Badge
+                  variant={
+                    new Date(selectedInvitationData.data.expires_at) <
+                    new Date()
+                      ? "destructive"
+                      : "default"
+                  }
+                >
+                  {new Date(selectedInvitationData.data.expires_at) < new Date()
+                    ? "Expired"
+                    : "Active"}
+                </Badge>
+              </div>
+
+              {/* Token */}
+              <div className="border-t pt-4">
+                <h3 className="text-sm font-semibold mb-2">Invitation Link</h3>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    readOnly
+                    value={`${window.location.origin}/invite?token=${selectedInvitationData.data.token}`}
+                    className="flex-1 px-2 py-2 text-sm border rounded bg-gray-50 text-gray-700"
+                  />
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() =>
+                      handleCopyLink(selectedInvitationData.data.token)
+                    }
+                  >
+                    <Copy className="w-4 h-4" />
+                  </Button>
+                </div>
+              </div>
+            </div>
+          ) : null}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
