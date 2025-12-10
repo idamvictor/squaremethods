@@ -15,6 +15,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Copy, Send, User, Edit, Shield } from "lucide-react";
 import { toast } from "sonner";
+import { InvitationsList } from "./invitations-list";
 
 interface InviteUserModalProps {
   open: boolean;
@@ -31,7 +32,7 @@ interface AccessLevel {
 
 const accessLevels: AccessLevel[] = [
   {
-    id: "viewer",
+    id: "view",
     name: "Viewer",
     description: "Any one with this link can access as a viewer",
     icon: <User className="h-4 w-4" />,
@@ -104,7 +105,7 @@ export function InviteUserModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-4xl">
         <DialogHeader>
           <DialogTitle className="text-lg font-semibold">
             Share to Selection &apos;Profile&apos;
@@ -167,6 +168,12 @@ export function InviteUserModal({
                 </div>
               ))}
             </div>
+          </div>
+
+          {/* Invitations List Section */}
+          <Separator />
+          <div className="max-h-64 overflow-y-auto">
+            <InvitationsList />
           </div>
 
           {/* Done Button */}
