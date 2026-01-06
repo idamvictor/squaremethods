@@ -1,12 +1,11 @@
-import { useState } from "react";
+import { useRouter, usePathname } from "next/navigation";
 import {
-  Search,
-  Bell,
+  // Search,
   RefreshCw,
   LogOut,
   User as UserIcon,
 } from "lucide-react";
-import { Input } from "@/components/ui/input";
+// import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { SidebarTrigger } from "@/components/ui/sidebar";
@@ -20,12 +19,19 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useLogout } from "@/lib/api/auth";
 import { useAuthStore } from "@/store/auth-store";
-import { FileManagerModal } from "@/components/shared/file-manager/file-manager-modal";
 
 export function Header() {
+  const router = useRouter();
+  const pathname = usePathname();
   const user = useAuthStore((state) => state.user);
   const { mutate: logout, isPending: isLoggingOut } = useLogout();
-  const [isFileManagerOpen, setIsFileManagerOpen] = useState(false);
+
+  const handleProfileClick = () => {
+    const settingsPath = pathname.includes("/technician")
+      ? "/technician/settings"
+      : "/settings";
+    router.push(settingsPath);
+  };
 
   // Get user initials for avatar fallback
   const getInitials = () => {
@@ -33,11 +39,6 @@ export function Header() {
     const firstInitial = user.first_name.charAt(0);
     const lastInitial = user.last_name.charAt(0);
     return `${firstInitial}${lastInitial}`.toUpperCase();
-  };
-
-  const handleFileSelect = (fileUrl: string) => {
-    // Handle file selection here
-    console.log("Selected file:", fileUrl);
   };
 
   return (
@@ -48,23 +49,24 @@ export function Header() {
         </div>
 
         <div className="flex flex-1 items-center justify-center px-6">
-          <div className="relative w-full max-w-sm">
+          {/* <div className="relative w-full max-w-sm">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               placeholder="Search..."
               className="pl-10 bg-muted/50 border-0 focus-visible:ring-1"
             />
-          </div>
+          </div> */}
         </div>
 
         <div className="flex items-center gap-3">
-          <Button variant="ghost" size="icon" className="h-9 w-9">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-9 w-9"
+            onClick={() => window.location.reload()}
+          >
             <RefreshCw className="h-4 w-4" />
             <span className="sr-only">Refresh</span>
-          </Button>
-          <Button variant="ghost" size="icon" className="h-9 w-9">
-            <Bell className="h-4 w-4" />
-            <span className="sr-only">Notifications</span>
           </Button>
 
           <DropdownMenu>
@@ -93,7 +95,7 @@ export function Header() {
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => setIsFileManagerOpen(true)}>
+              <DropdownMenuItem onClick={handleProfileClick}>
                 <UserIcon className="mr-2 h-4 w-4" />
                 <span>Profile</span>
               </DropdownMenuItem>
@@ -109,12 +111,6 @@ export function Header() {
           </DropdownMenu>
         </div>
       </div>
-
-      <FileManagerModal
-        open={isFileManagerOpen}
-        onOpenChange={setIsFileManagerOpen}
-        onFileSelect={handleFileSelect}
-      />
     </header>
   );
 }
