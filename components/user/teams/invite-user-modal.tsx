@@ -40,7 +40,9 @@ export function InviteUserModal({
   onInviteSuccess,
 }: InviteUserModalProps) {
   const [emails, setEmails] = useState("");
-  const [role, setRole] = useState<"editor" | "viewer">("viewer");
+  const [role, setRole] = useState<
+    "owner" | "admin" | "editor" | "viewer" | "technician"
+  >("viewer");
   const [expiresInDays, setExpiresInDays] = useState(7);
 
   const sendInvitationsMutation = useSendInvitations();
@@ -121,14 +123,19 @@ export function InviteUserModal({
               </Label>
               <Select
                 value={role}
-                onValueChange={(value: "editor" | "viewer") => setRole(value)}
+                onValueChange={(
+                  value: "owner" | "admin" | "editor" | "viewer" | "technician"
+                ) => setRole(value)}
               >
                 <SelectTrigger className="w-full">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="viewer">Viewer</SelectItem>
+                  <SelectItem value="owner">Owner</SelectItem>
+                  <SelectItem value="admin">Admin</SelectItem>
                   <SelectItem value="editor">Editor</SelectItem>
+                  <SelectItem value="viewer">Viewer</SelectItem>
+                  <SelectItem value="technician">Technician</SelectItem>
                 </SelectContent>
               </Select>
             </div>

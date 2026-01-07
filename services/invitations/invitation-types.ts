@@ -12,7 +12,7 @@ export interface Invitation {
   id: string;
   token: string;
   emails: string[] | null;
-  role: "editor" | "viewer";
+  role: "owner" | "admin" | "editor" | "viewer" | "technician";
   created_by: string;
   expires_at: string;
   used_count: number;
@@ -40,7 +40,7 @@ export interface InvitationResponse {
 
 export interface SendInvitationRequest {
   emails: string[];
-  role: "editor" | "viewer";
+  role: "owner" | "admin" | "editor" | "viewer" | "technician";
   expires_in_days: number;
 }
 
@@ -50,7 +50,7 @@ export interface SendInvitationResponse {
     id: string;
     token: string;
     link: string;
-    role: "editor" | "viewer";
+    role: "owner" | "admin" | "editor" | "viewer" | "technician";
     sent_to: string[];
     expires_at: string;
   };
@@ -59,7 +59,7 @@ export interface SendInvitationResponse {
 
 export interface GenerateInvitationLinkRequest {
   emails: string[];
-  role: "editor" | "viewer";
+  role: "owner" | "admin" | "editor" | "viewer" | "technician";
   expires_in_days: number;
   max_uses?: number;
 }
@@ -70,7 +70,7 @@ export interface GenerateInvitationLinkResponse {
     id: string;
     token: string;
     link: string;
-    role: "editor" | "viewer";
+    role: "owner" | "admin" | "editor" | "viewer" | "technician";
     emails: string[];
     expires_at: string;
     max_uses: number;
@@ -94,7 +94,7 @@ export interface ValidateInvitationResponse {
   status: "success";
   data: {
     valid: boolean;
-    role: "editor" | "viewer";
+    role: "owner" | "admin" | "editor" | "viewer" | "technician";
     expires_at: string;
     company: Company;
   };
