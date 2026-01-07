@@ -4,12 +4,14 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Search, X, Plus } from "lucide-react";
 import { useJobAidDetails } from "@/services/job-aid/job-aid-queries";
 import { useJobAidStore } from "@/store/job-aid-store";
 import Link from "next/link";
 import Image from "next/image";
 import ImageAnnotationManager from "@/components/user/job-aids/image-annotation/image-annotation-manager";
+import { StepsGridView } from "@/components/user/job-aids/steps-grid-view";
 
 interface JobAidDetailsProps {
   jobAidId: string;
@@ -22,6 +24,9 @@ export function JobAidDetails({ jobAidId }: JobAidDetailsProps) {
   const [annotationType, setAnnotationType] = useState<
     "procedure" | "precaution" | null
   >(null);
+  const [viewMode, setViewMode] = useState<
+    "details" | "procedures" | "precautions"
+  >("details");
   const setCurrentJobAid = useJobAidStore((state) => state.setCurrentJobAid);
   const setStoreAnnotationType = useJobAidStore(
     (state) => state.setAnnotationType
@@ -61,6 +66,16 @@ export function JobAidDetails({ jobAidId }: JobAidDetailsProps) {
     setShowAnnotating(true);
   };
 
+  // Handle view more for procedures
+  const handleViewMoreProcedures = () => {
+    setViewMode("procedures");
+  };
+
+  // Handle view more for precautions
+  const handleViewMorePrecautions = () => {
+    setViewMode("precautions");
+  };
+
   if (showAnnotating && annotationType) {
     return (
       <div className="min-h-screen">
@@ -80,6 +95,34 @@ export function JobAidDetails({ jobAidId }: JobAidDetailsProps) {
           <ImageAnnotationManager type={annotationType} />
         </div>
       </div>
+    );
+  }
+
+  // Show procedures grid view
+  if (viewMode === "procedures" && jobAid.procedures) {
+    return (
+      <StepsGridView
+        title="Procedures"
+        jobAidTitle={jobAid.title}
+        steps={jobAid.procedures}
+        type="procedure"
+        onBack={() => setViewMode("details")}
+        onAddNew={handleNewProcedureClick}
+      />
+    );
+  }
+
+  // Show precautions grid view
+  if (viewMode === "precautions" && jobAid.precautions) {
+    return (
+      <StepsGridView
+        title="Precautions"
+        jobAidTitle={jobAid.title}
+        steps={jobAid.precautions}
+        type="precaution"
+        onBack={() => setViewMode("details")}
+        onAddNew={handleNewPrecautionClick}
+      />
     );
   }
 
@@ -123,7 +166,22 @@ export function JobAidDetails({ jobAidId }: JobAidDetailsProps) {
           <div className="lg:col-span-2 space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Job Aid Details</CardTitle>
+                <div className="flex items-center justify-between">
+                  <CardTitle>Job Aid Details</CardTitle>
+                  <Badge
+                    variant={
+                      jobAid.status === "published" ? "default" : "secondary"
+                    }
+                    className={
+                      jobAid.status === "published"
+                        ? "bg-green-100 text-green-800 hover:bg-green-100"
+                        : "bg-yellow-100 text-yellow-800 hover:bg-yellow-100"
+                    }
+                  >
+                    {jobAid.status.charAt(0).toUpperCase() +
+                      jobAid.status.slice(1)}
+                  </Badge>
+                </div>
               </CardHeader>
               <CardContent className="space-y-6">
                 {/* Title */}
@@ -171,14 +229,29 @@ export function JobAidDetails({ jobAidId }: JobAidDetailsProps) {
                         <span className="text-white text-xs">!</span>
                       </div>
                     </div>
+                    {jobAid.precautions && jobAid.precautions.length > 0 && (
+                      <button
+                        onClick={handleViewMorePrecautions}
+                        className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+                      >
+                        View more
+                      </button>
+                    )}
                   </div>
                   {jobAid.precautions && jobAid.precautions.length > 0 ? (
                     <ul className="space-y-2">
-                      {jobAid.precautions.map((precaution, index) => (
-                        <li key={index} className="text-gray-700">
-                          {precaution.instruction}
+                      {jobAid.precautions
+                        .slice(0, 3)
+                        .map((precaution, index) => (
+                          <li key={index} className="text-gray-700">
+                            {precaution.instruction}
+                          </li>
+                        ))}
+                      {jobAid.precautions.length > 3 && (
+                        <li className="text-sm text-gray-500 italic pt-2">
+                          ... and {jobAid.precautions.length - 3} more
                         </li>
-                      ))}
+                      )}
                     </ul>
                   ) : (
                     <p className="text-gray-500">
@@ -206,14 +279,27 @@ export function JobAidDetails({ jobAidId }: JobAidDetailsProps) {
                 <div>
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-lg font-medium">Procedures</h3>
+                    {jobAid.procedures && jobAid.procedures.length > 0 && (
+                      <button
+                        onClick={handleViewMoreProcedures}
+                        className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+                      >
+                        View more
+                      </button>
+                    )}
                   </div>
                   {jobAid.procedures && jobAid.procedures.length > 0 ? (
                     <ol className="space-y-4 list-decimal list-inside">
-                      {jobAid.procedures.map((procedure, index) => (
+                      {jobAid.procedures.slice(0, 3).map((procedure, index) => (
                         <li key={index} className="text-gray-700">
                           {procedure.instruction}
                         </li>
                       ))}
+                      {jobAid.procedures.length > 3 && (
+                        <li className="text-sm text-gray-500 italic pt-2">
+                          ... and {jobAid.procedures.length - 3} more
+                        </li>
+                      )}
                     </ol>
                   ) : (
                     <p className="text-gray-500">No procedures added yet.</p>
