@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Table,
   TableBody,
@@ -40,13 +40,24 @@ import { avatarImage } from "@/constants/images";
 
 export function JobTable() {
   const [page, setPage] = useState(1);
+  const [inputValue, setInputValue] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<JobStatus | "all">("all");
   const [deleteJobId, setDeleteJobId] = useState<string | null>(null);
   const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
   const [editJobId, setEditJobId] = useState<string | null>(null);
 
-  const { data, isLoading } = useJobs({
+  // Debounce search input
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setSearchQuery(inputValue);
+      setPage(1);
+    }, 500); // 500ms debounce delay
+
+    return () => clearTimeout(timer);
+  }, [inputValue]);
+
+  const { data } = useJobs({
     page,
     limit: 20,
     search: searchQuery || undefined,
@@ -65,13 +76,9 @@ export function JobTable() {
       },
     });
 
-  if (isLoading || !data) {
-    return <div>Loading jobs...</div>;
-  }
-
   const handleSearch = (query: string) => {
-    setSearchQuery(query);
-    setPage(1); // Reset to first page when searching
+    setInputValue(query);
+    // Debouncing is handled by useEffect above
   };
 
   const handleStatusFilter = (status: JobStatus | "all") => {
@@ -85,6 +92,7 @@ export function JobTable() {
   };
 
   const resetFilters = () => {
+    setInputValue("");
     setSearchQuery("");
     setStatusFilter("all");
     setPage(1);
@@ -148,7 +156,7 @@ export function JobTable() {
       <JobFilters
         statusFilter={statusFilter}
         onStatusChange={handleStatusFilter}
-        searchQuery={searchQuery}
+        searchQuery={inputValue}
         onSearchChange={handleSearch}
         onReset={resetFilters}
       />
