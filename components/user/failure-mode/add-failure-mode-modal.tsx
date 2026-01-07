@@ -2,7 +2,7 @@
 
 import type React from "react";
 
-import { useState, useRef } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import {
   Dialog,
@@ -16,15 +16,18 @@ import { CreateFailureModeInput } from "@/services/failure-mode/failure-mode-typ
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Plus, Trash2, ImageIcon, X } from "lucide-react";
+
+import { Plus, Trash2, X, Calendar } from "lucide-react";
 import { EquipmentHierarchyModal } from "@/components/user/jobs/equipment-hierarchy-modal";
+import { FileManagerModal } from "@/components/shared/file-manager/file-manager-modal";
+import { format } from "date-fns";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
 
 interface Resolution {
   id: string;
@@ -59,7 +62,7 @@ export function AddFailureModeModal({
   const [dueDate, setDueDate] = useState("");
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isEquipmentModalOpen, setEquipmentModalOpen] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isFileManagerOpen, setIsFileManagerOpen] = useState(false);
 
   const { data: profileData } = useProfile();
   const createFailureModeMutation = useCreateFailureMode();
@@ -68,22 +71,8 @@ export function AddFailureModeModal({
     ? `${profileData.data.first_name} ${profileData.data.last_name}`
     : "";
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
   const handleRemoveImage = () => {
     setImagePreview(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
   };
 
   const handleAddResolution = () => {
@@ -206,26 +195,14 @@ export function AddFailureModeModal({
                     </Button>
                   </div>
                 ) : (
-                  <div
-                    onClick={() => fileInputRef.current?.click()}
-                    className="flex h-48 cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-border bg-muted/50 transition-colors hover:bg-muted"
+                  <Button
+                    variant="outline"
+                    className="w-full"
+                    onClick={() => setIsFileManagerOpen(true)}
                   >
-                    <ImageIcon className="mb-2 h-8 w-8 text-muted-foreground" />
-                    <p className="text-sm text-muted-foreground">
-                      Click to upload image
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      PNG, JPG up to 10MB
-                    </p>
-                  </div>
+                    Select Image
+                  </Button>
                 )}
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                  className="hidden"
-                />
               </div>
 
               {/* Failure Mode Title */}
@@ -340,17 +317,34 @@ export function AddFailureModeModal({
               {/* Due Date */}
               <div className="space-y-2">
                 <Label htmlFor="dueDate">Due date</Label>
-                <Select value={dueDate} onValueChange={setDueDate}>
-                  <SelectTrigger id="dueDate">
-                    <SelectValue placeholder="Select date" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="May 24">May 24</SelectItem>
-                    <SelectItem value="May 25">May 25</SelectItem>
-                    <SelectItem value="May 26">May 26</SelectItem>
-                    <SelectItem value="May 27">May 27</SelectItem>
-                  </SelectContent>
-                </Select>
+                <Popover modal={true}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-full justify-start text-left font-normal",
+                        !dueDate && "text-muted-foreground"
+                      )}
+                    >
+                      <Calendar className="mr-2 h-4 w-4" />
+                      {dueDate ? (
+                        format(new Date(dueDate), "PPP")
+                      ) : (
+                        <span>Pick a date</span>
+                      )}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0">
+                    <CalendarComponent
+                      mode="single"
+                      selected={dueDate ? new Date(dueDate) : undefined}
+                      onSelect={(date) =>
+                        setDueDate(date ? date.toISOString() : "")
+                      }
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
               </div>
             </div>
           </div>
@@ -377,6 +371,15 @@ export function AddFailureModeModal({
         onAttach={(equipmentId, equipmentName) => {
           setEquipment(equipmentId);
           setEquipmentName(equipmentName);
+        }}
+      />
+
+      <FileManagerModal
+        open={isFileManagerOpen}
+        onOpenChange={setIsFileManagerOpen}
+        onFileSelect={(fileUrl) => {
+          setImagePreview(fileUrl);
+          setIsFileManagerOpen(false);
         }}
       />
     </>

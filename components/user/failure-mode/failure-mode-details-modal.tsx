@@ -80,31 +80,47 @@ export function FailureModeDetailsModal({
         ) : failureMode ? (
           <ScrollArea className="max-h-[60vh]">
             <div className="space-y-6">
-              {/* Title and Status Section */}
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold">{failureMode.title}</h3>
-                <div className="flex items-center gap-2">
-                  <Badge
-                    variant="secondary"
-                    className={getStatusColor(failureMode.status)}
-                  >
-                    <span className="mr-1.5 inline-block h-1.5 w-1.5 rounded-full bg-current" />
-                    {failureMode.status
-                      ? failureMode.status.charAt(0).toUpperCase() +
-                        failureMode.status.slice(1)
-                      : "Unknown"}
-                  </Badge>
-                  <Badge
-                    variant="outline"
-                    className={getPriorityColor(failureMode.priority)}
-                  >
-                    {failureMode.priority
-                      ? failureMode.priority.charAt(0).toUpperCase() +
-                        failureMode.priority.slice(1)
-                      : "Low"}
-                  </Badge>
+              {/* Image Section with Overlay */}
+              {failureMode.image && (
+                <div className="relative h-64 w-full">
+                  <Image
+                    src={failureMode.image}
+                    alt={`Failure mode ${failureMode.title || ""}`}
+                    fill
+                    className="rounded-lg object-cover"
+                  />
+                  {/* Overlay with title and badges */}
+                  <div className="absolute inset-0 flex flex-col justify-between rounded-lg bg-gradient-to-t from-black/60 to-transparent p-4">
+                    <div></div>
+                    <div className="space-y-3">
+                      <h3 className="text-lg font-semibold text-white">
+                        {failureMode.title}
+                      </h3>
+                      <div className="flex items-center gap-2">
+                        <Badge
+                          variant="secondary"
+                          className={getStatusColor(failureMode.status)}
+                        >
+                          <span className="mr-1.5 inline-block h-1.5 w-1.5 rounded-full bg-current" />
+                          {failureMode.status
+                            ? failureMode.status.charAt(0).toUpperCase() +
+                              failureMode.status.slice(1)
+                            : "Unknown"}
+                        </Badge>
+                        <Badge
+                          variant="outline"
+                          className={getPriorityColor(failureMode.priority)}
+                        >
+                          {failureMode.priority
+                            ? failureMode.priority.charAt(0).toUpperCase() +
+                              failureMode.priority.slice(1)
+                            : "Low"}
+                        </Badge>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* Equipment Section */}
               <div className="space-y-2">
@@ -195,21 +211,6 @@ export function FailureModeDetailsModal({
                       </li>
                     ))}
                   </ul>
-                </div>
-              )}
-
-              {/* Image Section */}
-              {failureMode.image && (
-                <div className="space-y-2">
-                  <h4 className="font-medium text-muted-foreground">Image</h4>
-                  <div className="relative h-64 w-full">
-                    <Image
-                      src={failureMode.image}
-                      alt={`Failure mode ${failureMode.title || ""}`}
-                      fill
-                      className="rounded-lg object-cover"
-                    />
-                  </div>
                 </div>
               )}
             </div>
