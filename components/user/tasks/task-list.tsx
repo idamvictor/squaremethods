@@ -8,6 +8,7 @@ import axios from "axios";
 import { useState } from "react";
 import { EditTaskDialog } from "./edit-task-dialog";
 import { DeleteTaskDialog } from "./delete-task-dialog";
+import { TaskDetailsModal } from "./task-details-modal";
 
 export function TaskList({
   page,
@@ -21,6 +22,8 @@ export function TaskList({
   const { data: taskData, isLoading } = useTasks({ page, limit, search });
   const deleteTaskMutation = useDeleteTask();
   const [taskToDelete, setTaskToDelete] = useState<string | null>(null);
+  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
+  const [isTaskDetailsOpen, setIsTaskDetailsOpen] = useState(false);
 
   const handleDeleteTask = async (taskId: string) => {
     setTaskToDelete(taskId);
@@ -58,6 +61,11 @@ export function TaskList({
     setEditingTask(null);
   };
 
+  const handleViewTaskDetails = (taskId: string) => {
+    setSelectedTaskId(taskId);
+    setIsTaskDetailsOpen(true);
+  };
+
   if (isLoading) {
     return <div className="p-4 text-center">Loading tasks...</div>;
   }
@@ -78,12 +86,16 @@ export function TaskList({
           {tasks.map((task) => (
             <div
               key={task.id}
-              className="flex items-center justify-between p-4 hover:bg-gray-50"
+              className="flex items-center justify-between p-4 hover:bg-gray-50 cursor-pointer transition-colors"
+              onClick={() => handleViewTaskDetails(task.id)}
             >
               <div className="flex-1">
                 <p className="text-gray-900">{task.title}</p>
               </div>
-              <div className="flex items-center gap-2">
+              <div
+                className="flex items-center gap-2"
+                onClick={(e) => e.stopPropagation()}
+              >
                 <Button
                   variant="ghost"
                   size="icon"
@@ -121,6 +133,11 @@ export function TaskList({
         isOpen={!!taskToDelete}
         onClose={() => setTaskToDelete(null)}
         onConfirm={handleConfirmDelete}
+      />
+      <TaskDetailsModal
+        taskId={selectedTaskId}
+        open={isTaskDetailsOpen}
+        onOpenChange={setIsTaskDetailsOpen}
       />
     </>
   );
