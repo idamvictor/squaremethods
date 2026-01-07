@@ -36,7 +36,8 @@ export function EquipmentActionButtons({ node }: EquipmentActionButtonsProps) {
   };
 
   const handleEdit = () => {
-    toast("edit button clicked - to be implemented");
+    store.setEditingEquipment(node);
+    store.setShowEditEquipmentModal(true);
   };
 
   return (

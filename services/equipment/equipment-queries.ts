@@ -198,8 +198,10 @@ export const updateEquipment = async ({
   id: string;
   data: UpdateEquipmentInput;
 }): Promise<GetEquipmentResponse> => {
-  const { data: responseData } =
-    await axiosInstance.patch<GetEquipmentResponse>(`/equipment/${id}`, data);
+  const { data: responseData } = await axiosInstance.put<GetEquipmentResponse>(
+    `/equipment/${id}`,
+    data
+  );
   return responseData;
 };
 

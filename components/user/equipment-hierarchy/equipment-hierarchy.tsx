@@ -21,6 +21,7 @@ import { EquipmentActionButtons } from "./equipment-action-buttons";
 import { cn } from "@/lib/utils";
 import { AddLocationModal } from "./add-location-modal";
 import { AddEquipmentModal } from "./add-equipment-modal";
+import { EditEquipmentModal } from "./edit-equipment-modal";
 import { EquipmentDetails } from "./equipment-details";
 
 const getEquipmentIcon = (type: string) => {
@@ -252,6 +253,7 @@ export function EquipmentHierarchy() {
         {/* Modals */}
         {showAddLocationModal && <AddLocationModal />}
         {showAddEquipmentModal && <AddEquipmentModal />}
+        <EditEquipmentModal />
       </div>
     </div>
   );

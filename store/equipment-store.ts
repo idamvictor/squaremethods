@@ -55,6 +55,8 @@ interface EquipmentStore {
   expandedNodes: Set<string>;
   showAddLocationModal: boolean;
   showAddEquipmentModal: boolean;
+  showEditEquipmentModal: boolean;
+  editingEquipment: HierarchyNode | null;
   showFloatingButtons: string | null;
   parentLocationName: string | null;
   searchQuery: string;
@@ -69,6 +71,8 @@ interface EquipmentStore {
   toggleExpanded: (nodeId: string) => void;
   setShowAddLocationModal: (show: boolean) => void;
   setShowAddEquipmentModal: (show: boolean) => void;
+  setShowEditEquipmentModal: (show: boolean) => void;
+  setEditingEquipment: (equipment: HierarchyNode | null) => void;
   setShowFloatingButtons: (nodeId: string | null) => void;
   setSearchQuery: (query: string) => void;
   setParentLocationName: (name: string | null) => void;
@@ -105,6 +109,8 @@ export const useEquipmentStore = create<EquipmentStore>((set, get) => ({
   ]),
   showAddLocationModal: false,
   showAddEquipmentModal: false,
+  showEditEquipmentModal: false,
+  editingEquipment: null,
   showFloatingButtons: null,
   parentLocationName: null,
   searchQuery: "",
@@ -137,6 +143,8 @@ export const useEquipmentStore = create<EquipmentStore>((set, get) => ({
 
   setShowAddLocationModal: (show) => set({ showAddLocationModal: show }),
   setShowAddEquipmentModal: (show) => set({ showAddEquipmentModal: show }),
+  setShowEditEquipmentModal: (show) => set({ showEditEquipmentModal: show }),
+  setEditingEquipment: (equipment) => set({ editingEquipment: equipment }),
   setShowFloatingButtons: (nodeId) => set({ showFloatingButtons: nodeId }),
   setParentLocationName: (name) => set({ parentLocationName: name }),
   setSearchQuery: (query) => set({ searchQuery: query }),
