@@ -151,6 +151,7 @@ export interface CreateEquipmentInput {
   reference_code: string;
   notes: string;
   status: string;
+  image?: string;
 }
 
 export interface UpdateEquipmentInput {

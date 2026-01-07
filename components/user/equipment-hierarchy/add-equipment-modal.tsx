@@ -21,9 +21,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { FileManagerModal } from "@/components/shared/file-manager/file-manager-modal";
 import { useEquipmentStore } from "@/store/equipment-store";
 import { useEquipmentTypes } from "@/services/equipment-types/equipment-types-queries";
-import { useCreateEquipment } from "@/services/equipment/equipment-queries";
+import {
+  useCreateEquipment,
+  useGenerateEquipmentQRCode,
+  useEquipmentQRCode,
+} from "@/services/equipment/equipment-queries";
 import { CreateEquipmentInput } from "@/services/equipment/equipment-types";
 import { EquipmentType } from "@/services/equipment-types/equipment-types-types";
 import { toast } from "sonner";
@@ -49,6 +54,9 @@ export function AddEquipmentModal() {
     documents: [],
   });
   const [qrGenerated, setQrGenerated] = useState(false);
+  const [equipmentId, setEquipmentId] = useState<string>("");
+  const [isGeneratingQR, setIsGeneratingQR] = useState(false);
+  const [fileManagerOpen, setFileManagerOpen] = useState(false);
 
   const {
     setShowAddEquipmentModal,
@@ -56,19 +64,12 @@ export function AddEquipmentModal() {
     showAddEquipmentModal,
   } = useEquipmentStore();
 
+  const createEquipmentMutation = useCreateEquipment();
+  const generateQRMutation = useGenerateEquipmentQRCode();
+  const { data: qrCodeData } = useEquipmentQRCode(equipmentId);
+
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
-  };
-
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setFormData((prev) => ({ ...prev, image: e.target?.result as string }));
-      };
-      reader.readAsDataURL(file);
-    }
   };
 
   const handleDocumentsUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -78,8 +79,6 @@ export function AddEquipmentModal() {
       documents: [...prev.documents, ...files],
     }));
   };
-
-  const createEquipmentMutation = useCreateEquipment();
 
   const handleRegister = async () => {
     if (
@@ -94,28 +93,54 @@ export function AddEquipmentModal() {
     }
 
     try {
-      await createEquipmentMutation.mutateAsync({
+      const response = await createEquipmentMutation.mutateAsync({
         equipment_type_id: formData.equipment_type_id,
         location_id: showFloatingButtons,
         name: formData.name,
         reference_code: formData.reference_code,
         notes: formData.notes,
         status: formData.status,
+        image: formData.image || undefined,
       });
+
+      // Store the equipment ID for QR code generation
+      setEquipmentId(response.data.id);
 
       // Refresh the hierarchy data
       const store = useEquipmentStore.getState();
       await store.fetchHierarchy();
 
-      setQrGenerated(true);
-      toast.success("Equipment created successfully");
-      handleCancel();
+      toast.success(
+        "Equipment created successfully. Click 'Generate QR Code' to proceed."
+      );
     } catch (error) {
       if (error instanceof Error) {
         toast.error(error.message);
       } else {
         toast.error("Failed to create equipment");
       }
+    }
+  };
+
+  const handleGenerateQRCode = async () => {
+    if (!equipmentId) {
+      toast.error("Equipment ID is missing");
+      return;
+    }
+
+    setIsGeneratingQR(true);
+    try {
+      await generateQRMutation.mutateAsync(equipmentId);
+      setQrGenerated(true);
+      toast.success("QR Code generated successfully");
+    } catch (error) {
+      if (error instanceof Error) {
+        toast.error(error.message);
+      } else {
+        toast.error("Failed to generate QR code");
+      }
+    } finally {
+      setIsGeneratingQR(false);
     }
   };
 
@@ -132,6 +157,8 @@ export function AddEquipmentModal() {
       documents: [],
     });
     setQrGenerated(false);
+    setEquipmentId("");
+    setIsGeneratingQR(false);
     setShowAddEquipmentModal(false);
   };
 
@@ -157,16 +184,32 @@ export function AddEquipmentModal() {
           {/* Left Column - Image Upload and Form Fields */}
           <div className="flex flex-col gap-6 lg:col-span-2">
             {/* Image Upload */}
-            <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center bg-gray-50 w-full">
+            <div
+              className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center bg-gray-50 w-full cursor-pointer hover:bg-gray-100 transition-colors"
+              onClick={() => setFileManagerOpen(true)}
+            >
               {formData.image ? (
-                <Image
-                  src={formData.image}
-                  alt="Equipment"
-                  width={400}
-                  height={192}
-                  className="w-full h-48 object-cover rounded-lg"
-                  unoptimized // Since we're using a data URL
-                />
+                <div className="relative">
+                  <Image
+                    src={formData.image}
+                    alt="Equipment"
+                    width={400}
+                    height={192}
+                    className="w-full h-48 object-cover rounded-lg"
+                    unoptimized
+                  />
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="mt-2"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setFileManagerOpen(true);
+                    }}
+                  >
+                    Change Image
+                  </Button>
+                </div>
               ) : (
                 <div className="w-full h-48 rounded-lg flex items-center justify-center">
                   <div className="text-center">
@@ -177,21 +220,9 @@ export function AddEquipmentModal() {
                       width={48}
                       height={48}
                     />
-                    <label htmlFor="image-upload" className="cursor-pointer">
-                      <p className="text-sm text-gray-500">
-                        Drop your equipment image here, or{" "}
-                        <span className="text-blue-600 hover:text-blue-700">
-                          click to upload
-                        </span>
-                      </p>
-                      <input
-                        id="image-upload"
-                        type="file"
-                        accept="image/*"
-                        onChange={handleImageUpload}
-                        className="hidden"
-                      />
-                    </label>
+                    <p className="text-sm text-gray-500">
+                      Click to select equipment image from file manager
+                    </p>
                   </div>
                 </div>
               )}
@@ -322,6 +353,7 @@ export function AddEquipmentModal() {
                     id="equipment-name"
                     value={formData.name}
                     onChange={(e) => handleInputChange("name", e.target.value)}
+                    disabled={!!equipmentId}
                     placeholder="Cooling Pump #5"
                   />
                 </div>
@@ -379,26 +411,40 @@ export function AddEquipmentModal() {
           {/* Right Column - QR Code */}
           <div className="space-y-4">
             <div className="border rounded-lg p-4 text-center">
-              <div className="w-32 h-32 mx-auto mb-4">
-                {qrGenerated ? (
-                  <div className="w-32 h-32 bg-gray-900 rounded-lg flex items-center justify-center">
-                    <div className="grid grid-cols-4 gap-1 p-2">
-                      {Array.from({ length: 16 }).map((_, i) => (
-                        <div key={i} className="w-2 h-2 bg-white rounded-sm" />
-                      ))}
-                    </div>
-                  </div>
+              <h3 className="text-sm font-semibold mb-4">QR Code</h3>
+              <div className="w-40 h-40 mx-auto mb-4">
+                {qrGenerated && qrCodeData?.data?.qrCodeUrl ? (
+                  <Image
+                    src={qrCodeData.data.qrCodeUrl}
+                    alt="Equipment QR Code"
+                    width={160}
+                    height={160}
+                    className="w-40 h-40 rounded-lg"
+                  />
                 ) : (
                   <div className="w-full h-full bg-gray-100 rounded-lg flex items-center justify-center">
-                    <p className="text-gray-400">QR Code</p>
+                    <p className="text-gray-400 text-sm">
+                      {isGeneratingQR ? "Generating..." : "Not generated"}
+                    </p>
                   </div>
                 )}
               </div>
+              {equipmentId && !qrGenerated && (
+                <Button
+                  onClick={handleGenerateQRCode}
+                  disabled={isGeneratingQR}
+                  className="w-full bg-blue-600 text-white hover:bg-blue-700 mb-3"
+                >
+                  {isGeneratingQR
+                    ? "Generating QR Code..."
+                    : "Generate QR Code"}
+                </Button>
+              )}
               <Button
                 variant="outline"
                 size="sm"
-                className="bg-blue-800 text-white hover:bg-blue-700"
-                disabled={!qrGenerated}
+                className="bg-blue-800 text-white hover:bg-blue-700 w-full"
+                disabled={!qrGenerated || isGeneratingQR}
               >
                 <Download className="h-4 w-4 mr-2" />
                 Download QR (PNG)
@@ -409,11 +455,27 @@ export function AddEquipmentModal() {
 
         <div className="flex gap-3 mt-6 justify-end">
           <Button variant="outline" onClick={handleCancel}>
-            Cancel
+            {equipmentId ? "Close" : "Cancel"}
           </Button>
-          <Button onClick={handleRegister}>Register</Button>
+          {!equipmentId && (
+            <Button
+              onClick={handleRegister}
+              disabled={createEquipmentMutation.isPending}
+            >
+              {createEquipmentMutation.isPending ? "Creating..." : "Register"}
+            </Button>
+          )}
         </div>
       </DialogContent>
+
+      <FileManagerModal
+        open={fileManagerOpen}
+        onOpenChange={setFileManagerOpen}
+        onFileSelect={(fileUrl) => {
+          setFormData((prev) => ({ ...prev, image: fileUrl }));
+          setFileManagerOpen(false);
+        }}
+      />
     </Dialog>
   );
 }

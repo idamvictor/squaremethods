@@ -70,13 +70,14 @@ export function EquipmentDetails({ node }: EquipmentDetailsProps) {
   return (
     <div className="space-y-6">
       <Tabs defaultValue="equipment-details" className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="equipment-details" className="text-blue-600">
             Equipment details
           </TabsTrigger>
           <TabsTrigger value="job-aids">Attached Job Aids</TabsTrigger>
           <TabsTrigger value="tasks">Attached Tasks</TabsTrigger>
           <TabsTrigger value="failure-mode">Failure Mode</TabsTrigger>
+          <TabsTrigger value="documents">Documents</TabsTrigger>
         </TabsList>
 
         <TabsContent value="equipment-details" className="space-y-6">
@@ -374,6 +375,50 @@ export function EquipmentDetails({ node }: EquipmentDetailsProps) {
           ) : (
             <div className="text-center text-gray-500 py-12">
               <p>No failure modes defined for this equipment.</p>
+            </div>
+          )}
+        </TabsContent>
+
+        <TabsContent value="documents" className="space-y-4">
+          {equipment.documents && equipment.documents.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+              {equipment.documents.map((document, index) => (
+                <div
+                  key={index}
+                  className="border rounded-lg p-4 hover:shadow-lg transition-shadow flex flex-col items-center justify-center text-center"
+                >
+                  <div className="mb-4">
+                    <svg
+                      className="w-12 h-12 text-blue-600 mx-auto"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path d="M8 16.5a1 1 0 11-2 0 1 1 0 012 0zM15 7H4a1 1 0 000 2h11a1 1 0 100-2zM4 5h7a1 1 0 000-2H4a1 1 0 000 2zm12 6H4a1 1 0 000 2h12a1 1 0 100-2z" />
+                    </svg>
+                  </div>
+                  <a
+                    href={document}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:text-blue-800 font-semibold text-sm break-all underline"
+                  >
+                    Document {index + 1}
+                  </a>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="mt-3"
+                    onClick={() => window.open(document, "_blank")}
+                  >
+                    <Download className="h-4 w-4 mr-2" />
+                    Download
+                  </Button>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center text-gray-500 py-12">
+              <p>No documents attached to this equipment.</p>
             </div>
           )}
         </TabsContent>
