@@ -33,6 +33,7 @@ import {
 import { JobFilters } from "./job-filters";
 import { DeleteDialog } from "./delete-dialog";
 import { JobDetailsModal } from "./job-details-modal";
+import { JobEditModal } from "./job-edit-modal";
 
 import { JobStatus, DeleteJobResponse } from "@/services/jobs/jobs-types";
 import { avatarImage } from "@/constants/images";
@@ -43,6 +44,7 @@ export function JobTable() {
   const [statusFilter, setStatusFilter] = useState<JobStatus | "all">("all");
   const [deleteJobId, setDeleteJobId] = useState<string | null>(null);
   const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
+  const [editJobId, setEditJobId] = useState<string | null>(null);
 
   const { data, isLoading } = useJobs({
     page,
@@ -205,9 +207,7 @@ export function JobTable() {
                 <TableCell onClick={(e) => e.stopPropagation()}>
                   <div className="flex items-center gap-2">
                     <button
-                      onClick={() => {
-                        /* Handle edit */
-                      }}
+                      onClick={() => setEditJobId(job.id)}
                       className="h-8 w-8 p-2 hover:bg-gray-100 rounded-full transition-colors"
                     >
                       <Pencil className="h-4 w-4 text-gray-500" />
@@ -287,6 +287,12 @@ export function JobTable() {
         onClose={() => setDeleteJobId(null)}
         onConfirm={handleDelete}
         isDeleting={deleteJobMutation.isPending}
+      />
+
+      <JobEditModal
+        jobId={editJobId}
+        isOpen={!!editJobId}
+        onClose={() => setEditJobId(null)}
       />
 
       <JobDetailsModal
