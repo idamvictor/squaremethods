@@ -105,12 +105,7 @@ export function AddFailureModeModal({
       ? new Date(dueDate).toISOString()
       : undefined;
 
-    // Convert base64 image to proper format if needed
-    // Note: You might need to implement an image upload endpoint first
-    // and then use the returned path here
-    const formattedImage = imagePreview
-      ? "/uploads/failures/failure-image.jpg"
-      : undefined;
+    const formattedImage = imagePreview || undefined;
 
     const failureModeInput: CreateFailureModeInput = {
       title,
