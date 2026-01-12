@@ -249,26 +249,29 @@ export function AddEquipmentModal() {
                 </Button>
                 {formData.documents.length > 0 && (
                   <ul className="mt-4 space-y-2">
-                    {formData.documents.map((documentUrl: string, index: number) => {
-                      const fileName = documentUrl.split("/").pop() || documentUrl;
-                      return (
-                        <li
-                          key={index}
-                          className="flex items-center justify-between bg-white p-2 rounded-md"
-                        >
-                          <span className="text-sm text-gray-600 truncate">
-                            {fileName}
-                          </span>
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveDocument(index)}
-                            className="text-red-500 hover:text-red-700 text-sm font-medium"
+                    {formData.documents.map(
+                      (documentUrl: string, index: number) => {
+                        const fileName =
+                          documentUrl.split("/").pop() || documentUrl;
+                        return (
+                          <li
+                            key={index}
+                            className="flex items-center justify-between bg-white p-2 rounded-md"
                           >
-                            Remove
-                          </button>
-                        </li>
-                      );
-                    })}
+                            <span className="text-sm text-gray-600 truncate">
+                              {fileName}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveDocument(index)}
+                              className="text-red-500 hover:text-red-700 text-sm font-medium"
+                            >
+                              Remove
+                            </button>
+                          </li>
+                        );
+                      }
+                    )}
                   </ul>
                 )}
               </div>
