@@ -40,7 +40,7 @@ export function AddEquipmentModal() {
       location_id: string;
       date: string;
       image: string;
-      documents: File[];
+      documents: string[]; // Changed from File[] to string[] (URLs)
     }
   >({
     name: "",
@@ -57,6 +57,7 @@ export function AddEquipmentModal() {
   const [equipmentId, setEquipmentId] = useState<string>("");
   const [isGeneratingQR, setIsGeneratingQR] = useState(false);
   const [fileManagerOpen, setFileManagerOpen] = useState(false);
+  const [documentFileManagerOpen, setDocumentFileManagerOpen] = useState(false);
 
   const {
     setShowAddEquipmentModal,
@@ -72,11 +73,18 @@ export function AddEquipmentModal() {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleDocumentsUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
+  const handleAddDocument = (documentUrl: string) => {
     setFormData((prev) => ({
       ...prev,
-      documents: [...prev.documents, ...files],
+      documents: [...prev.documents, documentUrl],
+    }));
+    setDocumentFileManagerOpen(false);
+  };
+
+  const handleRemoveDocument = (index: number) => {
+    setFormData((prev) => ({
+      ...prev,
+      documents: prev.documents.filter((_, i) => i !== index),
     }));
   };
 
@@ -232,39 +240,35 @@ export function AddEquipmentModal() {
             <div>
               <Label htmlFor="documents">Documents</Label>
               <div className="mt-2 border-2 border-dashed border-gray-300 rounded-lg p-4 bg-gray-50">
-                <input
-                  id="documents"
-                  type="file"
-                  multiple
-                  onChange={handleDocumentsUpload}
-                  className="text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-                />
+                <Button
+                  type="button"
+                  onClick={() => setDocumentFileManagerOpen(true)}
+                  className="w-full bg-blue-600 text-white hover:bg-blue-700"
+                >
+                  + Add Document from File Manager
+                </Button>
                 {formData.documents.length > 0 && (
                   <ul className="mt-4 space-y-2">
-                    {formData.documents.map((file: File, index: number) => (
-                      <li
-                        key={index}
-                        className="flex items-center justify-between bg-white p-2 rounded-md"
-                      >
-                        <span className="text-sm text-gray-600">
-                          {file.name}
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setFormData((prev) => ({
-                              ...prev,
-                              documents: prev.documents.filter(
-                                (_, i) => i !== index
-                              ),
-                            }));
-                          }}
-                          className="text-red-500 hover:text-red-700"
+                    {formData.documents.map((documentUrl: string, index: number) => {
+                      const fileName = documentUrl.split("/").pop() || documentUrl;
+                      return (
+                        <li
+                          key={index}
+                          className="flex items-center justify-between bg-white p-2 rounded-md"
                         >
-                          Remove
-                        </button>
-                      </li>
-                    ))}
+                          <span className="text-sm text-gray-600 truncate">
+                            {fileName}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveDocument(index)}
+                            className="text-red-500 hover:text-red-700 text-sm font-medium"
+                          >
+                            Remove
+                          </button>
+                        </li>
+                      );
+                    })}
                   </ul>
                 )}
               </div>
@@ -474,6 +478,14 @@ export function AddEquipmentModal() {
         onFileSelect={(fileUrl) => {
           setFormData((prev) => ({ ...prev, image: fileUrl }));
           setFileManagerOpen(false);
+        }}
+      />
+
+      <FileManagerModal
+        open={documentFileManagerOpen}
+        onOpenChange={setDocumentFileManagerOpen}
+        onFileSelect={(fileUrl) => {
+          handleAddDocument(fileUrl);
         }}
       />
     </Dialog>

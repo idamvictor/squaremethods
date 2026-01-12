@@ -30,6 +30,7 @@ export const fetchEquipmentTypes = async (
         sortBy: params.sortBy || "created_at",
         sortOrder: params.sortOrder || "DESC",
       },
+      skipToast: true,
     }
   );
   return data;

@@ -15,7 +15,10 @@ export const fetchFiles = async ({
   limit = 10,
 }: FetchFilesParams = {}) => {
   const response = await axiosInstance.get<FilesResponse>(
-    `/files?page=${page}&limit=${limit}`
+    `/files?page=${page}&limit=${limit}`,
+    {
+      skipToast: true,
+    }
   );
   return response.data;
 };

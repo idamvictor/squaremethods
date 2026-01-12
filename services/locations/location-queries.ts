@@ -28,6 +28,7 @@ export const fetchLocations = async (
       sortOrder: params.sortOrder || "DESC",
       tree: params.tree || true,
     },
+    skipToast: true,
   });
   return data;
 };
@@ -78,7 +79,10 @@ export const useCreateLocation = () => {
 export const fetchLocationsWithEquipment =
   async (): Promise<LocationsResponse> => {
     const { data } = await axiosInstance.get<LocationsResponse>(
-      "/locations/list"
+      "/locations/list",
+      {
+        skipToast: true,
+      }
     );
     return data;
   };
@@ -98,7 +102,10 @@ export const fetchLocationById = async (
   id: string
 ): Promise<LocationResponse> => {
   const { data } = await axiosInstance.get<LocationResponse>(
-    `/locations/${id}`
+    `/locations/${id}`,
+    {
+      skipToast: true,
+    }
   );
   return data;
 };

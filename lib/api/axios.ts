@@ -11,6 +11,13 @@ interface APIResponse<T = unknown> {
   data?: T;
 }
 
+// Extend axios config to include skipToast
+declare module "axios" {
+  interface AxiosRequestConfig {
+    skipToast?: boolean;
+  }
+}
+
 const COMPANY_ID = "ben";
 
 // Create axios instance with default config
@@ -43,8 +50,8 @@ axiosInstance.interceptors.request.use(
 // Response interceptor
 axiosInstance.interceptors.response.use(
   (response: AxiosResponse) => {
-    // If the response has a message, show it as success
-    if (response.data?.message) {
+    // If the response has a message and skipToast is not set, show it as success
+    if (response.data?.message && !response.config.skipToast) {
       toast.success(response.data.message);
     }
     return response;
@@ -54,7 +61,10 @@ axiosInstance.interceptors.response.use(
     const message =
       (error.response?.data as APIResponse<unknown>)?.message ||
       "An error occurred";
-    toast.error(message);
+
+    if (!error.config?.skipToast) {
+      toast.error(message);
+    }
 
     // If unauthorized (401), clear local storage and reload
     if (error.response?.status === 401) {
