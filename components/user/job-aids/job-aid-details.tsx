@@ -234,7 +234,7 @@ export function JobAidDetails({ jobAidId }: JobAidDetailsProps) {
                         onClick={handleViewMorePrecautions}
                         className="text-sm text-blue-600 hover:text-blue-700 font-medium"
                       >
-                        View more
+                        View
                       </button>
                     )}
                   </div>
@@ -284,7 +284,7 @@ export function JobAidDetails({ jobAidId }: JobAidDetailsProps) {
                         onClick={handleViewMoreProcedures}
                         className="text-sm text-blue-600 hover:text-blue-700 font-medium"
                       >
-                        View more
+                        View
                       </button>
                     )}
                   </div>

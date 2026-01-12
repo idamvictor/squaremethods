@@ -6,7 +6,9 @@ import Editor from "./editor";
 import { AnnotationState, Renderer, MarkerArea } from "@markerjs/markerjs3";
 import sampleImage from "@/public/sample-images/phone-modules.jpg";
 import StepsGrid from "./steps-grid";
-// import { Button } from "@/components/ui/button";
+import { FileManagerModal } from "@/components/shared/file-manager/file-manager-modal";
+import { Button } from "@/components/ui/button";
+import { Upload } from "lucide-react";
 import { useJobAidStore } from "@/store/job-aid-store";
 import {
   useProceduresByJobAidId,
@@ -51,6 +53,10 @@ export default function ImageAnnotationManager({
   const [savedSteps, setSavedSteps] = useState<Step[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [editingStep, setEditingStep] = useState<EditingStep | null>(null);
+  const [isFileManagerOpen, setIsFileManagerOpen] = useState(false);
+  const [selectedImageUrl, setSelectedImageUrl] = useState<string>(
+    sampleImage.src
+  );
 
   // Only fetch the data we need based on type
   const { data: proceduresData } = useProceduresByJobAidId(
@@ -151,7 +157,7 @@ export default function ImageAnnotationManager({
       ...steps,
       {
         instruction: "",
-        imageUrl: sampleImage.src,
+        imageUrl: selectedImageUrl,
         description: "",
       },
     ]);
@@ -193,28 +199,63 @@ export default function ImageAnnotationManager({
 
     try {
       // Get the annotated image from the editor
-      let annotatedImageUrl = sampleImage.src;
+      console.log("Starting save... selectedImageUrl:", selectedImageUrl);
+      let annotatedImageUrl = selectedImageUrl; // Use the selected image as default, not sample image
       let isBase64Image = false;
 
-      if (editorRef.current && annotation) {
+      // Try to get the current annotation state from the editor
+      let currentAnnotation = annotation;
+      if (editorRef.current) {
+        const editor = editorRef.current.getEditor?.();
+        if (editor) {
+          // Get the current state directly from the editor instead of relying on state variable
+          currentAnnotation = editor.getState();
+          console.log(
+            "Got current annotation from editor:",
+            !!currentAnnotation
+          );
+        }
+      }
+
+      // Render the annotation if we have one
+      if (editorRef.current && currentAnnotation) {
         const editor = editorRef.current.getEditor?.();
         if (editor) {
           console.log("Editor found, rendering annotated image");
+          console.log("Editor targetImage:", editor.targetImage);
           const renderer = new Renderer();
           renderer.targetImage = editor.targetImage;
           renderer.naturalSize = true;
           renderer.imageType = "image/png";
 
-          annotatedImageUrl = await renderer.rasterize(annotation);
-          isBase64Image = annotatedImageUrl?.startsWith("data:image");
-          console.log(
-            "Annotated image rendered:",
-            annotatedImageUrl?.substring(0, 50)
-          );
+          try {
+            annotatedImageUrl = await renderer.rasterize(currentAnnotation);
+            isBase64Image = annotatedImageUrl?.startsWith("data:image");
+            console.log(
+              "Annotated image rendered, isBase64:",
+              isBase64Image,
+              "URL preview:",
+              annotatedImageUrl?.substring(0, 50)
+            );
+          } catch (renderError) {
+            console.warn(
+              "Failed to render annotated image (CORS issue likely), falling back to selected image:",
+              renderError
+            );
+            annotatedImageUrl = selectedImageUrl;
+          }
         }
       } else {
-        console.warn("No editor or annotation found, using original image");
+        console.warn(
+          "No annotation found, using selected image:",
+          selectedImageUrl
+        );
       }
+
+      console.log(
+        "Final annotatedImageUrl before upload:",
+        annotatedImageUrl?.substring(0, 100)
+      );
 
       // Upload base64 image if needed to get a URL
       if (isBase64Image) {
@@ -230,6 +271,8 @@ export default function ImageAnnotationManager({
         // Extract the image URL from the upload response
         annotatedImageUrl = uploadResponse.data?.url || annotatedImageUrl;
         console.log("Image uploaded successfully, URL:", annotatedImageUrl);
+      } else {
+        console.log("Image is not base64, URL is:", annotatedImageUrl);
       }
 
       // Save each step to API
@@ -289,6 +332,7 @@ export default function ImageAnnotationManager({
                 instruction: step.instruction,
                 image: annotatedImageUrl,
               };
+              console.log("Precaution payload being sent:", precautionInput);
               await createPrec.mutateAsync(precautionInput);
               console.log(
                 `Precaution saved to API for job aid ${currentJobAid.id}:`,
@@ -459,11 +503,23 @@ export default function ImageAnnotationManager({
           <div className="w-full lg:w-[60%] bg-white rounded-lg shadow-sm border border-gray-200">
             <div className="flex flex-col gap-6 p-6">
               <div className="space-y-2">
-                <h3 className="text-sm font-medium text-gray-900">Editor</h3>
+                <div className="flex items-center justify-between">
+                  <h3 className="text-sm font-medium text-gray-900">Editor</h3>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setIsFileManagerOpen(true)}
+                    className="gap-2"
+                  >
+                    <Upload className="w-4 h-4" />
+                    Change Image
+                  </Button>
+                </div>
                 <div className="h-[600px] w-full rounded-lg border border-gray-200 overflow-hidden">
                   <Editor
+                    key={selectedImageUrl}
                     ref={editorRef}
-                    targetImageSrc={sampleImage.src}
+                    targetImageSrc={selectedImageUrl}
                     annotation={annotation}
                     onSave={(newAnnotation) => {
                       setAnnotation(newAnnotation);
@@ -591,6 +647,19 @@ export default function ImageAnnotationManager({
           </Button>
         </div> */}
       </div>
+
+      {/* File Manager Modal */}
+      <FileManagerModal
+        open={isFileManagerOpen}
+        onOpenChange={setIsFileManagerOpen}
+        onFileSelect={(fileUrl) => {
+          console.log("New image selected:", fileUrl);
+          setSelectedImageUrl(fileUrl);
+          setAnnotation(null); // Reset annotation when changing image
+          setSteps([]); // Clear any unsaved steps
+          setEditingStep(null); // Clear editing mode
+        }}
+      />
     </div>
   );
 }

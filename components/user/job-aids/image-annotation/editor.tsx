@@ -344,6 +344,37 @@ const Editor = forwardRef(
       }
     }, [annotation, targetImageSrc]);
 
+    // Separate effect for updating image
+    useEffect(() => {
+      if (!editor.current) return;
+
+      console.log("Image URL changed to:", targetImageSrc);
+
+      // Add cache-busting parameter to prevent browser caching
+      const urlWithCacheBust = targetImageSrc.includes("?")
+        ? `${targetImageSrc}&t=${Date.now()}`
+        : `${targetImageSrc}?t=${Date.now()}`;
+
+      const newTargetImg = document.createElement("img");
+      newTargetImg.crossOrigin = "anonymous";
+
+      newTargetImg.onload = () => {
+        console.log("New image loaded, updating editor");
+        if (editor.current) {
+          editor.current.targetImage = newTargetImg;
+          // Force editor to refresh/redraw
+          editor.current.switchToSelectMode();
+          console.log("Editor updated with new image");
+        }
+      };
+
+      newTargetImg.onerror = () => {
+        console.error("Failed to load image:", targetImageSrc);
+      };
+
+      newTargetImg.src = urlWithCacheBust;
+    }, [targetImageSrc]);
+
     return (
       <div className="grid grid-rows-[auto_1fr_auto] w-full h-full">
         <div>

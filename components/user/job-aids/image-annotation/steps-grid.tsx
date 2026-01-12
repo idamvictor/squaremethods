@@ -46,12 +46,18 @@ export default function StepsGrid({ steps, onEdit, onRemove }: StepsGridProps) {
 
             {/* Image */}
             <div className="relative w-full" style={{ aspectRatio: "16/9" }}>
-              <Image
-                src={step.imageUrl}
-                alt={`Step ${index + 1}`}
-                fill
-                className="object-cover"
-              />
+              {step.imageUrl ? (
+                <Image
+                  src={step.imageUrl}
+                  alt={`Step ${index + 1}`}
+                  fill
+                  className="object-cover"
+                />
+              ) : (
+                <div className="w-full h-full bg-gray-100 flex items-center justify-center">
+                  <span className="text-gray-400 text-sm">No image</span>
+                </div>
+              )}
             </div>
 
             {/* Description */}
