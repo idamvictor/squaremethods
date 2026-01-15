@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Download } from "lucide-react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
@@ -16,19 +17,27 @@ import {
 } from "@/components/ui/select";
 import type { HierarchyNode } from "@/store/equipment-store";
 
-import { useEquipmentDetails } from "@/services/equipment/equipment-queries";
+import {
+  useEquipmentDetails,
+  useEquipmentQRCode,
+} from "@/services/equipment/equipment-queries";
 import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 interface EquipmentDetailsProps {
   node: HierarchyNode;
 }
 
 export function EquipmentDetails({ node }: EquipmentDetailsProps) {
+  const [isDownloading, setIsDownloading] = useState(false);
   const {
     data: equipmentData,
     isLoading,
     error,
   } = useEquipmentDetails(node.type !== "location" ? node.id : undefined);
+
+  const equipmentId = node.type !== "location" ? node.id : undefined;
+  const { data: qrCodeData } = useEquipmentQRCode(equipmentId);
 
   if (node.type === "location") {
     return (
@@ -66,6 +75,33 @@ export function EquipmentDetails({ node }: EquipmentDetailsProps) {
   }
 
   const equipment = equipmentData.data;
+
+  const handleDownloadQRCode = async () => {
+    if (!qrCodeData?.data?.url) {
+      toast.error("QR code URL is not available");
+      return;
+    }
+
+    try {
+      setIsDownloading(true);
+      const link = document.createElement("a");
+      link.href = qrCodeData.data.url;
+      link.download = `${equipment.name || "equipment"}-qr-code.png`;
+      link.target = "_blank";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      toast.success("QR code downloaded successfully");
+    } catch (error) {
+      if (error instanceof Error) {
+        toast.error(error.message);
+      } else {
+        toast.error("Failed to download QR code");
+      }
+    } finally {
+      setIsDownloading(false);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -198,9 +234,9 @@ export function EquipmentDetails({ node }: EquipmentDetailsProps) {
             <div className="space-y-4">
               <div className="border rounded-lg p-4 text-center">
                 <div className="w-32 h-32 mx-auto mb-4">
-                  {equipment.qrcode ? (
+                  {qrCodeData?.data?.url ? (
                     <Image
-                      src={equipment.qrcode}
+                      src={qrCodeData.data.url}
                       alt="QR Code"
                       width={128}
                       height={128}
@@ -224,13 +260,11 @@ export function EquipmentDetails({ node }: EquipmentDetailsProps) {
                   variant="outline"
                   size="sm"
                   className="bg-blue-800 text-white hover:bg-blue-700"
-                  disabled={!equipment.qrcode}
-                  onClick={() =>
-                    equipment.qrcode && window.open(equipment.qrcode, "_blank")
-                  }
+                  disabled={!qrCodeData?.data?.url || isDownloading}
+                  onClick={handleDownloadQRCode}
                 >
                   <Download className="h-4 w-4 mr-2" />
-                  Download QR (PNG)
+                  {isDownloading ? "Downloading..." : "Download QR (PNG)"}
                 </Button>
               </div>
             </div>
