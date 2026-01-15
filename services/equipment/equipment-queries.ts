@@ -212,8 +212,10 @@ export const useUpdateEquipment = () => {
   return useMutation({
     mutationFn: updateEquipment,
     onSuccess: (response, { id }) => {
-      // Update equipment details in the cache
-      queryClient.setQueryData([EQUIPMENT_QUERY_KEY, id], response);
+      // Invalidate equipment details query to refetch updated data
+      queryClient.invalidateQueries({
+        queryKey: [EQUIPMENT_QUERY_KEY, id],
+      });
 
       // Invalidate the equipment list query since the equipment details might have changed
       queryClient.invalidateQueries({

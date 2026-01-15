@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Download } from "lucide-react";
+import { Download, Plus } from "lucide-react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,10 +16,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import type { HierarchyNode } from "@/store/equipment-store";
+import { FileManagerModal } from "@/components/shared/file-manager/file-manager-modal";
 
 import {
   useEquipmentDetails,
   useEquipmentQRCode,
+  useUpdateEquipment,
 } from "@/services/equipment/equipment-queries";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
@@ -30,6 +32,8 @@ interface EquipmentDetailsProps {
 
 export function EquipmentDetails({ node }: EquipmentDetailsProps) {
   const [isDownloading, setIsDownloading] = useState(false);
+  const [fileManagerOpen, setFileManagerOpen] = useState(false);
+  const [isUpdatingDocument, setIsUpdatingDocument] = useState(false);
   const {
     data: equipmentData,
     isLoading,
@@ -38,6 +42,7 @@ export function EquipmentDetails({ node }: EquipmentDetailsProps) {
 
   const equipmentId = node.type !== "location" ? node.id : undefined;
   const { data: qrCodeData } = useEquipmentQRCode(equipmentId);
+  const updateEquipmentMutation = useUpdateEquipment();
 
   if (node.type === "location") {
     return (
@@ -100,6 +105,30 @@ export function EquipmentDetails({ node }: EquipmentDetailsProps) {
       }
     } finally {
       setIsDownloading(false);
+    }
+  };
+
+  const handleAddDocument = async (fileUrl: string) => {
+    if (!equipmentId) return;
+
+    try {
+      setIsUpdatingDocument(true);
+      await updateEquipmentMutation.mutateAsync({
+        id: equipmentId,
+        data: {
+          documents: [fileUrl],
+        },
+      });
+
+      toast.success("Document added successfully");
+    } catch (error) {
+      if (error instanceof Error) {
+        toast.error(error.message);
+      } else {
+        toast.error("Failed to add document");
+      }
+    } finally {
+      setIsUpdatingDocument(false);
     }
   };
 
@@ -414,6 +443,17 @@ export function EquipmentDetails({ node }: EquipmentDetailsProps) {
         </TabsContent>
 
         <TabsContent value="documents" className="space-y-4">
+          <div className="flex justify-end">
+            <Button
+              onClick={() => setFileManagerOpen(true)}
+              disabled={isUpdatingDocument}
+              variant="secondary"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Add Document
+            </Button>
+          </div>
+
           {equipment.documents && equipment.documents.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
               {equipment.documents.map((document, index) => (
@@ -455,6 +495,12 @@ export function EquipmentDetails({ node }: EquipmentDetailsProps) {
               <p>No documents attached to this equipment.</p>
             </div>
           )}
+
+          <FileManagerModal
+            open={fileManagerOpen}
+            onOpenChange={setFileManagerOpen}
+            onFileSelect={handleAddDocument}
+          />
         </TabsContent>
       </Tabs>
     </div>

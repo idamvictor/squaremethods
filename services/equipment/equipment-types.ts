@@ -158,6 +158,7 @@ export interface UpdateEquipmentInput {
   name?: string;
   notes?: string;
   status?: string;
+  documents?: string[];
 }
 
 export interface EquipmentQRCode {
