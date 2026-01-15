@@ -116,7 +116,7 @@ export function EquipmentDetails({ node }: EquipmentDetailsProps) {
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="equipment-type">Equipment type</Label>
+                    <Label htmlFor="equipment-type">Type</Label>
                     <Select value={equipment.equipmentType.id} disabled>
                       <SelectTrigger className="w-full">
                         <SelectValue>
@@ -142,7 +142,7 @@ export function EquipmentDetails({ node }: EquipmentDetailsProps) {
                   </div>
                   <div>
                     <Label htmlFor="equipment-name">
-                      Equipment name <span className="text-red-500">*</span>
+                      Name <span className="text-red-500">*</span>
                     </Label>
                     <Input
                       id="equipment-name"

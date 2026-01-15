@@ -281,7 +281,7 @@ export function AddEquipmentModal() {
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="equipment-type">Equipment type</Label>
+                  <Label htmlFor="equipment-type">Type</Label>
                   <Select
                     value={formData.equipment_type_id}
                     onValueChange={(value) =>
@@ -354,7 +354,7 @@ export function AddEquipmentModal() {
 
                 <div>
                   <Label htmlFor="equipment-name">
-                    Equipment name <span className="text-red-500">*</span>
+                    Name <span className="text-red-500">*</span>
                   </Label>
                   <Input
                     id="equipment-name"

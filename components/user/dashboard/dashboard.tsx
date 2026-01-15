@@ -76,12 +76,12 @@ export default function Dashboard() {
         {/* Metrics Grid - Mobile: 2x3, Desktop: 1x5 */}
         <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-6">
           <MetricCard
-            title="Total SOP Created"
+            title="Job Aid Created"
             value={isLoading ? "..." : totalSOPs.toString()}
             icon={TrendingUp}
           />
           <MetricCard
-            title="Total Equipment Registered"
+            title="Total Equipment"
             value={isLoading ? "..." : totalEquipment.toString()}
           />
           <MetricCard title="Total Tasks" value="120" />
