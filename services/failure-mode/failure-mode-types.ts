@@ -80,6 +80,7 @@ export interface UpdateFailureModeInput {
   priority?: "low" | "medium" | "high";
   resolutions?: string[];
   due_date?: string;
+  image?: string | null;
 }
 
 export interface DeleteFailureModeResponse {

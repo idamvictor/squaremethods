@@ -24,6 +24,7 @@ interface NewTaskDialogProps {
 
 export function NewTaskDialog({ isOpen, onClose }: NewTaskDialogProps) {
   const [taskTitle, setTaskTitle] = useState("");
+  const [taskInstruction, setTaskInstruction] = useState("");
   const [showJobAids, setShowJobAids] = useState(false);
   const [selectedJobAids, setSelectedJobAids] = useState<string[]>([]);
   const createTaskMutation = useCreateTask();
@@ -38,6 +39,11 @@ export function NewTaskDialog({ isOpen, onClose }: NewTaskDialogProps) {
       return;
     }
 
+    if (!taskInstruction) {
+      toast.error("Please enter task instruction");
+      return;
+    }
+
     if (selectedJobAids.length === 0) {
       toast.error("Please select at least one job aid");
       return;
@@ -46,11 +52,13 @@ export function NewTaskDialog({ isOpen, onClose }: NewTaskDialogProps) {
     try {
       await createTaskMutation.mutateAsync({
         title: taskTitle,
+        instruction: taskInstruction,
         job_aid_ids: selectedJobAids,
       });
 
       toast.success("Task created successfully");
       setTaskTitle("");
+      setTaskInstruction("");
       setSelectedJobAids([]);
       onClose();
     } catch (error) {
@@ -90,6 +98,20 @@ export function NewTaskDialog({ isOpen, onClose }: NewTaskDialogProps) {
               placeholder="Enter task title"
               value={taskTitle}
               onChange={(e) => setTaskTitle(e.target.value)}
+              className="w-full"
+            />
+          </div>
+
+          {/* Task Instruction Input */}
+          <div className="space-y-2">
+            <Label htmlFor="task-instruction" className="text-sm font-medium">
+              Instruction <span className="text-red-500">*</span>
+            </Label>
+            <Input
+              id="task-instruction"
+              placeholder="Enter task instruction"
+              value={taskInstruction}
+              onChange={(e) => setTaskInstruction(e.target.value)}
               className="w-full"
             />
           </div>

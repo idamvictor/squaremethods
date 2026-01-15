@@ -47,6 +47,7 @@ export interface TaskJobAid {
 export interface Task {
   id: string;
   title: string;
+  instruction: string;
   jobAids: JobAid[];
 }
 
@@ -57,10 +58,12 @@ export interface TasksQueryParams extends BaseQueryParams {
 export interface CreateTaskInput {
   job_aid_ids: string[];
   title: string;
+  instruction: string;
 }
 
 export interface UpdateTaskInput {
-  name: string;
+  name?: string;
+  instruction?: string;
 }
 
 export interface UpdateTaskResponse {
