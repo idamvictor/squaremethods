@@ -12,15 +12,29 @@ import {
 import { TaskList } from "./task-list";
 import { TaskPagination } from "./task-pagination";
 import { Plus, Search } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTasks } from "@/services/tasks/tasks-queries";
 import { NewTaskDialog } from "./new-task-dialog";
+import { TaskDetailsModal } from "./task-details-modal";
 
-export function TaskManagement() {
+interface TaskManagementProps {
+  initialTaskId?: string | null;
+}
+
+export function TaskManagement({ initialTaskId }: TaskManagementProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(20);
   const [searchQuery, setSearchQuery] = useState("");
   const [isNewTaskDialogOpen, setIsNewTaskDialogOpen] = useState(false);
+  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
+  const [isTaskDetailsOpen, setIsTaskDetailsOpen] = useState(false);
+
+  useEffect(() => {
+    if (initialTaskId) {
+      setSelectedTaskId(initialTaskId);
+      setIsTaskDetailsOpen(true);
+    }
+  }, [initialTaskId]);
 
   const { data: taskData } = useTasks({
     page: currentPage,
@@ -97,6 +111,12 @@ export function TaskManagement() {
         currentPage={currentPage}
         totalPages={taskData?.pagination.pages || 1}
         onPageChange={handlePageChange}
+      />
+
+      <TaskDetailsModal
+        taskId={selectedTaskId}
+        open={isTaskDetailsOpen}
+        onOpenChange={setIsTaskDetailsOpen}
       />
     </div>
   );

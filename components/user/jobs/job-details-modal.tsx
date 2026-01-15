@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Loader2 } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { JobActions } from "./job-actions";
+import { useRouter } from "next/navigation";
 
 interface JobDetailsModalProps {
   jobId: string | null;
@@ -25,6 +26,12 @@ export function JobDetailsModal({
 }: JobDetailsModalProps) {
   const { data: job, isLoading } = useJobById(jobId || undefined);
   const queryClient = useQueryClient();
+  const router = useRouter();
+
+  const handleTaskClick = (taskId: string) => {
+    router.push(`/tasks?taskId=${taskId}`);
+    onClose();
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -184,7 +191,11 @@ export function JobDetailsModal({
                   <h3 className="text-lg font-semibold mb-4">Tasks</h3>
                   <div className="space-y-3">
                     {job.tasks.map((task) => (
-                      <div key={task.id} className="p-2 border rounded-md">
+                      <div
+                        key={task.id}
+                        className="p-2 border rounded-md cursor-pointer hover:bg-gray-50 transition-colors"
+                        onClick={() => handleTaskClick(task.id)}
+                      >
                         <h4 className="font-medium">{task.title}</h4>
                         {task.description && (
                           <p className="text-sm text-gray-600">
