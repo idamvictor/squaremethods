@@ -115,7 +115,7 @@ export const generateEquipmentQRCode = async (
   id: string
 ): Promise<EquipmentQRCodeResponse> => {
   const { data } = await axiosInstance.post<EquipmentQRCodeResponse>(
-    `/equipment/${id}/qrcode/generate`
+    `/equipment/${id}/qrcode`
   );
   return data;
 };

@@ -112,15 +112,27 @@ export function AddEquipmentModal() {
       });
 
       // Store the equipment ID for QR code generation
-      setEquipmentId(response.data.id);
+      const newEquipmentId = response.data.id;
+      setEquipmentId(newEquipmentId);
+
+      // Auto-generate QR code after equipment creation
+      try {
+        setIsGeneratingQR(true);
+        await generateQRMutation.mutateAsync(newEquipmentId);
+        setQrGenerated(true);
+        toast.success("Equipment created and QR code generated successfully!");
+      } catch (error) {
+        console.error("QR code generation failed:", error);
+        toast.warning(
+          "Equipment created but QR code generation failed. Try again?"
+        );
+      } finally {
+        setIsGeneratingQR(false);
+      }
 
       // Refresh the hierarchy data
       const store = useEquipmentStore.getState();
       await store.fetchHierarchy();
-
-      toast.success(
-        "Equipment created successfully. Click 'Generate QR Code' to proceed."
-      );
     } catch (error) {
       if (error instanceof Error) {
         toast.error(error.message);
@@ -420,13 +432,14 @@ export function AddEquipmentModal() {
             <div className="border rounded-lg p-4 text-center">
               <h3 className="text-sm font-semibold mb-4">QR Code</h3>
               <div className="w-40 h-40 mx-auto mb-4">
-                {qrGenerated && qrCodeData?.data?.qrCodeUrl ? (
+                {qrGenerated && qrCodeData?.data?.url ? (
                   <Image
-                    src={qrCodeData.data.qrCodeUrl}
+                    src={qrCodeData.data.url}
                     alt="Equipment QR Code"
                     width={160}
                     height={160}
                     className="w-40 h-40 rounded-lg"
+                    unoptimized
                   />
                 ) : (
                   <div className="w-full h-full bg-gray-100 rounded-lg flex items-center justify-center">
@@ -444,7 +457,7 @@ export function AddEquipmentModal() {
                 >
                   {isGeneratingQR
                     ? "Generating QR Code..."
-                    : "Generate QR Code"}
+                    : "Retry QR Code Generation"}
                 </Button>
               )}
               <Button

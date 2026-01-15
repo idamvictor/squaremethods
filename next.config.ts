@@ -20,6 +20,13 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
+        hostname: "virtual-offline-test.s3.eu-north-1.amazonaws.com",
+        port: "",
+        pathname: "/**",
+        search: "",
+      },
+      {
+        protocol: "https",
         hostname: "placehold.co",
         port: "",
         pathname: "/**",

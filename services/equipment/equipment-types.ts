@@ -161,8 +161,7 @@ export interface UpdateEquipmentInput {
 }
 
 export interface EquipmentQRCode {
-  qrCodeUrl: string;
-  scanUrl: string;
+  url: string;
 }
 
 export interface EquipmentQRCodeResponse {
