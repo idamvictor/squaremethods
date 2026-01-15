@@ -164,6 +164,30 @@ export function AddEquipmentModal() {
     }
   };
 
+  const handleDownloadQRCode = async () => {
+    if (!qrCodeData?.data?.url) {
+      toast.error("QR code URL is not available");
+      return;
+    }
+
+    try {
+      const link = document.createElement("a");
+      link.href = qrCodeData.data.url;
+      link.download = `${formData.name || "equipment"}-qr-code.png`;
+      link.target = "_blank";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      toast.success("QR code downloaded successfully");
+    } catch (error) {
+      if (error instanceof Error) {
+        toast.error(error.message);
+      } else {
+        toast.error("Failed to download QR code");
+      }
+    }
+  };
+
   const handleCancel = () => {
     setFormData({
       name: "",
@@ -461,6 +485,7 @@ export function AddEquipmentModal() {
                 </Button>
               )}
               <Button
+                onClick={handleDownloadQRCode}
                 variant="outline"
                 size="sm"
                 className="bg-blue-800 text-white hover:bg-blue-700 w-full"
