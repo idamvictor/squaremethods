@@ -237,12 +237,22 @@ export default function ImageAnnotationManager({
               "URL preview:",
               annotatedImageUrl?.substring(0, 50)
             );
+
+            // If rasterize returns empty string (CORS/canvas taint issue), fall back to selected image
+            if (!annotatedImageUrl || annotatedImageUrl.length === 0) {
+              console.warn(
+                "Rendered image is empty (likely CORS/canvas taint issue), falling back to selected image"
+              );
+              annotatedImageUrl = selectedImageUrl;
+              isBase64Image = false;
+            }
           } catch (renderError) {
             console.warn(
               "Failed to render annotated image (CORS issue likely), falling back to selected image:",
               renderError
             );
             annotatedImageUrl = selectedImageUrl;
+            isBase64Image = false;
           }
         }
       } else {
@@ -256,6 +266,12 @@ export default function ImageAnnotationManager({
         "Final annotatedImageUrl before upload:",
         annotatedImageUrl?.substring(0, 100)
       );
+
+      // Validate that we have a valid image URL before proceeding
+      if (!annotatedImageUrl || annotatedImageUrl.length === 0) {
+        console.error("No valid image URL to save with steps");
+        return;
+      }
 
       // Upload base64 image if needed to get a URL
       if (isBase64Image) {
