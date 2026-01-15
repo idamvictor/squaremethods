@@ -1,9 +1,11 @@
 "use client";
 
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Plus } from "lucide-react";
 import Image from "next/image";
 import { JobAidProcedure, Precaution } from "@/services/job-aid/job-aid-types";
+import { StepCarouselView } from "./step-carousel-view";
 
 interface StepsGridViewProps {
   title: string;
@@ -22,6 +24,26 @@ export function StepsGridView({
   onBack,
   onAddNew,
 }: StepsGridViewProps) {
+  const [showCarousel, setShowCarousel] = useState(false);
+  const [selectedStepIndex, setSelectedStepIndex] = useState(0);
+
+  const handleStepClick = (index: number) => {
+    setSelectedStepIndex(index);
+    setShowCarousel(true);
+  };
+
+  if (showCarousel) {
+    return (
+      <StepCarouselView
+        title={title}
+        jobAidTitle={jobAidTitle}
+        steps={steps}
+        type={type}
+        initialIndex={selectedStepIndex}
+        onBack={() => setShowCarousel(false)}
+      />
+    );
+  }
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -52,10 +74,11 @@ export function StepsGridView({
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {steps
                 .sort((a, b) => (a.step || 0) - (b.step || 0))
-                .map((step) => (
-                  <div
+                .map((step, index) => (
+                  <button
                     key={step.id}
-                    className="bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-md transition-shadow"
+                    onClick={() => handleStepClick(index)}
+                    className="bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-md transition-shadow text-left"
                   >
                     {/* Image Container */}
                     <div className="aspect-video relative bg-gray-100 overflow-hidden">
@@ -89,7 +112,7 @@ export function StepsGridView({
                         {step.instruction}
                       </p>
                     </div>
-                  </div>
+                  </button>
                 ))}
 
               {/* Add New Step Button */}
