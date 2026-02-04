@@ -27,9 +27,10 @@ export function JobAidDetails({ jobAidId }: JobAidDetailsProps) {
   const [viewMode, setViewMode] = useState<
     "details" | "procedures" | "precautions"
   >("details");
+  const [showFullInstructions, setShowFullInstructions] = useState(false);
   const setCurrentJobAid = useJobAidStore((state) => state.setCurrentJobAid);
   const setStoreAnnotationType = useJobAidStore(
-    (state) => state.setAnnotationType
+    (state) => state.setAnnotationType,
   );
 
   if (isLoading) {
@@ -267,8 +268,24 @@ export function JobAidDetails({ jobAidId }: JobAidDetailsProps) {
                     <h3 className="text-lg font-medium">Instructions</h3>
                   </div>
                   {jobAid.instruction ? (
-                    <div className="text-gray-700 whitespace-pre-wrap">
-                      {jobAid.instruction}
+                    <div className="space-y-2">
+                      <div className="text-gray-700 whitespace-pre-wrap break-words">
+                        {showFullInstructions
+                          ? jobAid.instruction
+                          : jobAid.instruction.length > 300
+                            ? jobAid.instruction.substring(0, 300) + "..."
+                            : jobAid.instruction}
+                      </div>
+                      {jobAid.instruction.length > 300 && (
+                        <button
+                          onClick={() =>
+                            setShowFullInstructions(!showFullInstructions)
+                          }
+                          className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+                        >
+                          {showFullInstructions ? "Show less" : "Read more"}
+                        </button>
+                      )}
                     </div>
                   ) : (
                     <p className="text-gray-500">No instructions added yet.</p>

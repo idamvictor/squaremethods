@@ -14,6 +14,7 @@ import { DeleteJobAidModal } from "./delete-job-aid-modal";
 import { Grid3X3, List, Search } from "lucide-react";
 import { useState } from "react";
 import { useDeleteJobAid } from "@/services/job-aid/job-aid-queries";
+import { useEquipment } from "@/services/equipment/equipment-queries";
 import { JobAidStatus } from "@/services/job-aid/job-aid-types";
 import { toast } from "sonner";
 
@@ -30,11 +31,12 @@ export function JobAidsManagement({
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [searchQuery, setSearchQuery] = useState("");
   const [status, setStatus] = useState<JobAidStatus | undefined>();
-  const [equipmentId, setEquipmentId] = useState<string>();
+  const [equipmentId, setEquipmentId] = useState<string | undefined>();
 
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
   const deleteJobAidMutation = useDeleteJobAid();
+  const { data: equipmentData } = useEquipment({ limit: 100 });
 
   const handleDelete = (id: string) => {
     setDeleteId(id);
@@ -115,13 +117,28 @@ export function JobAidsManagement({
             </SelectContent>
           </Select>
 
-          <Select value={equipmentId} onValueChange={setEquipmentId}>
-            <SelectTrigger className="w-32">
+          <Select
+            value={equipmentId || "all"}
+            onValueChange={(value) =>
+              setEquipmentId(value === "all" ? undefined : value)
+            }
+          >
+            <SelectTrigger className="w-48">
               <SelectValue placeholder="Equipment" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Equipment</SelectItem>
-              {/* Add your equipment options here */}
+              {equipmentData?.data && equipmentData.data.length > 0 ? (
+                equipmentData.data.map((equipment) => (
+                  <SelectItem key={equipment.id} value={equipment.id}>
+                    {equipment.name}
+                  </SelectItem>
+                ))
+              ) : (
+                <SelectItem value="none" disabled>
+                  No equipment available
+                </SelectItem>
+              )}
             </SelectContent>
           </Select>
         </div>
