@@ -10,6 +10,7 @@ import { FileManagerModal } from "@/components/shared/file-manager/file-manager-
 import { Button } from "@/components/ui/button";
 import { Upload } from "lucide-react";
 import { useJobAidStore } from "@/store/job-aid-store";
+import { toast } from "sonner";
 import {
   useProceduresByJobAidId,
   usePrecautionsByJobAidId,
@@ -52,19 +53,20 @@ export default function ImageAnnotationManager({
   const [steps, setSteps] = useState<Step[]>([]);
   const [savedSteps, setSavedSteps] = useState<Step[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
   const [editingStep, setEditingStep] = useState<EditingStep | null>(null);
   const [isFileManagerOpen, setIsFileManagerOpen] = useState(false);
   const [selectedImageUrl, setSelectedImageUrl] = useState<string>(
-    sampleImage.src
+    sampleImage.src,
   );
 
   // Only fetch the data we need based on type
   const { data: proceduresData } = useProceduresByJobAidId(
-    type === "procedure" && currentJobAid?.id ? currentJobAid.id : ""
+    type === "procedure" && currentJobAid?.id ? currentJobAid.id : "",
   );
 
   const { data: precautionsData } = usePrecautionsByJobAidId(
-    type === "precaution" && currentJobAid?.id ? currentJobAid.id : ""
+    type === "precaution" && currentJobAid?.id ? currentJobAid.id : "",
   );
 
   // Delete mutations
@@ -99,7 +101,7 @@ export default function ImageAnnotationManager({
           "Loading procedures for type:",
           type,
           "Data:",
-          proceduresData
+          proceduresData,
         );
         if (proceduresData?.data && proceduresData.data.length > 0) {
           existingSteps = proceduresData.data.map((proc) => ({
@@ -109,12 +111,12 @@ export default function ImageAnnotationManager({
           }));
           console.log(
             `Loaded ${existingSteps.length} procedures for job aid ${currentJobAid.id}:`,
-            existingSteps
+            existingSteps,
           );
         } else {
           console.log(
             `No procedures found for job aid ${currentJobAid.id}`,
-            proceduresData
+            proceduresData,
           );
         }
       } else if (type === "precaution") {
@@ -123,7 +125,7 @@ export default function ImageAnnotationManager({
           "Loading precautions for type:",
           type,
           "Data:",
-          precautionsData
+          precautionsData,
         );
         if (precautionsData?.data && precautionsData.data.length > 0) {
           existingSteps = precautionsData.data.map((prec) => ({
@@ -133,12 +135,12 @@ export default function ImageAnnotationManager({
           }));
           console.log(
             `Loaded ${existingSteps.length} precautions for job aid ${currentJobAid.id}:`,
-            existingSteps
+            existingSteps,
           );
         } else {
           console.log(
             `No precautions found for job aid ${currentJobAid.id}`,
-            precautionsData
+            precautionsData,
           );
         }
       }
@@ -189,13 +191,26 @@ export default function ImageAnnotationManager({
   const handleSaveDraft = async () => {
     if (steps.length === 0) {
       console.warn("No steps to save");
+      toast.error("Please add at least one step before saving");
       return;
     }
 
     if (!currentJobAid) {
       console.error("No job aid selected");
+      toast.error("No job aid selected");
       return;
     }
+
+    // Prevent duplicate submissions
+    if (isSaving) {
+      toast.error("Already saving, please wait...");
+      return;
+    }
+
+    setIsSaving(true);
+    const loadingToast = toast.loading(
+      `Saving ${editingStep ? "updated step" : "instructions"}...`,
+    );
 
     try {
       // Get the annotated image from the editor
@@ -212,7 +227,7 @@ export default function ImageAnnotationManager({
           currentAnnotation = editor.getState();
           console.log(
             "Got current annotation from editor:",
-            !!currentAnnotation
+            !!currentAnnotation,
           );
         }
       }
@@ -235,13 +250,13 @@ export default function ImageAnnotationManager({
               "Annotated image rendered, isBase64:",
               isBase64Image,
               "URL preview:",
-              annotatedImageUrl?.substring(0, 50)
+              annotatedImageUrl?.substring(0, 50),
             );
 
             // If rasterize returns empty string (CORS/canvas taint issue), fall back to selected image
             if (!annotatedImageUrl || annotatedImageUrl.length === 0) {
               console.warn(
-                "Rendered image is empty (likely CORS/canvas taint issue), falling back to selected image"
+                "Rendered image is empty (likely CORS/canvas taint issue), falling back to selected image",
               );
               annotatedImageUrl = selectedImageUrl;
               isBase64Image = false;
@@ -249,7 +264,7 @@ export default function ImageAnnotationManager({
           } catch (renderError) {
             console.warn(
               "Failed to render annotated image (CORS issue likely), falling back to selected image:",
-              renderError
+              renderError,
             );
             annotatedImageUrl = selectedImageUrl;
             isBase64Image = false;
@@ -258,18 +273,19 @@ export default function ImageAnnotationManager({
       } else {
         console.warn(
           "No annotation found, using selected image:",
-          selectedImageUrl
+          selectedImageUrl,
         );
       }
 
       console.log(
         "Final annotatedImageUrl before upload:",
-        annotatedImageUrl?.substring(0, 100)
+        annotatedImageUrl?.substring(0, 100),
       );
 
       // Validate that we have a valid image URL before proceeding
       if (!annotatedImageUrl || annotatedImageUrl.length === 0) {
         console.error("No valid image URL to save with steps");
+        toast.error("Failed to process image. Please try again.");
         return;
       }
 
@@ -278,7 +294,7 @@ export default function ImageAnnotationManager({
         console.log("Converting and uploading base64 image to server...");
         const file = base64ToFile(
           annotatedImageUrl,
-          `annotation-${Date.now()}.png`
+          `annotation-${Date.now()}.png`,
         );
         const uploadResponse = await uploadFile.mutateAsync({
           file,
@@ -310,7 +326,7 @@ export default function ImageAnnotationManager({
               });
               console.log(
                 `Procedure ${editingStep.id} updated:`,
-                procedureInput
+                procedureInput,
               );
             } else if (type === "precaution") {
               const precautionInput = {
@@ -323,7 +339,7 @@ export default function ImageAnnotationManager({
               });
               console.log(
                 `Precaution ${editingStep.id} updated:`,
-                precautionInput
+                precautionInput,
               );
             }
           } else {
@@ -340,7 +356,7 @@ export default function ImageAnnotationManager({
               await createProc.mutateAsync(procedureInput);
               console.log(
                 `Procedure saved to API for job aid ${currentJobAid.id}:`,
-                procedureInput
+                procedureInput,
               );
             } else if (type === "precaution") {
               const precautionInput = {
@@ -352,12 +368,14 @@ export default function ImageAnnotationManager({
               await createPrec.mutateAsync(precautionInput);
               console.log(
                 `Precaution saved to API for job aid ${currentJobAid.id}:`,
-                precautionInput
+                precautionInput,
               );
             }
           }
         } catch (error) {
           console.error(`Error saving ${type} to API:`, error);
+          toast.error(`Failed to save ${type}. Please try again.`);
+          return;
         }
       }
 
@@ -377,11 +395,21 @@ export default function ImageAnnotationManager({
         });
       }
 
+      toast.success(
+        editingStep
+          ? `${type.charAt(0).toUpperCase() + type.slice(1)} updated successfully!`
+          : `${type.charAt(0).toUpperCase() + type.slice(1)}(s) saved successfully!`,
+      );
+
       console.log(
-        `All ${type}s saved successfully for job aid ${currentJobAid.id}`
+        `All ${type}s saved successfully for job aid ${currentJobAid.id}`,
       );
     } catch (error) {
       console.error("Error saving steps:", error);
+      toast.error(`Failed to save ${type}. Please try again.`);
+    } finally {
+      setIsSaving(false);
+      toast.dismiss(loadingToast);
     }
   };
 
@@ -505,8 +533,8 @@ export default function ImageAnnotationManager({
           {editingStep
             ? `Edit ${type === "precaution" ? "Instruction" : "Step"}`
             : type === "precaution"
-            ? "Create New Instruction"
-            : "Create New Step"}
+              ? "Create New Instruction"
+              : "Create New Step"}
         </h2>
         <p className="text-sm text-gray-500 mt-1">
           Add annotations to your image to create clear visual instructions
@@ -617,14 +645,22 @@ export default function ImageAnnotationManager({
                 <div className="pt-4 mt-6 border-t border-gray-200 space-y-2">
                   <button
                     onClick={handleSaveDraft}
-                    className="w-full py-2 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                    disabled={isSaving}
+                    className="w-full py-2 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:bg-blue-400 disabled:cursor-not-allowed"
                   >
-                    {editingStep ? "Update Step" : "Save Instructions"}
+                    {isSaving
+                      ? editingStep
+                        ? "Updating Step..."
+                        : "Saving Instructions..."
+                      : editingStep
+                        ? "Update Step"
+                        : "Save Instructions"}
                   </button>
                   {editingStep && (
                     <button
                       onClick={cancelEdit}
-                      className="w-full py-2 px-4 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                      disabled={isSaving}
+                      className="w-full py-2 px-4 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:bg-gray-100 disabled:cursor-not-allowed"
                     >
                       Cancel
                     </button>

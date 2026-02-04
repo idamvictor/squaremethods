@@ -11,22 +11,21 @@ import {
 } from "@/components/ui/select";
 import { JobAidGrid } from "./job-aid-grid";
 import { DeleteJobAidModal } from "./delete-job-aid-modal";
-import { EditJobAidModal } from "./edit-job-aid-modal";
 import { Grid3X3, List, Search } from "lucide-react";
 import { useState } from "react";
-import {
-  useDeleteJobAid,
-  useUpdateJobAid,
-  useJobAidDetails,
-} from "@/services/job-aid/job-aid-queries";
+import { useDeleteJobAid } from "@/services/job-aid/job-aid-queries";
 import { JobAidStatus } from "@/services/job-aid/job-aid-types";
 import { toast } from "sonner";
 
 interface JobAidsManagementProps {
   onCreateClick: () => void;
+  onEditClick: (id: string) => void;
 }
 
-export function JobAidsManagement({ onCreateClick }: JobAidsManagementProps) {
+export function JobAidsManagement({
+  onCreateClick,
+  onEditClick,
+}: JobAidsManagementProps) {
   // const router = useRouter();
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [searchQuery, setSearchQuery] = useState("");
@@ -34,18 +33,15 @@ export function JobAidsManagement({ onCreateClick }: JobAidsManagementProps) {
   const [equipmentId, setEquipmentId] = useState<string>();
 
   const [deleteId, setDeleteId] = useState<string | null>(null);
-  const [editId, setEditId] = useState<string | null>(null);
 
   const deleteJobAidMutation = useDeleteJobAid();
-  const updateJobAidMutation = useUpdateJobAid(editId || "");
-  const { data: editingJobAid } = useJobAidDetails(editId || "");
 
   const handleDelete = (id: string) => {
     setDeleteId(id);
   };
 
   const handleEdit = (id: string) => {
-    setEditId(id);
+    onEditClick(id);
   };
 
   const confirmDelete = async () => {
@@ -57,29 +53,10 @@ export function JobAidsManagement({ onCreateClick }: JobAidsManagementProps) {
     } catch (error) {
       toast.error(
         "Failed to delete job aid: " +
-          (error instanceof Error ? error.message : "Unknown error")
+          (error instanceof Error ? error.message : "Unknown error"),
       );
     } finally {
       setDeleteId(null);
-    }
-  };
-
-  const handleUpdate = async (data: {
-    title: string;
-    instruction: string;
-    status: JobAidStatus;
-  }) => {
-    if (!editId) return;
-
-    try {
-      await updateJobAidMutation.mutateAsync(data);
-      toast.success("Job aid updated successfully");
-      setEditId(null);
-    } catch (error) {
-      toast.error(
-        "Failed to update job aid: " +
-          (error instanceof Error ? error.message : "Unknown error")
-      );
     }
   };
 
@@ -178,15 +155,6 @@ export function JobAidsManagement({ onCreateClick }: JobAidsManagementProps) {
         isDeleting={deleteJobAidMutation.isPending}
         onClose={() => setDeleteId(null)}
         onConfirm={confirmDelete}
-      />
-
-      {/* Edit Job Aid Modal */}
-      <EditJobAidModal
-        jobAid={editingJobAid?.data}
-        open={!!editId}
-        isLoading={updateJobAidMutation.isPending}
-        onClose={() => setEditId(null)}
-        onSubmit={handleUpdate}
       />
     </div>
   );
