@@ -14,7 +14,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { JobAid, JobAidStatus } from "@/services/job-aid/job-aid-types";
 import { useForm } from "react-hook-form";
 import { FileManagerModal } from "@/components/shared/file-manager/file-manager-modal";
-import { Image as ImageIcon, X } from "lucide-react";
+import { EquipmentHierarchyModal } from "@/components/user/jobs/equipment-hierarchy-modal";
+import { Image as ImageIcon, X, Plus } from "lucide-react";
 import NextImage from "next/image";
 import { toast } from "sonner";
 
@@ -30,6 +31,7 @@ interface EditJobAidModalProps {
     image: string;
     estimated_duration: number;
     status: JobAidStatus;
+    equipment_ids: string[];
   }) => void;
 }
 
@@ -51,6 +53,10 @@ export function EditJobAidModal({
   });
 
   const [isFileManagerOpen, setIsFileManagerOpen] = useState(false);
+  const [isEquipmentModalOpen, setIsEquipmentModalOpen] = useState(false);
+  const [selectedEquipment, setSelectedEquipment] = useState<
+    { id: string; name: string }[]
+  >([]);
   const imageValue = watch("image");
 
   useEffect(() => {
@@ -61,6 +67,12 @@ export function EditJobAidModal({
       setValue("image", jobAid.image || "");
       setValue("estimated_duration", jobAid.estimated_duration || 0);
       setValue("status", jobAid.status);
+      // Set all assigned equipment
+      if (jobAid.assignedEquipments && jobAid.assignedEquipments.length > 0) {
+        setSelectedEquipment(
+          jobAid.assignedEquipments.map((eq) => ({ id: eq.id, name: eq.name })),
+        );
+      }
     }
   }, [jobAid, setValue]);
 
@@ -74,11 +86,37 @@ export function EditJobAidModal({
     setValue("image", "");
   };
 
+  const handleFormSubmit = (formData: Record<string, unknown>) => {
+    onSubmit({
+      title: formData.title as string,
+      category: formData.category as string,
+      instruction: formData.instruction as string,
+      image: formData.image as string,
+      estimated_duration: formData.estimated_duration as number,
+      status: formData.status as JobAidStatus,
+      equipment_ids: selectedEquipment.map((eq) => eq.id),
+    });
+  };
+
+  const handleEquipmentSelect = (id: string, name: string) => {
+    const exists = selectedEquipment.some((eq) => eq.id === id);
+    if (!exists) {
+      setSelectedEquipment([...selectedEquipment, { id, name }]);
+      setIsEquipmentModalOpen(false);
+    } else {
+      toast.info("This equipment is already assigned");
+    }
+  };
+
+  const handleRemoveEquipment = (id: string) => {
+    setSelectedEquipment(selectedEquipment.filter((eq) => eq.id !== id));
+  };
+
   return (
     <>
       <div className="w-full max-w-2xl mx-auto">
         <h2 className="text-lg font-semibold mb-6">Edit Job Aid</h2>
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form onSubmit={handleSubmit(handleFormSubmit)}>
           <div className="grid gap-6 mb-6">
             {/* Title */}
             <div className="grid gap-2">
@@ -204,6 +242,60 @@ export function EditJobAidModal({
                 </SelectContent>
               </Select>
             </div>
+
+            {/* Assigned Equipment */}
+            <div className="grid gap-2">
+              <div className="flex items-start justify-between">
+                <div>
+                  <label className="text-sm font-medium">
+                    Assigned Equipment
+                  </label>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Select the machines or systems this Job Aid applies to
+                  </p>
+                </div>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="text-primary hover:bg-primary/10"
+                  onClick={() => setIsEquipmentModalOpen(true)}
+                  disabled={isLoading}
+                >
+                  <Plus className="w-5 h-5" />
+                </Button>
+              </div>
+
+              {selectedEquipment.length > 0 ? (
+                <div className="space-y-2">
+                  {selectedEquipment.map((equipment) => (
+                    <div
+                      key={equipment.id}
+                      className="flex items-center justify-between p-3 border rounded-lg"
+                    >
+                      <span className="text-sm">{equipment.name}</span>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="text-destructive"
+                        onClick={() => handleRemoveEquipment(equipment.id)}
+                        disabled={isLoading}
+                      >
+                        <X className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="border-2 border-dashed border-border rounded-lg p-8 text-center">
+                  <p className="text-muted-foreground text-sm">
+                    No equipment assigned yet. Click the + button to add
+                    equipment.
+                  </p>
+                </div>
+              )}
+            </div>
           </div>
           <div className="flex gap-2 justify-end">
             <Button
@@ -228,6 +320,12 @@ export function EditJobAidModal({
         open={isFileManagerOpen}
         onOpenChange={setIsFileManagerOpen}
         onFileSelect={handleFileSelect}
+      />
+
+      <EquipmentHierarchyModal
+        isOpen={isEquipmentModalOpen}
+        onClose={() => setIsEquipmentModalOpen(false)}
+        onAttach={handleEquipmentSelect}
       />
     </>
   );

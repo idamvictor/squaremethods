@@ -444,6 +444,9 @@ export default function ImageAnnotationManager({
       },
     ]);
 
+    // Set the selected image URL to the step's image
+    setSelectedImageUrl(stepToEdit.imageUrl);
+
     // Set editing mode
     setEditingStep({
       index,

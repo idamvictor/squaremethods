@@ -45,6 +45,7 @@ export default function JobAidsPageContent() {
     image: string;
     estimated_duration: number;
     status: JobAidStatus;
+    equipment_ids: string[];
   }) => {
     if (!editingId) return;
 

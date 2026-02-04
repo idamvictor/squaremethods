@@ -23,10 +23,9 @@ export default function AddJobAidForm() {
   const router = useRouter();
   const [isEquipmentModalOpen, setIsEquipmentModalOpen] = useState(false);
   const [isFileManagerOpen, setIsFileManagerOpen] = useState(false);
-  const [selectedEquipment, setSelectedEquipment] = useState<{
-    id: string;
-    name: string;
-  } | null>(null);
+  const [selectedEquipment, setSelectedEquipment] = useState<
+    { id: string; name: string }[]
+  >([]);
 
   const [formData, setFormData] = useState({
     title: "",
@@ -59,8 +58,8 @@ export default function AddJobAidForm() {
       toast.error("Please select a category");
       return false;
     }
-    if (!selectedEquipment) {
-      toast.error("Please assign equipment to this job aid");
+    if (selectedEquipment.length === 0) {
+      toast.error("Please assign at least one equipment to this job aid");
       return false;
     }
     if (!formData.instruction.trim()) {
@@ -79,7 +78,7 @@ export default function AddJobAidForm() {
 
     try {
       const response = await createJobAidMutation.mutateAsync({
-        equipment_ids: [selectedEquipment!.id],
+        equipment_ids: selectedEquipment.map((eq) => eq.id),
         title: formData.title,
         category: formData.category,
         instruction: formData.instruction,
@@ -98,7 +97,7 @@ export default function AddJobAidForm() {
         image: "",
         estimated_duration: "",
       });
-      setSelectedEquipment(null);
+      setSelectedEquipment([]);
       // Navigate to the new job aid
       if (response?.data.id) {
         router.push(`/job-aids/${response.data.id}`);
@@ -114,7 +113,7 @@ export default function AddJobAidForm() {
 
     try {
       const response = await createJobAidMutation.mutateAsync({
-        equipment_ids: [selectedEquipment!.id],
+        equipment_ids: selectedEquipment.map((eq) => eq.id),
         title: formData.title,
         category: formData.category,
         instruction: formData.instruction,
@@ -133,7 +132,7 @@ export default function AddJobAidForm() {
         image: "",
         estimated_duration: "",
       });
-      setSelectedEquipment(null);
+      setSelectedEquipment([]);
       // Navigate to the new job aid
       if (response?.data.id) {
         router.push(`/job-aids/${response.data.id}`);
@@ -301,7 +300,7 @@ export default function AddJobAidForm() {
                   Assign to Equipment
                 </h3>
                 <p className="text-sm text-muted-foreground">
-                  Select the machine or system this Job Aid applies to
+                  Select the machines or systems this Job Aid applies to
                 </p>
               </div>
               <Button
@@ -314,22 +313,30 @@ export default function AddJobAidForm() {
               </Button>
             </div>
 
-            {selectedEquipment ? (
-              <div className="flex items-center justify-between p-4 border rounded-lg">
-                <div>
-                  <h4 className="font-medium">{selectedEquipment.name}</h4>
-                  <p className="text-sm text-muted-foreground">
-                    ID: {selectedEquipment.id}
-                  </p>
-                </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="text-destructive"
-                  onClick={() => setSelectedEquipment(null)}
-                >
-                  <X className="w-4 h-4" />
-                </Button>
+            {selectedEquipment.length > 0 ? (
+              <div className="space-y-2">
+                {selectedEquipment.map((equipment) => (
+                  <div
+                    key={equipment.id}
+                    className="flex items-center justify-between p-3 border rounded-lg"
+                  >
+                    <span className="text-sm">{equipment.name}</span>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="text-destructive"
+                      onClick={() =>
+                        setSelectedEquipment(
+                          selectedEquipment.filter(
+                            (eq) => eq.id !== equipment.id,
+                          ),
+                        )
+                      }
+                    >
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </div>
+                ))}
               </div>
             ) : (
               <div className="border-2 border-dashed border-border rounded-lg p-8 text-center">
@@ -379,7 +386,13 @@ export default function AddJobAidForm() {
         isOpen={isEquipmentModalOpen}
         onClose={() => setIsEquipmentModalOpen(false)}
         onAttach={(id, name) => {
-          setSelectedEquipment({ id, name });
+          const exists = selectedEquipment.some((eq) => eq.id === id);
+          if (!exists) {
+            setSelectedEquipment([...selectedEquipment, { id, name }]);
+            setIsEquipmentModalOpen(false);
+          } else {
+            toast.info("This equipment is already assigned");
+          }
         }}
       />
 
