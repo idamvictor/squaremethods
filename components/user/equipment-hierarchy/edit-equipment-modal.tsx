@@ -27,20 +27,20 @@ import {
   useUpdateEquipment,
   useEquipmentDetails,
 } from "@/services/equipment/equipment-queries";
-import { UpdateEquipmentInput } from "@/services/equipment/equipment-types";
 import { EquipmentType } from "@/services/equipment-types/equipment-types-types";
 import { toast } from "sonner";
 
 export function EditEquipmentModal() {
-  const [formData, setFormData] = useState<
-    UpdateEquipmentInput & {
-      equipment_type_id: string;
-      reference_code: string;
-      date: string;
-      image: string;
-      documents: File[];
-    }
-  >({
+  const [formData, setFormData] = useState<{
+    name: string;
+    equipment_type_id: string;
+    reference_code: string;
+    date: string;
+    notes: string;
+    status: string;
+    image: string;
+    documents: File[];
+  }>({
     name: "",
     equipment_type_id: "",
     reference_code: "",
@@ -237,7 +237,7 @@ export function EditEquipmentModal() {
                             setFormData((prev) => ({
                               ...prev,
                               documents: prev.documents.filter(
-                                (_, i) => i !== index
+                                (_, i) => i !== index,
                               ),
                             }));
                           }}
