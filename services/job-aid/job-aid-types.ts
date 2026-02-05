@@ -101,9 +101,12 @@ export interface CreateJobAidInput {
 
 export interface UpdateJobAidInput {
   title?: string;
-  description?: string;
+  category?: string;
+  instruction?: string;
+  image?: string;
+  estimated_duration?: number;
   status?: JobAidStatus;
-  safety_notes?: string;
+  equipment_ids?: string[];
 }
 
 export interface CreateJobAidProcedureInput {

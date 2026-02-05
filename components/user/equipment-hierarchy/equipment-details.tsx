@@ -337,7 +337,7 @@ export function EquipmentDetails({ node }: EquipmentDetailsProps) {
                     <p className="text-sm text-muted-foreground">
                       {jobAid.category}
                     </p>
-                    <p className="text-sm text-foreground">
+                    <p className="text-sm text-foreground line-clamp-2">
                       {jobAid.instruction}
                     </p>
                     <div className="flex items-center justify-between text-xs text-muted-foreground pt-2">

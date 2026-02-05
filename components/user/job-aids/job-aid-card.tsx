@@ -78,7 +78,9 @@ export function JobAidCard({
                   <h3 className="font-semibold text-white text-lg">
                     {jobAid.title}
                   </h3>
-                  <p className="text-white/90 text-sm">{jobAid.instruction}</p>
+                  <p className="text-white/90 text-sm line-clamp-1">
+                    {jobAid.instruction}
+                  </p>
                 </div>
               </CardContent>
             </div>
@@ -96,7 +98,9 @@ export function JobAidCard({
               </div>
               <div className="flex-1">
                 <h3 className="font-medium text-gray-900">{jobAid.title}</h3>
-                <p className="text-gray-600">{jobAid.instruction}</p>
+                <p className="text-gray-600 line-clamp-1">
+                  {jobAid.instruction}
+                </p>
                 <p className="text-sm text-gray-500 mt-1">
                   By {jobAid.creator.first_name} {jobAid.creator.last_name} •{" "}
                   {new Date(jobAid.createdAt).toLocaleDateString()}
