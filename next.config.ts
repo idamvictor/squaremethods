@@ -27,6 +27,13 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
+        hostname: "squaremethods.s3.amazonaws.com",
+        port: "",
+        pathname: "/**",
+        search: "",
+      },
+      {
+        protocol: "https",
         hostname: "placehold.co",
         port: "",
         pathname: "/**",
