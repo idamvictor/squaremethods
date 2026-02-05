@@ -1,26 +1,17 @@
 "use client";
 
 import { Card, CardContent } from "@/components/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Calendar, TrendingUp } from "lucide-react";
+import { TrendingUp } from "lucide-react";
 import { MetricCard } from "./metric-card";
 import { SOPChart } from "./sop-chart";
 import { ExportSection } from "./export-section";
-import { AlertBanner } from "./alert-banner";
+// import { AlertBanner } from "./alert-banner";
 import { useDashboard } from "@/services/users/users-querries";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 
 export default function Dashboard() {
   const { data, isLoading } = useDashboard();
-  const [selectedSOPPeriod, setSelectedSOPPeriod] = useState("may-7-13");
-  const [selectedYear, setSelectedYear] = useState("this-year");
 
   const dashboardData = data?.data;
   const stats = dashboardData?.stats;
@@ -57,7 +48,7 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <AlertBanner />
+      {/* <AlertBanner /> */}
 
       <div className="container mx-auto p-4 sm:p-6 space-y-6 sm:space-y-8">
         {/* Header Section */}
@@ -65,35 +56,6 @@ export default function Dashboard() {
           <h1 className="text-xl sm:text-2xl font-semibold text-gray-900">
             Hello, Squaremethods
           </h1>
-
-          {/* Date Selectors */}
-          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-            <Select
-              value={selectedSOPPeriod}
-              onValueChange={setSelectedSOPPeriod}
-            >
-              <SelectTrigger className="w-full sm:w-[180px] bg-white">
-                <Calendar className="w-4 h-4 mr-2" />
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="may-7-13">May 7 - 13</SelectItem>
-                <SelectItem value="may-14-20">May 14 - 20</SelectItem>
-                <SelectItem value="may-21-27">May 21 - 27</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select value={selectedYear} onValueChange={setSelectedYear}>
-              <SelectTrigger className="w-full sm:w-[140px] bg-white">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="this-year">This Year</SelectItem>
-                <SelectItem value="last-year">Last Year</SelectItem>
-                <SelectItem value="this-month">This Month</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
         </div>
 
         {/* Metrics Grid - Mobile: 2x3, Desktop: 1x5 */}

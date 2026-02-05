@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Download, Plus } from "lucide-react";
+import { Download, Eye, Plus } from "lucide-react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -484,8 +484,8 @@ export function EquipmentDetails({ node }: EquipmentDetailsProps) {
                     className="mt-3"
                     onClick={() => window.open(document, "_blank")}
                   >
-                    <Download className="h-4 w-4 mr-2" />
-                    Download
+                    <Eye className="h-4 w-4 mr-2" />
+                    View
                   </Button>
                 </div>
               ))}

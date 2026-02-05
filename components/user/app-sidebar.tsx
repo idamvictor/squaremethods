@@ -13,15 +13,15 @@ import {
   UserCog,
   Settings,
   HelpCircle,
-  Calendar,
+  // Calendar,
   CircleX,
 } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
+// import { Button } from "@/components/ui/button";
 import {
   Sidebar,
   SidebarContent,
-  SidebarFooter,
+  // SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -162,12 +162,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="p-2">
+      {/* <SidebarFooter className="p-2">
         <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white group-data-[collapsible=icon]:hidden">
           <Calendar className="mr-2 h-4 w-4" />
           Claim your free trial
         </Button>
-      </SidebarFooter>
+      </SidebarFooter> */}
 
       <SidebarRail />
     </Sidebar>
