@@ -1,17 +1,23 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Search, X, Plus } from "lucide-react";
+import { ArrowLeft, X, Plus, Copy, Share2 } from "lucide-react";
 import { useJobAidDetails } from "@/services/job-aid/job-aid-queries";
 import { useJobAidStore } from "@/store/job-aid-store";
 import Link from "next/link";
 import Image from "next/image";
 import ImageAnnotationManager from "@/components/user/job-aids/image-annotation/image-annotation-manager";
 import { StepsGridView } from "@/components/user/job-aids/steps-grid-view";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { toast } from "sonner";
 
 interface JobAidDetailsProps {
   jobAidId: string;
@@ -19,7 +25,7 @@ interface JobAidDetailsProps {
 
 export function JobAidDetails({ jobAidId }: JobAidDetailsProps) {
   const { data: jobAidResponse, isLoading, error } = useJobAidDetails(jobAidId);
-  const [searchQuery, setSearchQuery] = useState("");
+  // const [searchQuery, setSearchQuery] = useState("");
   const [showAnnotating, setShowAnnotating] = useState(false);
   const [annotationType, setAnnotationType] = useState<
     "procedure" | "precaution" | null
@@ -28,10 +34,24 @@ export function JobAidDetails({ jobAidId }: JobAidDetailsProps) {
     "details" | "procedures" | "precautions"
   >("details");
   const [showFullInstructions, setShowFullInstructions] = useState(false);
+  const [isShareDropdownOpen, setIsShareDropdownOpen] = useState(false);
   const setCurrentJobAid = useJobAidStore((state) => state.setCurrentJobAid);
   const setStoreAnnotationType = useJobAidStore(
     (state) => state.setAnnotationType,
   );
+
+  const handleCopyUrl = useCallback(() => {
+    const url = `${window.location.origin}/job-aids/${jobAidId}`;
+    navigator.clipboard
+      .writeText(url)
+      .then(() => {
+        toast.success("URL copied to clipboard!");
+        setIsShareDropdownOpen(false);
+      })
+      .catch(() => {
+        toast.error("Failed to copy URL");
+      });
+  }, [jobAidId]);
 
   if (isLoading) {
     return <div className="p-6 text-center text-gray-600">Loading...</div>;
@@ -142,7 +162,7 @@ export function JobAidDetails({ jobAidId }: JobAidDetailsProps) {
             <h1 className="text-2xl font-semibold text-gray-900">Job Aids</h1>
           </div>
           <div className="flex items-center gap-4">
-            <div className="relative">
+            {/* <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               <Input
                 placeholder="Search..."
@@ -150,8 +170,40 @@ export function JobAidDetails({ jobAidId }: JobAidDetailsProps) {
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10 w-64"
               />
-            </div>
-            <Button className="bg-slate-700 hover:bg-slate-800">Share</Button>
+            </div> */}
+            <DropdownMenu
+              open={isShareDropdownOpen}
+              onOpenChange={setIsShareDropdownOpen}
+            >
+              <DropdownMenuTrigger asChild>
+                <Button className="bg-slate-700 hover:bg-slate-800">
+                  <Share2 className="w-4 h-4 mr-2" />
+                  Share
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-72">
+                <div className="p-4 space-y-3">
+                  <p className="text-sm font-medium text-gray-700">
+                    Share this job aid
+                  </p>
+                  <div className="flex gap-2">
+                    <Input
+                      value={`${typeof window !== "undefined" ? window.location.origin : ""}/job-aids/${jobAidId}`}
+                      readOnly
+                      className="text-sm"
+                    />
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={handleCopyUrl}
+                      className="flex-shrink-0"
+                    >
+                      <Copy className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
+              </DropdownMenuContent>
+            </DropdownMenu>
             <Link href="/job-aids">
               <Button variant="ghost" size="icon">
                 <X className="w-5 h-5" />

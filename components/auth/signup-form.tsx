@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import Link from "next/link";
+import Image from "next/image";
 import { Eye, EyeOff, Check, X, Globe, Lock } from "lucide-react";
 import { useRegister } from "@/lib/api/auth";
 import { useRouter } from "next/navigation";
@@ -45,7 +46,7 @@ const formSchema = z.object({
     .regex(/\d/, "Password must contain at least 1 number")
     .regex(
       /[^A-Za-z0-9]/,
-      "Password must contain at least 1 special character"
+      "Password must contain at least 1 special character",
     ),
 });
 
@@ -108,14 +109,14 @@ export function SignUpForm() {
             router.push("/dashboard");
           },
           onError: (
-            error: Error & { response?: { data?: { message?: string } } }
+            error: Error & { response?: { data?: { message?: string } } },
           ) => {
             const message =
               error?.response?.data?.message ||
               "Registration failed. Please try again.";
             toast.error(message);
           },
-        }
+        },
       );
     } catch (error) {
       console.error("Registration error:", error);
@@ -128,9 +129,13 @@ export function SignUpForm() {
       {/* Header */}
       <div className="flex justify-between items-center p-6">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-primary rounded flex items-center justify-center">
-            <div className="w-4 h-4 bg-primary-foreground rounded-sm"></div>
-          </div>
+          <Image
+            src="https://res.cloudinary.com/dyp8gtllq/image/upload/v1749653962/image-removebg-preview_p37kee.png"
+            alt="Squaremethods Logo"
+            width={32}
+            height={32}
+            className="h-8 w-8"
+          />
           <span className="text-sm font-medium text-muted-foreground">
             SQUAREMETHODS
           </span>
@@ -302,11 +307,11 @@ export function SignUpForm() {
                             <div className="flex space-x-1">
                               {Array.from({ length: 6 }, (_, index) => {
                                 const metCriteria = passwordRequirements.filter(
-                                  (req) => req.met
+                                  (req) => req.met,
                                 ).length;
                                 const progressSegments = Math.ceil(
                                   (metCriteria / passwordRequirements.length) *
-                                    6
+                                    6,
                                 );
 
                                 let segmentColor = "bg-input";
@@ -338,9 +343,9 @@ export function SignUpForm() {
                                 .length >= 4
                                 ? "Strong password"
                                 : passwordRequirements.filter((req) => req.met)
-                                    .length >= 2
-                                ? "Medium password"
-                                : "Weak password"}
+                                      .length >= 2
+                                  ? "Medium password"
+                                  : "Weak password"}
                               . Must contain at least:
                             </div>
                           </div>

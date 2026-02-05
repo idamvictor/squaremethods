@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import Link from "next/link";
+import Image from "next/image";
 import { Globe } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -59,7 +60,7 @@ export function ForgotPasswordForm() {
       // In a real app, you would check if the email exists in your database
       if (data.email === "test@example.com") {
         setServerError(
-          "This email isn't associated with an account, try another email"
+          "This email isn't associated with an account, try another email",
         );
         return;
       }
@@ -80,9 +81,13 @@ export function ForgotPasswordForm() {
       {/* Header */}
       <div className="flex justify-between items-center p-6">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-primary rounded flex items-center justify-center">
-            <div className="w-4 h-4 bg-primary-foreground rounded-sm"></div>
-          </div>
+          <Image
+            src="https://res.cloudinary.com/dyp8gtllq/image/upload/v1749653962/image-removebg-preview_p37kee.png"
+            alt="Squaremethods Logo"
+            width={32}
+            height={32}
+            className="h-8 w-8"
+          />
           <span className="text-sm font-medium text-muted-foreground">
             SQUAREMETHODS
           </span>
