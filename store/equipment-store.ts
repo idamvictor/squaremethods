@@ -79,12 +79,16 @@ interface EquipmentStore {
   addLocation: (parentId: string, name: string) => void;
   addEquipment: (
     parentId: string,
-    equipment: Omit<Equipment, "id" | "parentId">
+    equipment: Omit<Equipment, "id" | "parentId">,
   ) => void;
   updateEquipment: (id: string, equipment: Partial<Equipment>) => void;
   generateQRCode: (equipmentId: string) => void;
   setBreadcrumbs: (breadcrumbs: { id: string; name: string }[]) => void;
   findNodePath: (nodeId: string) => { id: string; name: string }[];
+  findNodeById: (
+    nodeId: string,
+    nodes: HierarchyNode[],
+  ) => HierarchyNode | null;
 }
 
 const equipmentTypeIcons: Record<EquipmentType, string> = {
@@ -264,7 +268,7 @@ export const useEquipmentStore = create<EquipmentStore>((set, get) => ({
     const findPath = (
       nodes: HierarchyNode[],
       targetId: string,
-      path: { id: string; name: string }[] = []
+      path: { id: string; name: string }[] = [],
     ): { id: string; name: string }[] | null => {
       for (const node of nodes) {
         const currentPath = [...path, { id: node.id, name: node.name }];
@@ -282,6 +286,20 @@ export const useEquipmentStore = create<EquipmentStore>((set, get) => ({
     };
 
     return findPath(get().hierarchy, nodeId) || [];
+  },
+
+  findNodeById: (nodeId, nodes) => {
+    for (const node of nodes) {
+      if (node.id === nodeId) {
+        return node;
+      }
+
+      if (node.children) {
+        const found = get().findNodeById(nodeId, node.children);
+        if (found) return found;
+      }
+    }
+    return null;
   },
 
   fetchHierarchy: async () => {
@@ -306,7 +324,7 @@ export const useEquipmentStore = create<EquipmentStore>((set, get) => ({
             date: new Date().toLocaleDateString(),
             notes: "",
             image: eq.image || undefined,
-          })
+          }),
         );
 
         return {

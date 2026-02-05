@@ -6,7 +6,7 @@ export interface User {
   username: string;
   email: string;
   phone: string;
-  role: "owner" | "admin" | "user";
+  role: "owner" | "admin" | "user" | "viewer" | "technician";
   status: "active" | "inactive";
   avatar_url: string;
   email_verified: boolean;

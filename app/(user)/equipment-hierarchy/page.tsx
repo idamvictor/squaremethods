@@ -1,11 +1,8 @@
-import { Toaster } from "@/components/ui/sonner";
-import { EquipmentHierarchy } from "@/components/user/equipment-hierarchy/equipment-hierarchy";
-
-export default function page() {
+export default function EquipmentHierarchyPage() {
   return (
-    <main>
-      <EquipmentHierarchy />
-      <Toaster />
-    </main>
+    <div className="text-center text-gray-500 mt-20">
+      <h2 className="text-xl font-semibold mb-2">Equipment Hierarchy</h2>
+      <p>Select a location or equipment from the sidebar to view details</p>
+    </div>
   );
 }
