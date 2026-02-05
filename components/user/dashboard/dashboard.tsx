@@ -14,26 +14,46 @@ import { MetricCard } from "./metric-card";
 import { SOPChart } from "./sop-chart";
 import { ExportSection } from "./export-section";
 import { AlertBanner } from "./alert-banner";
-import { useDashboardStore } from "@/store/dashboard-store";
-import { useEffect } from "react";
-
-// Chart data now comes from the dashboard store
+import { useDashboard } from "@/services/users/users-querries";
+import { useMemo, useState } from "react";
 
 export default function Dashboard() {
-  const {
-    totalSOPs,
-    sopChartData,
-    totalEquipment,
-    equipmentChartData,
-    isLoading,
-    fetchTotalSOPs,
-    fetchTotalEquipment,
-  } = useDashboardStore();
+  const { data, isLoading } = useDashboard();
+  const [selectedSOPPeriod, setSelectedSOPPeriod] = useState("may-7-13");
+  const [selectedYear, setSelectedYear] = useState("this-year");
 
-  useEffect(() => {
-    fetchTotalSOPs();
-    fetchTotalEquipment();
-  }, [fetchTotalSOPs, fetchTotalEquipment]);
+  const dashboardData = data?.data;
+  const stats = dashboardData?.stats;
+  const graphData = dashboardData?.graphData;
+
+  // Convert graph data to chart format
+  const sopChartData = useMemo(() => {
+    return (graphData?.sop_created || []).map((item) => ({
+      date: item.date,
+      value: item.count,
+    }));
+  }, [graphData?.sop_created]);
+
+  const equipmentChartData = useMemo(() => {
+    return (graphData?.equipment_registered || []).map((item) => ({
+      date: item.date,
+      value: item.count,
+    }));
+  }, [graphData?.equipment_registered]);
+
+  const totalTaskChartData = useMemo(() => {
+    return (graphData?.total_task || []).map((item) => ({
+      date: item.date,
+      value: item.count,
+    }));
+  }, [graphData?.total_task]);
+
+  const completedTaskChartData = useMemo(() => {
+    return (graphData?.completed_task || []).map((item) => ({
+      date: item.date,
+      value: item.count,
+    }));
+  }, [graphData?.completed_task]);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -48,7 +68,10 @@ export default function Dashboard() {
 
           {/* Date Selectors */}
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-            <Select defaultValue="may-7-13">
+            <Select
+              value={selectedSOPPeriod}
+              onValueChange={setSelectedSOPPeriod}
+            >
               <SelectTrigger className="w-full sm:w-[180px] bg-white">
                 <Calendar className="w-4 h-4 mr-2" />
                 <SelectValue />
@@ -60,7 +83,7 @@ export default function Dashboard() {
               </SelectContent>
             </Select>
 
-            <Select defaultValue="this-year">
+            <Select value={selectedYear} onValueChange={setSelectedYear}>
               <SelectTrigger className="w-full sm:w-[140px] bg-white">
                 <SelectValue />
               </SelectTrigger>
@@ -77,17 +100,26 @@ export default function Dashboard() {
         <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-6">
           <MetricCard
             title="Job Aid Created"
-            value={isLoading ? "..." : totalSOPs.toString()}
+            value={isLoading ? "..." : (stats?.job_aid_created ?? 0).toString()}
             icon={TrendingUp}
           />
           <MetricCard
             title="Total Equipment"
-            value={isLoading ? "..." : totalEquipment.toString()}
+            value={isLoading ? "..." : (stats?.total_equipment ?? 0).toString()}
           />
-          <MetricCard title="Total Tasks" value="120" />
-          <MetricCard title="Completed Tasks" value="96" />
+          <MetricCard
+            title="Total Tasks"
+            value={isLoading ? "..." : (stats?.total_tasks ?? 0).toString()}
+          />
+          <MetricCard
+            title="Completed Tasks"
+            value={isLoading ? "..." : (stats?.completed_tasks ?? 0).toString()}
+          />
           <div className="col-span-2 sm:col-span-1">
-            <MetricCard title="Pending Task" value="24" />
+            <MetricCard
+              title="Pending Task"
+              value={isLoading ? "..." : (stats?.pending_tasks ?? 0).toString()}
+            />
           </div>
         </div>
 
@@ -101,7 +133,7 @@ export default function Dashboard() {
                     value="total-sop"
                     className="text-xs sm:text-sm px-2 sm:px-3 py-2 whitespace-nowrap"
                   >
-                    Total SOP Created
+                    Total job Aid Created
                   </TabsTrigger>
                   <TabsTrigger
                     value="total-equipment"
@@ -127,7 +159,7 @@ export default function Dashboard() {
               <TabsContent value="total-sop" className="space-y-4 sm:space-y-6">
                 <div className="flex items-baseline gap-4">
                   <span className="text-3xl sm:text-4xl font-bold">
-                    {isLoading ? "..." : totalSOPs}
+                    {isLoading ? "..." : (stats?.job_aid_created ?? 0)}
                   </span>
                   <span className="text-sm text-green-600 font-medium">
                     ↗ 10.5% from last period
@@ -142,7 +174,7 @@ export default function Dashboard() {
               >
                 <div className="flex items-baseline gap-4">
                   <span className="text-3xl sm:text-4xl font-bold">
-                    {isLoading ? "..." : totalEquipment}
+                    {isLoading ? "..." : (stats?.total_equipment ?? 0)}
                   </span>
                   <span className="text-sm text-green-600 font-medium">
                     ↗ 8.2% from last period
@@ -159,12 +191,14 @@ export default function Dashboard() {
                 className="space-y-4 sm:space-y-6"
               >
                 <div className="flex items-baseline gap-4">
-                  <span className="text-3xl sm:text-4xl font-bold">120</span>
+                  <span className="text-3xl sm:text-4xl font-bold">
+                    {isLoading ? "..." : (stats?.total_tasks ?? 0)}
+                  </span>
                   <span className="text-sm text-green-600 font-medium">
                     ↗ 8.2% from last period
                   </span>
                 </div>
-                <SOPChart data={[]} title="Tasks created" />
+                <SOPChart data={totalTaskChartData} title="Tasks created" />
               </TabsContent>
 
               <TabsContent
@@ -172,25 +206,17 @@ export default function Dashboard() {
                 className="space-y-4 sm:space-y-6"
               >
                 <div className="flex items-baseline gap-4">
-                  <span className="text-3xl sm:text-4xl font-bold">96</span>
+                  <span className="text-3xl sm:text-4xl font-bold">
+                    {isLoading ? "..." : (stats?.completed_tasks ?? 0)}
+                  </span>
                   <span className="text-sm text-green-600 font-medium">
                     ↗ 12.3% from last period
                   </span>
                 </div>
-                <SOPChart data={[]} title="Tasks completed" />
-              </TabsContent>
-
-              <TabsContent
-                value="pending-task"
-                className="space-y-4 sm:space-y-6"
-              >
-                <div className="flex items-baseline gap-4">
-                  <span className="text-3xl sm:text-4xl font-bold">24</span>
-                  <span className="text-sm text-red-600 font-medium">
-                    ↗ 5.1% from last period
-                  </span>
-                </div>
-                <SOPChart data={[]} title="Tasks pending" />
+                <SOPChart
+                  data={completedTaskChartData}
+                  title="Tasks completed"
+                />
               </TabsContent>
             </Tabs>
 

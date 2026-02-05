@@ -6,16 +6,33 @@ import { QrCode } from "lucide-react";
 import { MetricCard } from "./metric-card";
 import { JobTable } from "@/components/user/jobs/job-table";
 import { CameraScanner } from "./camera-scanner";
-
-const metrics = [
-  { title: "Total Task", value: "55" },
-  { title: "Task Completed", value: "41" },
-  { title: "Pending Tasks", value: "14" },
-  { title: "Job Aid Created", value: "3" },
-];
+import { useDashboard } from "@/services/users/users-querries";
 
 export default function TechnicianDashboard() {
   const [isCameraOpen, setIsCameraOpen] = useState(false);
+  const { data, isLoading } = useDashboard();
+
+  const dashboardData = data?.data;
+  const stats = dashboardData?.stats;
+
+  const metrics = [
+    {
+      title: "Total Task",
+      value: isLoading ? "..." : (stats?.total_tasks?.toString() ?? "0"),
+    },
+    {
+      title: "Task Completed",
+      value: isLoading ? "..." : (stats?.completed_tasks?.toString() ?? "0"),
+    },
+    {
+      title: "Pending Tasks",
+      value: isLoading ? "..." : (stats?.pending_tasks?.toString() ?? "0"),
+    },
+    {
+      title: "Job Aid Created",
+      value: isLoading ? "..." : (stats?.job_aid_created?.toString() ?? "0"),
+    },
+  ];
 
   return (
     <div className="container mx-auto p-6 space-y-6">

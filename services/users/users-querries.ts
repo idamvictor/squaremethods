@@ -5,7 +5,6 @@ import {
   UsersResponse,
   ProfileResponse,
   UpdateProfileRequest,
-  DashboardResponse,
   ChangePasswordRequest,
   ChangePasswordResponse,
   UserActivityResponse,
@@ -17,6 +16,7 @@ import {
   UpdateUserRequest,
   CreateUserRequest,
   CreateUserResponse,
+  AdminDashboardResponse,
 } from "./users-types";
 
 const USERS_QUERY_KEY = "users";
@@ -50,7 +50,7 @@ export const useUsers = (filters: UserFilters = { page: 1, limit: 20 }) => {
 
 // Create new user
 const createUser = async (
-  data: CreateUserRequest
+  data: CreateUserRequest,
 ): Promise<CreateUserResponse> => {
   const response = await axiosInstance.post("/users", data);
   return response.data;
@@ -87,7 +87,7 @@ export const useProfile = () => {
 
 // Update Profile current user profile
 const updateProfile = async (
-  data: UpdateProfileRequest
+  data: UpdateProfileRequest,
 ): Promise<ProfileResponse> => {
   const response = await axiosInstance.put("/users/profile", data);
   return response.data;
@@ -110,7 +110,7 @@ export const useUpdateProfile = () => {
 //Get User Dashboard
 const DASHBOARD_QUERY_KEY = "dashboard";
 
-const getDashboard = async (): Promise<DashboardResponse> => {
+const getDashboard = async (): Promise<AdminDashboardResponse> => {
   const response = await axiosInstance.get("/users/dashboard");
   return response.data;
 };
@@ -141,7 +141,7 @@ export const useUserDetails = (userId: string) => {
 // Change user Password
 const changePassword = async (
   userId: string,
-  data: ChangePasswordRequest
+  data: ChangePasswordRequest,
 ): Promise<ChangePasswordResponse> => {
   const response = await axiosInstance.put(`/users/${userId}/password`, data);
   return response.data;
@@ -156,7 +156,7 @@ export const useChangePassword = (userId: string) => {
 // Get User Activity
 const getUserActivity = async (
   userId: string,
-  filters: ActivityFilters = { page: 1, limit: 20 }
+  filters: ActivityFilters = { page: 1, limit: 20 },
 ): Promise<UserActivityResponse> => {
   const queryParams = new URLSearchParams();
 
@@ -165,14 +165,14 @@ const getUserActivity = async (
   if (filters.limit) queryParams.append("limit", filters.limit.toString());
 
   const response = await axiosInstance.get(
-    `/users/${userId}/activity?${queryParams.toString()}`
+    `/users/${userId}/activity?${queryParams.toString()}`,
   );
   return response.data;
 };
 
 export const useUserActivity = (
   userId: string,
-  filters: ActivityFilters = { page: 1, limit: 20 }
+  filters: ActivityFilters = { page: 1, limit: 20 },
 ) => {
   return useQuery({
     queryKey: ["userActivity", userId, filters],
@@ -184,7 +184,7 @@ export const useUserActivity = (
 //Get user jobs
 const getUserJobs = async (
   userId: string,
-  filters: UserJobsFilters = { page: 1, limit: 20 }
+  filters: UserJobsFilters = { page: 1, limit: 20 },
 ): Promise<UserJobsResponse> => {
   const queryParams = new URLSearchParams();
 
@@ -195,14 +195,14 @@ const getUserJobs = async (
   if (filters.priority) queryParams.append("priority", filters.priority);
 
   const response = await axiosInstance.get(
-    `/users/${userId}/jobs?${queryParams.toString()}`
+    `/users/${userId}/jobs?${queryParams.toString()}`,
   );
   return response.data;
 };
 
 export const useUserJobs = (
   userId: string,
-  filters: UserJobsFilters = { page: 1, limit: 20 }
+  filters: UserJobsFilters = { page: 1, limit: 20 },
 ) => {
   return useQuery({
     queryKey: ["userJobs", userId, filters],
@@ -232,7 +232,7 @@ export const useActivateUser = (userId: string) => {
 
 // Deactivate user
 const deactivateUser = async (
-  userId: string
+  userId: string,
 ): Promise<ActivateUserResponse> => {
   const response = await axiosInstance.put(`/users/${userId}/deactivate`);
   return response.data;
@@ -254,7 +254,7 @@ export const useDeactivateUser = (userId: string) => {
 // update user
 const updateUser = async (
   userId: string,
-  data: UpdateUserRequest
+  data: UpdateUserRequest,
 ): Promise<UserDetailsResponse> => {
   const response = await axiosInstance.put(`/users/${userId}`, data);
   return response.data;

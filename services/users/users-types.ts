@@ -203,3 +203,33 @@ export interface CreateUserResponse {
   message: string;
   data: User;
 }
+
+// Dashboard Types
+export interface DashboardStats {
+  job_aid_created: number;
+  total_equipment: number;
+  total_tasks: number;
+  completed_tasks: number;
+  pending_tasks: number;
+}
+
+export interface GraphDataPoint {
+  date: string;
+  count: number;
+}
+
+export interface DashboardGraphData {
+  sop_created: GraphDataPoint[];
+  equipment_registered: GraphDataPoint[];
+  total_task: GraphDataPoint[];
+  completed_task: GraphDataPoint[];
+}
+
+export interface AdminDashboardResponse {
+  status: string;
+  data: {
+    message: string;
+    stats: DashboardStats;
+    graphData: DashboardGraphData;
+  };
+}
