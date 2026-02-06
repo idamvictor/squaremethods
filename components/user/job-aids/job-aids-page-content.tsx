@@ -20,9 +20,6 @@ export default function JobAidsPageContent() {
   const [isEditing, setIsEditing] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [isAnnotating, setIsAnnotating] = useState(false);
-  const [annotationType, setAnnotationType] = useState<
-    "precaution" | "procedure" | null
-  >(null);
 
   const { data: editingJobAid } = useJobAidDetails(editingId || "");
   const updateJobAidMutation = useUpdateJobAid(editingId || "");
@@ -61,7 +58,6 @@ export default function JobAidsPageContent() {
       // Navigate to annotation manager
       setIsEditing(false);
       setIsAnnotating(true);
-      setAnnotationType("procedure");
     } catch (error) {
       toast.error(
         "Failed to update job aid: " +
@@ -106,7 +102,6 @@ export default function JobAidsPageContent() {
             className="mb-6"
             onClick={() => {
               setIsAnnotating(false);
-              setAnnotationType(null);
               setEditingId(null);
             }}
             size="sm"
@@ -114,7 +109,7 @@ export default function JobAidsPageContent() {
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Job Aids
           </Button>
-          <ImageAnnotationManager type={annotationType || "procedure"} />
+          <ImageAnnotationManager />
         </div>
       </div>
     );
