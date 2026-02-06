@@ -27,18 +27,10 @@ export function JobAidDetails({ jobAidId }: JobAidDetailsProps) {
   const { data: jobAidResponse, isLoading, error } = useJobAidDetails(jobAidId);
   // const [searchQuery, setSearchQuery] = useState("");
   const [showAnnotating, setShowAnnotating] = useState(false);
-  const [annotationType, setAnnotationType] = useState<
-    "procedure" | "precaution" | null
-  >(null);
-  const [viewMode, setViewMode] = useState<
-    "details" | "procedures" | "precautions"
-  >("details");
+  const [viewMode, setViewMode] = useState<"details" | "procedures">("details");
   const [showFullInstructions, setShowFullInstructions] = useState(false);
   const [isShareDropdownOpen, setIsShareDropdownOpen] = useState(false);
   const setCurrentJobAid = useJobAidStore((state) => state.setCurrentJobAid);
-  const setStoreAnnotationType = useJobAidStore(
-    (state) => state.setAnnotationType,
-  );
 
   const handleCopyUrl = useCallback(() => {
     const url = `${window.location.origin}/job-aids/${jobAidId}`;
@@ -75,15 +67,6 @@ export function JobAidDetails({ jobAidId }: JobAidDetailsProps) {
 
   const handleNewProcedureClick = () => {
     setCurrentJobAid(jobAid);
-    setStoreAnnotationType("procedure");
-    setAnnotationType("procedure");
-    setShowAnnotating(true);
-  };
-
-  const handleNewPrecautionClick = () => {
-    setCurrentJobAid(jobAid);
-    setStoreAnnotationType("precaution");
-    setAnnotationType("precaution");
     setShowAnnotating(true);
   };
 
@@ -92,12 +75,7 @@ export function JobAidDetails({ jobAidId }: JobAidDetailsProps) {
     setViewMode("procedures");
   };
 
-  // Handle view more for precautions
-  const handleViewMorePrecautions = () => {
-    setViewMode("precautions");
-  };
-
-  if (showAnnotating && annotationType) {
+  if (showAnnotating) {
     return (
       <div className="min-h-screen">
         <div className="p-6">
@@ -106,14 +84,13 @@ export function JobAidDetails({ jobAidId }: JobAidDetailsProps) {
             className="mb-6"
             onClick={() => {
               setShowAnnotating(false);
-              setAnnotationType(null);
             }}
             size="sm"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Job Aid Details
           </Button>
-          <ImageAnnotationManager type={annotationType} />
+          <ImageAnnotationManager />
         </div>
       </div>
     );
@@ -129,20 +106,6 @@ export function JobAidDetails({ jobAidId }: JobAidDetailsProps) {
         type="procedure"
         onBack={() => setViewMode("details")}
         onAddNew={handleNewProcedureClick}
-      />
-    );
-  }
-
-  // Show precautions grid view
-  if (viewMode === "precautions" && jobAid.precautions) {
-    return (
-      <StepsGridView
-        title="Precautions"
-        jobAidTitle={jobAid.title}
-        steps={jobAid.precautions}
-        type="precaution"
-        onBack={() => setViewMode("details")}
-        onAddNew={handleNewPrecautionClick}
       />
     );
   }
@@ -262,56 +225,6 @@ export function JobAidDetails({ jobAidId }: JobAidDetailsProps) {
                     </label>
                     <Input value={jobAid.category || "Not assigned"} readOnly />
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Date Created
-                    </label>
-                    <Input
-                      value={new Date(jobAid.createdAt).toLocaleDateString()}
-                      readOnly
-                    />
-                  </div>
-                </div>
-
-                {/* Precautions */}
-                <div>
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-2">
-                      <h3 className="text-lg font-medium">Precautions</h3>
-                      <div className="w-4 h-4 bg-orange-500 rounded-full flex items-center justify-center">
-                        <span className="text-white text-xs">!</span>
-                      </div>
-                    </div>
-                    {jobAid.precautions && jobAid.precautions.length > 0 && (
-                      <button
-                        onClick={handleViewMorePrecautions}
-                        className="text-sm text-blue-600 hover:text-blue-700 font-medium"
-                      >
-                        View
-                      </button>
-                    )}
-                  </div>
-                  {jobAid.precautions && jobAid.precautions.length > 0 ? (
-                    <ul className="space-y-2">
-                      {jobAid.precautions
-                        .slice(0, 3)
-                        .map((precaution, index) => (
-                          <li key={index} className="text-gray-700">
-                            {precaution.instruction}
-                          </li>
-                        ))}
-                      {jobAid.precautions.length > 3 && (
-                        <li className="text-sm text-gray-500 italic pt-2">
-                          ... and {jobAid.precautions.length - 3} more
-                        </li>
-                      )}
-                    </ul>
-                  ) : (
-                    <p className="text-gray-500">
-                      No precautions added. Protect your team by adding
-                      essential precautions.
-                    </p>
-                  )}
                 </div>
 
                 {/* Instructions */}
@@ -344,7 +257,7 @@ export function JobAidDetails({ jobAidId }: JobAidDetailsProps) {
                   )}
                 </div>
 
-                {/* Procedures */}
+                {/* Procedures with Precautions */}
                 <div>
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-lg font-medium">Procedures</h3>
@@ -353,48 +266,71 @@ export function JobAidDetails({ jobAidId }: JobAidDetailsProps) {
                         onClick={handleViewMoreProcedures}
                         className="text-sm text-blue-600 hover:text-blue-700 font-medium"
                       >
-                        View
+                        View All
                       </button>
                     )}
                   </div>
                   {jobAid.procedures && jobAid.procedures.length > 0 ? (
-                    <ol className="space-y-4 list-decimal list-inside">
+                    <div className="space-y-4">
                       {jobAid.procedures.slice(0, 3).map((procedure, index) => (
-                        <li key={index} className="text-gray-700">
-                          {procedure.instruction}
-                        </li>
+                        <div
+                          key={index}
+                          className="border border-gray-200 rounded-lg p-4 bg-gray-50"
+                        >
+                          <div className="flex items-start gap-3">
+                            <div className="flex-shrink-0 w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-medium">
+                              {index + 1}
+                            </div>
+                            <div className="flex-1">
+                              <p className="text-gray-700 font-medium">
+                                {procedure.instruction}
+                              </p>
+                              {procedure.precautions &&
+                                procedure.precautions.length > 0 && (
+                                  <div className="mt-3 pl-3 border-l-2 border-amber-400 bg-amber-50 p-3 rounded">
+                                    <p className="text-xs font-semibold text-amber-800 mb-2 flex items-center gap-1">
+                                      <span className="text-amber-600">⚠</span>
+                                      Precautions
+                                    </p>
+                                    <ul className="space-y-1">
+                                      {procedure.precautions.map(
+                                        (precaution, precIdx) => (
+                                          <li
+                                            key={precIdx}
+                                            className="text-sm text-amber-900"
+                                          >
+                                            • {precaution.instruction}
+                                          </li>
+                                        ),
+                                      )}
+                                    </ul>
+                                  </div>
+                                )}
+                            </div>
+                          </div>
+                        </div>
                       ))}
                       {jobAid.procedures.length > 3 && (
-                        <li className="text-sm text-gray-500 italic pt-2">
+                        <p className="text-sm text-gray-500 italic pt-2">
                           ... and {jobAid.procedures.length - 3} more
-                        </li>
+                        </p>
                       )}
-                    </ol>
+                    </div>
                   ) : (
                     <p className="text-gray-500">No procedures added yet.</p>
                   )}
                 </div>
 
-                {/* Add New Buttons */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+                {/* Add New Button */}
+                <div className="mt-6">
                   <Button
                     variant="outline"
-                    className="h-20 border-dashed bg-transparent"
+                    className="w-full h-16 border-dashed bg-transparent"
                     onClick={handleNewProcedureClick}
                   >
                     <div className="text-center">
                       <Plus className="w-6 h-6 mx-auto mb-2" />
-                      <span>New Procedure</span>
-                    </div>
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="h-20 border-dashed bg-transparent"
-                    onClick={handleNewPrecautionClick}
-                  >
-                    <div className="text-center">
-                      <Plus className="w-6 h-6 mx-auto mb-2" />
-                      <span>New Precaution</span>
+                      <span>Add Procedure with Optional Precautions</span>
                     </div>
                   </Button>
                 </div>

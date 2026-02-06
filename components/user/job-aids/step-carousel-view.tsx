@@ -1,10 +1,14 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, AlertCircle } from "lucide-react";
 import Image from "next/image";
-import { JobAidProcedure, Precaution } from "@/services/job-aid/job-aid-types";
+import {
+  JobAidProcedure,
+  Precaution,
+  ProcedurePrecaution,
+} from "@/services/job-aid/job-aid-types";
 import {
   Carousel,
   CarouselContent,
@@ -27,6 +31,7 @@ export function StepCarouselView({
   title,
   jobAidTitle,
   steps,
+  type,
   initialIndex = 0,
   onBack,
 }: StepCarouselViewProps) {
@@ -34,8 +39,28 @@ export function StepCarouselView({
   const [current, setCurrent] = useState(0);
   const [count, setCount] = useState(0);
 
-  // Sort steps by step number
-  const sortedSteps = [...steps].sort((a, b) => (a.step || 0) - (b.step || 0));
+  // Sort and parse steps
+  const sortedSteps = useMemo(() => {
+    return [...steps]
+      .sort((a, b) => (a.step || 0) - (b.step || 0))
+      .map((step) => {
+        if (type === "procedure" && "precautions" in step && step.precautions) {
+          const parsedPrecautions = step.precautions.map((prec) => {
+            if (typeof prec === "string") {
+              try {
+                return JSON.parse(prec) as ProcedurePrecaution;
+              } catch (e) {
+                console.error("Failed to parse precaution:", prec, e);
+                return { id: "", instruction: "" };
+              }
+            }
+            return prec as ProcedurePrecaution;
+          });
+          return { ...step, precautions: parsedPrecautions };
+        }
+        return step;
+      });
+  }, [steps, type]);
 
   useEffect(() => {
     if (!api) {
@@ -133,9 +158,38 @@ export function StepCarouselView({
                       )}
                     </div>
 
+                    {/* Instruction - Always show this */}
                     <div className="text-gray-700 whitespace-pre-wrap leading-relaxed">
                       {step.instruction}
                     </div>
+
+                    {/* Precautions Section */}
+                    {type === "procedure" &&
+                      "precautions" in step &&
+                      step.precautions &&
+                      step.precautions.length > 0 && (
+                        <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg">
+                          <div className="flex items-start gap-2 mb-3">
+                            <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                            <div>
+                              <p className="text-sm font-semibold text-amber-900">
+                                ⚠ Precautions
+                              </p>
+                            </div>
+                          </div>
+                          <ul className="space-y-2 ml-7">
+                            {step.precautions.map((precaution, precIdx) => (
+                              <li
+                                key={precIdx}
+                                className="text-sm text-amber-900 flex items-start gap-2"
+                              >
+                                <span className="flex-shrink-0 mt-0.5">•</span>
+                                <span>{precaution.instruction}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
                   </div>
 
                   {/* Navigation */}

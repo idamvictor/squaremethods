@@ -1,10 +1,19 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Plus } from "lucide-react";
+import { ArrowLeft, Plus, AlertCircle } from "lucide-react";
 import Image from "next/image";
-import { JobAidProcedure, Precaution } from "@/services/job-aid/job-aid-types";
+import {
+  JobAidProcedure,
+  Precaution,
+  ProcedurePrecaution,
+} from "@/services/job-aid/job-aid-types";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { StepCarouselView } from "./step-carousel-view";
 
 interface StepsGridViewProps {
@@ -27,6 +36,27 @@ export function StepsGridView({
   const [showCarousel, setShowCarousel] = useState(false);
   const [selectedStepIndex, setSelectedStepIndex] = useState(0);
 
+  // Parse precautions if they're stringified
+  const parsedSteps = useMemo(() => {
+    return steps.map((step) => {
+      if (type === "procedure" && "precautions" in step && step.precautions) {
+        const parsedPrecautions = step.precautions.map((prec) => {
+          if (typeof prec === "string") {
+            try {
+              return JSON.parse(prec) as ProcedurePrecaution;
+            } catch (e) {
+              console.error("Failed to parse precaution:", prec, e);
+              return { id: "", instruction: "" };
+            }
+          }
+          return prec as ProcedurePrecaution;
+        });
+        return { ...step, precautions: parsedPrecautions };
+      }
+      return step;
+    });
+  }, [steps, type]);
+
   const handleStepClick = (index: number) => {
     setSelectedStepIndex(index);
     setShowCarousel(true);
@@ -37,7 +67,7 @@ export function StepsGridView({
       <StepCarouselView
         title={title}
         jobAidTitle={jobAidTitle}
-        steps={steps}
+        steps={parsedSteps as JobAidProcedure[] | Precaution[]}
         type={type}
         initialIndex={selectedStepIndex}
         onBack={() => setShowCarousel(false)}
@@ -70,9 +100,9 @@ export function StepsGridView({
         <div className="mb-8">
           <h2 className="text-xl font-semibold text-gray-900 mb-6">{title}</h2>
 
-          {steps && steps.length > 0 ? (
+          {parsedSteps && parsedSteps.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {steps
+              {parsedSteps
                 .sort((a, b) => (a.step || 0) - (b.step || 0))
                 .map((step, index) => (
                   <button
@@ -97,11 +127,47 @@ export function StepsGridView({
                     </div>
 
                     {/* Content */}
-                    <div className="p-4">
-                      <div className="flex items-center gap-2 mb-2">
+                    <div className="p-4 space-y-3">
+                      <div className="flex items-center justify-between gap-2">
                         <span className="text-sm font-semibold text-gray-900">
                           Step {step.step}
                         </span>
+                        {type === "procedure" &&
+                          "precautions" in step &&
+                          step.precautions &&
+                          step.precautions.length > 0 && (
+                            <Popover>
+                              <PopoverTrigger
+                                asChild
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                <button className="flex items-center gap-1 px-2 py-1 text-xs font-medium text-amber-700 bg-amber-50 border border-amber-200 rounded hover:bg-amber-100 transition-colors flex-shrink-0">
+                                  <AlertCircle className="w-3 h-3" />
+                                  {step.precautions.length}
+                                </button>
+                              </PopoverTrigger>
+                              <PopoverContent className="w-64">
+                                <div className="space-y-3">
+                                  <h4 className="font-semibold text-sm text-gray-900">
+                                    Precautions ({step.precautions.length})
+                                  </h4>
+                                  <ul className="space-y-2">
+                                    {step.precautions.map((prec, idx) => (
+                                      <li
+                                        key={idx}
+                                        className="text-sm text-gray-700 flex gap-2"
+                                      >
+                                        <span className="flex-shrink-0 text-amber-600">
+                                          •
+                                        </span>
+                                        <span>{prec.instruction}</span>
+                                      </li>
+                                    ))}
+                                  </ul>
+                                </div>
+                              </PopoverContent>
+                            </Popover>
+                          )}
                       </div>
                       {step.title && (
                         <h3 className="font-medium text-gray-900 mb-2">

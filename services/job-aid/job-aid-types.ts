@@ -109,12 +109,18 @@ export interface UpdateJobAidInput {
   equipment_ids?: string[];
 }
 
+export interface ProcedurePrecaution {
+  id: string;
+  instruction: string;
+}
+
 export interface CreateJobAidProcedureInput {
   job_aid_id: string;
   title: string;
   step: number;
   instruction: string;
   image: string;
+  precautions?: ProcedurePrecaution[];
 }
 
 export interface JobAidProcedure {
@@ -126,6 +132,7 @@ export interface JobAidProcedure {
   instruction: string;
   image: string;
   type: "procedure";
+  precautions?: ProcedurePrecaution[];
   updatedAt: string;
   createdAt: string;
   deletedAt: string | null;
@@ -144,6 +151,7 @@ export interface JobAidProcedureList {
   image: string;
   step: number;
   instruction: string;
+  precautions?: ProcedurePrecaution[];
   createdAt: string;
   updatedAt: string;
   deletedAt: string | null;
@@ -160,6 +168,7 @@ export interface UpdateJobAidProcedureInput {
   step: number;
   title: string;
   image: string;
+  precautions?: ProcedurePrecaution[];
 }
 
 export interface CreateJobAidPrecautionInput {
