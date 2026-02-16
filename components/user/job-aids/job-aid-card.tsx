@@ -98,7 +98,7 @@ export function JobAidCard({
               </div>
               <div className="flex-1">
                 <h3 className="font-medium text-gray-900">{jobAid.title}</h3>
-                <p className="text-gray-600 line-clamp-1">
+                <p className="text-gray-600 line-clamp-2">
                   {jobAid.instruction}
                 </p>
                 <p className="text-sm text-gray-500 mt-1">

@@ -1,3 +1,5 @@
+"use client";
+
 import { useRouter, usePathname } from "next/navigation";
 import {
   // Search,
@@ -18,12 +20,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useLogout } from "@/lib/api/auth";
-import { useAuthStore } from "@/store/auth-store";
+import { useProfile } from "@/services/users/users-querries";
 
 export function Header() {
   const router = useRouter();
   const pathname = usePathname();
-  const user = useAuthStore((state) => state.user);
+  const { data: profileData } = useProfile();
+  const user = profileData?.data;
   const { mutate: logout, isPending: isLoggingOut } = useLogout();
 
   const handleProfileClick = () => {
@@ -71,14 +74,12 @@ export function Header() {
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Avatar className="h-8 w-8 cursor-pointer">
+              <Avatar className="h-10 w-10 cursor-pointer">
                 <AvatarImage
-                  src={
-                    user?.avatar_url || "/placeholder.svg?height=32&width=32"
-                  }
+                  src={user?.avatar_url || undefined}
                   alt={user?.first_name || "User"}
                 />
-                <AvatarFallback className="bg-blue-600 text-white text-xs">
+                <AvatarFallback className="bg-purple-100 text-purple-600 text-sm font-semibold">
                   {getInitials()}
                 </AvatarFallback>
               </Avatar>

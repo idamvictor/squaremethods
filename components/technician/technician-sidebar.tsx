@@ -115,7 +115,7 @@ export function TechnicianSidebar({
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-            MAIN
+            MENU
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>

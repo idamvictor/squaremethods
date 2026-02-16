@@ -71,7 +71,7 @@ export function JobAidsTable({ jobAids, onDelete, onEdit }: JobAidsTableProps) {
                   </div>
                 </Link>
               </TableCell>
-              <TableCell>
+              <TableCell className="max-w-sm">
                 <Link
                   href={`/job-aids/${jobAid.id}`}
                   className="block hover:text-blue-600"
@@ -79,7 +79,7 @@ export function JobAidsTable({ jobAids, onDelete, onEdit }: JobAidsTableProps) {
                   <div className="font-medium text-gray-900">
                     {jobAid.title}
                   </div>
-                  <div className="text-gray-500 text-sm">
+                  <div className="text-gray-500 text-sm line-clamp-2">
                     {jobAid.instruction}
                   </div>
                 </Link>
