@@ -33,7 +33,7 @@ export function EditEquipmentModal() {
     notes: string;
     status: string;
     image: string;
-    documents: File[];
+    documents: string[];
   }>({
     name: "",
     equipment_type_id: "",
@@ -45,6 +45,7 @@ export function EditEquipmentModal() {
     documents: [],
   });
   const [fileManagerOpen, setFileManagerOpen] = useState(false);
+  const [documentFileManagerOpen, setDocumentFileManagerOpen] = useState(false);
 
   const { editingEquipment, setEditingEquipment, setIsEditingEquipment } =
     useEquipmentStore();
@@ -73,14 +74,6 @@ export function EditEquipmentModal() {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleDocumentsUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
-    setFormData((prev) => ({
-      ...prev,
-      documents: [...prev.documents, ...files],
-    }));
-  };
-
   const handleUpdate = async () => {
     if (!editingEquipment) {
       toast.error("No equipment selected");
@@ -103,6 +96,7 @@ export function EditEquipmentModal() {
           name: formData.name,
           notes: formData.notes,
           status: formData.status,
+          documents: formData.documents,
         },
       });
 
@@ -201,21 +195,24 @@ export function EditEquipmentModal() {
             <div>
               <Label htmlFor="documents">Documents</Label>
               <div className="mt-2 border-2 border-dashed border-gray-300 rounded-lg p-4 bg-gray-50">
-                <input
-                  id="documents"
-                  type="file"
-                  multiple
-                  onChange={handleDocumentsUpload}
-                  className="text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full"
+                  onClick={() => setDocumentFileManagerOpen(true)}
+                >
+                  Add Documents
+                </Button>
                 {formData.documents.length > 0 && (
                   <ul className="mt-4 space-y-2">
-                    {formData.documents.map((file: File, index: number) => (
+                    {formData.documents.map((docUrl: string, index: number) => (
                       <li
                         key={index}
-                        className="text-sm text-gray-700 flex items-center justify-between"
+                        className="text-sm text-gray-700 flex items-center justify-between bg-white p-2 rounded border border-gray-200"
                       >
-                        <span>{file.name}</span>
+                        <span className="truncate">
+                          {docUrl.split("/").pop()}
+                        </span>
                         <button
                           type="button"
                           onClick={() => {
@@ -226,7 +223,7 @@ export function EditEquipmentModal() {
                               ),
                             }));
                           }}
-                          className="text-red-600 hover:text-red-700"
+                          className="text-red-600 hover:text-red-700 ml-2"
                         >
                           Remove
                         </button>
@@ -345,6 +342,18 @@ export function EditEquipmentModal() {
         onFileSelect={(fileUrl) => {
           setFormData((prev) => ({ ...prev, image: fileUrl }));
           setFileManagerOpen(false);
+        }}
+      />
+
+      <FileManagerModal
+        open={documentFileManagerOpen}
+        onOpenChange={setDocumentFileManagerOpen}
+        onFileSelect={(fileUrl) => {
+          setFormData((prev) => ({
+            ...prev,
+            documents: [...prev.documents, fileUrl],
+          }));
+          setDocumentFileManagerOpen(false);
         }}
       />
     </>

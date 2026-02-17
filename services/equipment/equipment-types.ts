@@ -158,6 +158,7 @@ export interface UpdateEquipmentInput {
   name?: string;
   notes?: string;
   status?: string;
+  image?: string;
   documents?: string[];
 }
 
