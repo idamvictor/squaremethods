@@ -24,28 +24,19 @@ export function FileList({ files, onDelete, onSelect }: FileListProps) {
   }
 
   return (
-    <div className="grid gap-3 max-h-96 overflow-y-auto">
+    <div className="grid grid-cols-3 gap-4 max-h-96 overflow-y-auto">
       {files.map((file) => (
         <div
           key={file.id}
-          className="group flex items-center gap-3 rounded-lg border border-border bg-card p-3 transition-colors hover:bg-muted cursor-pointer"
+          className="group relative aspect-square rounded-lg overflow-hidden bg-muted cursor-pointer ring-1 ring-border shadow-md hover:shadow-lg transition-all hover:ring-2 hover:ring-primary"
           onClick={() => onSelect(file)}
         >
-          <div className="relative h-12 w-12 flex-shrink-0 overflow-hidden rounded-md bg-muted">
-            <Image
-              src={file.url || "/placeholder.svg"}
-              alt={file.name}
-              fill
-              className="object-cover"
-            />
-          </div>
-
-          <div className="flex-1 min-w-0">
-            <p className="truncate text-sm font-medium">{file.name}</p>
-            <p className="text-xs text-muted-foreground">
-              {new Date(file.createdAt).toLocaleDateString()}
-            </p>
-          </div>
+          <Image
+            src={file.url || "/placeholder.svg"}
+            alt={file.name}
+            fill
+            className="object-cover"
+          />
 
           <Button
             variant="ghost"
@@ -54,7 +45,7 @@ export function FileList({ files, onDelete, onSelect }: FileListProps) {
               e.stopPropagation();
               onDelete(file.id);
             }}
-            className="opacity-0 transition-opacity group-hover:opacity-100"
+            className="absolute top-2 right-2 opacity-0 transition-opacity group-hover:opacity-100 bg-black/50 hover:bg-black/70 text-white"
           >
             <Trash2 className="h-4 w-4" />
           </Button>
