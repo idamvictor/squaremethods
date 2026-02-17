@@ -43,7 +43,7 @@ export function EquipmentHierarchyModal({
             Attach Equipment
           </Button>
         </DialogHeader>
-        <div className="flex-1 overflow-hidden">
+        <div className="flex-1 overflow-y-auto">
           <EquipmentHierarchy />
         </div>
       </DialogContent>
