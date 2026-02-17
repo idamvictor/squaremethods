@@ -4,14 +4,6 @@ import { useState } from "react";
 import { Folder, Settings, MoreVertical, Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
   Popover,
   PopoverContent,
   PopoverTrigger,
@@ -37,7 +29,6 @@ interface FloatingActionButtonsProps {
 
 export function FloatingActionButtons({ node }: FloatingActionButtonsProps) {
   const [showUpdateModal, setShowUpdateModal] = useState(false);
-  const [showDeleteAlert, setShowDeleteAlert] = useState(false);
   const { fetchHierarchy, clearSelection } = useEquipmentStore();
   const deleteLocation = useDeleteLocation();
 
@@ -63,10 +54,6 @@ export function FloatingActionButtons({ node }: FloatingActionButtonsProps) {
 
   const handleDeleteLocation = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    setShowDeleteAlert(true);
-  };
-
-  const confirmDelete = async () => {
     try {
       const response = await deleteLocation.mutateAsync(node.id);
 
@@ -75,14 +62,13 @@ export function FloatingActionButtons({ node }: FloatingActionButtonsProps) {
         clearSelection();
         toast.success(response.message);
         await fetchHierarchy();
-        setShowDeleteAlert(false);
       } else {
         toast.error(response.message || "Failed to delete location");
       }
     } catch (error) {
       console.error("Error deleting location:", error);
       toast.error(
-        error instanceof Error ? error.message : "Failed to delete location"
+        error instanceof Error ? error.message : "Failed to delete location",
       );
     }
   };
@@ -153,30 +139,6 @@ export function FloatingActionButtons({ node }: FloatingActionButtonsProps) {
         locationId={node.id}
         locationName={node.name}
       />
-
-      <Dialog open={showDeleteAlert} onOpenChange={setShowDeleteAlert}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Delete Location</DialogTitle>
-            <DialogDescription>
-              This will permanently delete the location &ldquo;{node.name}
-              &rdquo; and all its contents. This action cannot be undone.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter className="gap-2">
-            <Button variant="outline" onClick={() => setShowDeleteAlert(false)}>
-              Cancel
-            </Button>
-            <Button
-              onClick={confirmDelete}
-              variant="destructive"
-              disabled={deleteLocation.isPending}
-            >
-              {deleteLocation.isPending ? "Deleting..." : "Delete"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </>
   );
 }
