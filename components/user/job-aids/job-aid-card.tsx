@@ -79,7 +79,7 @@ export function JobAidCard({
                     {jobAid.title}
                   </h3>
                   <p className="text-white/90 text-sm line-clamp-1">
-                    {jobAid.instruction}
+                    {jobAid.creator.first_name} {jobAid.creator.last_name}
                   </p>
                 </div>
               </CardContent>
@@ -99,10 +99,9 @@ export function JobAidCard({
               <div className="flex-1">
                 <h3 className="font-medium text-gray-900">{jobAid.title}</h3>
                 <p className="text-gray-600 line-clamp-2">
-                  {jobAid.instruction}
+                  {jobAid.creator.first_name} {jobAid.creator.last_name}
                 </p>
                 <p className="text-sm text-gray-500 mt-1">
-                  By {jobAid.creator.first_name} {jobAid.creator.last_name} •{" "}
                   {new Date(jobAid.createdAt).toLocaleDateString()}
                 </p>
               </div>

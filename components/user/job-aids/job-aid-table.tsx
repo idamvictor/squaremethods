@@ -80,7 +80,7 @@ export function JobAidsTable({ jobAids, onDelete, onEdit }: JobAidsTableProps) {
                     {jobAid.title}
                   </div>
                   <div className="text-gray-500 text-sm line-clamp-2">
-                    {jobAid.instruction}
+                    {jobAid.creator.first_name} {jobAid.creator.last_name}
                   </div>
                 </Link>
               </TableCell>
