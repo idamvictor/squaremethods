@@ -370,7 +370,8 @@ export function EquipmentDetails({ node }: EquipmentDetailsProps) {
               {equipment.failureModes.map((failureMode) => (
                 <div
                   key={failureMode.id}
-                  className="border rounded-lg p-4 hover:shadow-lg transition-shadow"
+                  className="border rounded-lg p-4 hover:shadow-lg transition-shadow cursor-pointer"
+                  onClick={() => router.push(`/failure-mode/${failureMode.id}`)}
                 >
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     {/* Left: Image */}
