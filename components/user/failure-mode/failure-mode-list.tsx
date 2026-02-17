@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,7 +18,6 @@ import { Search, Pencil, Trash2, Eye } from "lucide-react";
 import { AddFailureModeModal } from "./add-failure-mode-modal";
 import { EditFailureModeModal } from "./edit-failure-mode-modal";
 import { DeleteConfirmationModal } from "./delete-confirmation-modal";
-import { FailureModeDetailsModal } from "./failure-mode-details-modal";
 import type { FailureModeData } from "./add-failure-mode-modal";
 
 import { FailureMode } from "@/services/failure-mode/failure-mode-types";
@@ -37,11 +37,11 @@ const getStatusColor = (status: FailureMode["status"]) => {
 };
 
 export function FailureModeList() {
+  const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [selectedFailureMode, setSelectedFailureMode] =
     useState<FailureMode | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -76,8 +76,7 @@ export function FailureModeList() {
   };
 
   const handleViewDetails = (mode: FailureMode) => {
-    setSelectedFailureMode(mode);
-    setIsDetailsModalOpen(true);
+    router.push(`/failure-mode/${mode.id}`);
   };
 
   return (
@@ -153,8 +152,8 @@ export function FailureModeList() {
                       mode.priority === "high"
                         ? "border-red-500 text-red-500"
                         : mode.priority === "medium"
-                        ? "border-yellow-500 text-yellow-500"
-                        : "border-blue-500 text-blue-500"
+                          ? "border-yellow-500 text-yellow-500"
+                          : "border-blue-500 text-blue-500"
                     }
                   >
                     {(mode.priority || "low").charAt(0).toUpperCase() +
@@ -228,7 +227,7 @@ export function FailureModeList() {
                   (page) =>
                     page === 1 ||
                     page === totalPages ||
-                    Math.abs(page - currentPage) <= 1
+                    Math.abs(page - currentPage) <= 1,
                 )
                 .map((page, index, array) => {
                   if (index > 0 && array[index - 1] !== page - 1) {
@@ -284,14 +283,6 @@ export function FailureModeList() {
           onOpenChange={setIsDeleteModalOpen}
           failureModeId={failureModeToDelete.id}
           failureModeTitle={failureModeToDelete.title}
-        />
-      )}
-
-      {selectedFailureMode && (
-        <FailureModeDetailsModal
-          failureModeId={selectedFailureMode.id}
-          open={isDetailsModalOpen}
-          onOpenChange={setIsDetailsModalOpen}
         />
       )}
     </div>

@@ -45,15 +45,19 @@ export function SelectableJobAidTable({
 
   return (
     <div className="border rounded-lg bg-white max-h-[400px] overflow-y-auto">
-      <Table>
+      <Table className="table-fixed w-full">
         <TableHeader>
           <TableRow className="bg-gray-50">
             <TableHead className="w-12"></TableHead>
             <TableHead className="font-medium text-gray-700 py-4 w-24">
               JOB AID
             </TableHead>
-            <TableHead className="font-medium text-gray-700">TITLE</TableHead>
-            <TableHead className="font-medium text-gray-700">STATUS</TableHead>
+            <TableHead className="font-medium text-gray-700 flex-1 min-w-0">
+              TITLE & CREATOR
+            </TableHead>
+            <TableHead className="font-medium text-gray-700 w-20">
+              STATUS
+            </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -79,10 +83,10 @@ export function SelectableJobAidTable({
                   />
                 </div>
               </TableCell>
-              <TableCell>
+              <TableCell className="pl-4">
                 <div className="font-medium text-gray-900">{jobAid.title}</div>
                 <div className="text-gray-500 text-sm">
-                  {jobAid.instruction}
+                  {jobAid.creator?.first_name} {jobAid.creator?.last_name}
                 </div>
               </TableCell>
               <TableCell>

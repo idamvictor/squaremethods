@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Download, Eye, Plus } from "lucide-react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
@@ -31,6 +32,7 @@ interface EquipmentDetailsProps {
 }
 
 export function EquipmentDetails({ node }: EquipmentDetailsProps) {
+  const router = useRouter();
   const [isDownloading, setIsDownloading] = useState(false);
   const [fileManagerOpen, setFileManagerOpen] = useState(false);
   const [isUpdatingDocument, setIsUpdatingDocument] = useState(false);
@@ -306,7 +308,8 @@ export function EquipmentDetails({ node }: EquipmentDetailsProps) {
               {equipment.jobAids.map((jobAid) => (
                 <div
                   key={jobAid.id}
-                  className="border rounded-lg p-4 hover:shadow-lg transition-shadow"
+                  className="border rounded-lg p-4 hover:shadow-lg transition-shadow cursor-pointer"
+                  onClick={() => router.push(`/job-aids/${jobAid.id}`)}
                 >
                   {jobAid.image && (
                     <div className="relative w-full h-40 mb-4 rounded-lg overflow-hidden">

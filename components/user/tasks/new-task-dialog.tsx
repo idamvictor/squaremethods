@@ -64,7 +64,7 @@ export function NewTaskDialog({ isOpen, onClose }: NewTaskDialogProps) {
     } catch (error) {
       toast.error(
         "Failed to create task: " +
-          (error instanceof Error ? error.message : "Unknown error")
+          (error instanceof Error ? error.message : "Unknown error"),
       );
     }
   };
