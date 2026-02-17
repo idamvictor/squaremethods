@@ -9,6 +9,7 @@ import {
   Folder,
   FolderOpen,
   Loader2,
+  ArrowLeft,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
@@ -22,7 +23,7 @@ import { cn } from "@/lib/utils";
 import { AddLocationModal } from "@/components/user/equipment-hierarchy/add-location-modal";
 import { AddEquipmentModal } from "@/components/user/equipment-hierarchy/add-equipment-modal";
 import { EditEquipmentModal } from "@/components/user/equipment-hierarchy/edit-equipment-modal";
-import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
 
 const getEquipmentIcon = (type: string) => {
   if (type === "location") return null;
@@ -49,7 +50,6 @@ interface TreeNodeProps {
 function TreeNode({ node, level }: TreeNodeProps) {
   const { expandedNodes, toggleExpanded, setSelectedNode } =
     useEquipmentStore();
-  const router = useRouter();
 
   const isExpanded = expandedNodes.has(node.id);
   const hasChildren = node.children && node.children.length > 0;
@@ -62,7 +62,6 @@ function TreeNode({ node, level }: TreeNodeProps) {
 
   const handleSelect = () => {
     setSelectedNode(node);
-    router.push(`/equipment-hierarchy/${node.id}`);
   };
 
   return (
@@ -141,11 +140,39 @@ export default function EquipmentHierarchyLayout({
     isLoading,
     error,
     fetchHierarchy,
+    isEditingEquipment,
+    setIsEditingEquipment,
+    editingEquipment,
+    setEditingEquipment,
   } = useEquipmentStore();
 
   React.useEffect(() => {
     fetchHierarchy();
   }, [fetchHierarchy]);
+
+  if (isEditingEquipment && editingEquipment) {
+    return (
+      <div className="flex flex-col h-screen bg-white p-4">
+        <div className="mb-4">
+          <Button
+            variant="ghost"
+            className="mb-6"
+            onClick={() => {
+              setIsEditingEquipment(false);
+              setEditingEquipment(null);
+            }}
+            size="sm"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Equipment
+          </Button>
+        </div>
+        <div className="bg-white rounded-lg p-6">
+          <EditEquipmentModal />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col h-screen bg-white p-4">
@@ -221,7 +248,6 @@ export default function EquipmentHierarchyLayout({
         {/* Modals */}
         {showAddLocationModal && <AddLocationModal />}
         {showAddEquipmentModal && <AddEquipmentModal />}
-        <EditEquipmentModal />
       </div>
     </div>
   );

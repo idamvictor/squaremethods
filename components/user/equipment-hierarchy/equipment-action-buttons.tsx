@@ -37,7 +37,7 @@ export function EquipmentActionButtons({ node }: EquipmentActionButtonsProps) {
 
   const handleEdit = () => {
     store.setEditingEquipment(node);
-    store.setShowEditEquipmentModal(true);
+    store.setIsEditingEquipment(true);
   };
 
   return (

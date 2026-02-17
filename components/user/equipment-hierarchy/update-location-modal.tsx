@@ -4,16 +4,10 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { useEquipmentStore } from "@/store/equipment-store";
 import { useUpdateLocation } from "@/services/locations/location-queries";
-import { Loader2 } from "lucide-react";
+import { Loader2, X } from "lucide-react";
 
 interface UpdateLocationModalProps {
   isOpen: boolean;
@@ -70,62 +64,82 @@ export function UpdateLocationModal({
     } catch (error) {
       console.error("Error updating location:", error);
       toast.error(
-        error instanceof Error ? error.message : "Failed to update location"
+        error instanceof Error ? error.message : "Failed to update location",
       );
     }
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>Update Location</DialogTitle>
-        </DialogHeader>
+    <>
+      {isOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          {/* Backdrop overlay */}
+          <div className="absolute inset-0 bg-black/50" onClick={onClose} />
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="location-name" className="text-sm font-medium">
-                Location name <span className="text-red-500">*</span>
-              </Label>
-              <div className="mt-1 relative">
-                <Input
-                  id="location-name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="pr-10"
-                  required
-                />
-              </div>
+          {/* Modal dialog */}
+          <div className="relative bg-white rounded-lg shadow-lg z-10 w-full max-w-md mx-4">
+            {/* Header */}
+            <div className="flex items-center justify-between border-b px-6 py-4">
+              <h2 className="text-lg font-semibold">Update Location</h2>
+              <button
+                onClick={onClose}
+                className="text-gray-500 hover:text-gray-700 transition-colors"
+              >
+                <X className="h-5 w-5" />
+              </button>
             </div>
-          </div>
 
-          <div className="flex gap-3">
-            <Button
-              type="submit"
-              className="flex-1"
-              disabled={updateLocation.isPending || !name.trim()}
-            >
-              {updateLocation.isPending ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Updating...
-                </>
-              ) : (
-                "Update"
-              )}
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={onClose}
-              className="flex-1 bg-transparent"
-            >
-              Cancel
-            </Button>
+            {/* Content */}
+            <form onSubmit={handleSubmit} className="p-6">
+              <div className="space-y-4">
+                <div>
+                  <Label
+                    htmlFor="location-name"
+                    className="text-sm font-medium"
+                  >
+                    Location name <span className="text-red-500">*</span>
+                  </Label>
+                  <div className="mt-1 relative">
+                    <Input
+                      id="location-name"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      className="pr-10"
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Footer */}
+              <div className="flex gap-3 mt-6">
+                <Button
+                  type="submit"
+                  className="flex-1"
+                  disabled={updateLocation.isPending || !name.trim()}
+                >
+                  {updateLocation.isPending ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Updating...
+                    </>
+                  ) : (
+                    "Update"
+                  )}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={onClose}
+                  className="flex-1 bg-transparent"
+                >
+                  Cancel
+                </Button>
+              </div>
+            </form>
           </div>
-        </form>
-      </DialogContent>
-    </Dialog>
+        </div>
+      )}
+    </>
   );
 }

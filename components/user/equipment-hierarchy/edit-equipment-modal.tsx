@@ -14,12 +14,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { FileManagerModal } from "@/components/shared/file-manager/file-manager-modal";
 import { useEquipmentStore } from "@/store/equipment-store";
 import { useEquipmentTypes } from "@/services/equipment-types/equipment-types-queries";
@@ -52,12 +46,8 @@ export function EditEquipmentModal() {
   });
   const [fileManagerOpen, setFileManagerOpen] = useState(false);
 
-  const {
-    setShowEditEquipmentModal,
-    showEditEquipmentModal,
-    editingEquipment,
-    setEditingEquipment,
-  } = useEquipmentStore();
+  const { editingEquipment, setEditingEquipment, setIsEditingEquipment } =
+    useEquipmentStore();
 
   const updateEquipmentMutation = useUpdateEquipment();
   const { data: equipmentData } = useEquipmentDetails(editingEquipment?.id);
@@ -142,7 +132,7 @@ export function EditEquipmentModal() {
       image: "",
       documents: [],
     });
-    setShowEditEquipmentModal(false);
+    setIsEditingEquipment(false);
     setEditingEquipment(null);
   };
 
@@ -155,16 +145,11 @@ export function EditEquipmentModal() {
     })) || [];
 
   return (
-    <Dialog
-      open={showEditEquipmentModal}
-      onOpenChange={setShowEditEquipmentModal}
-    >
-      <DialogContent className="max-w-5xl sm:max-w-[60vw] w-full max-h-[90vh] overflow-y-auto p-6">
-        <DialogHeader>
-          <DialogTitle className="text-xl">Edit Equipment</DialogTitle>
-        </DialogHeader>
+    <>
+      <div className="w-full max-w-4xl mx-auto">
+        <h2 className="text-lg font-semibold mb-6">Edit Equipment</h2>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-4 w-full">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-6 w-full">
           {/* Left Column - Image Upload and Form Fields */}
           <div className="flex flex-col gap-6 lg:col-span-2">
             {/* Image Upload */}
@@ -339,7 +324,7 @@ export function EditEquipmentModal() {
           </div>
         </div>
 
-        <div className="flex gap-3 mt-6 justify-end">
+        <div className="flex gap-3 justify-end mt-6">
           <Button variant="outline" onClick={handleCancel}>
             Cancel
           </Button>
@@ -352,7 +337,7 @@ export function EditEquipmentModal() {
               : "Update Equipment"}
           </Button>
         </div>
-      </DialogContent>
+      </div>
 
       <FileManagerModal
         open={fileManagerOpen}
@@ -362,6 +347,6 @@ export function EditEquipmentModal() {
           setFileManagerOpen(false);
         }}
       />
-    </Dialog>
+    </>
   );
 }
