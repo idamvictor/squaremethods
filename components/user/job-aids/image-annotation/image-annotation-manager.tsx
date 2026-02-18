@@ -8,7 +8,7 @@ import sampleImage from "@/public/sample-images/phone-modules.jpg";
 import StepsGrid from "./steps-grid";
 import { FileManagerModal } from "@/components/shared/file-manager/file-manager-modal";
 import { Button } from "@/components/ui/button";
-import { Upload, Plus, Trash2 } from "lucide-react";
+import { Upload, Plus, Trash2, RefreshCw } from "lucide-react";
 import { useJobAidStore } from "@/store/job-aid-store";
 import { toast } from "sonner";
 import {
@@ -529,15 +529,31 @@ export default function ImageAnnotationManager({}: ImageAnnotationManagerProps) 
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <h3 className="text-sm font-medium text-gray-900">Editor</h3>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => setIsFileManagerOpen(true)}
-                    className="gap-2"
-                  >
-                    <Upload className="w-4 h-4" />
-                    Change Image
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        setSelectedImageUrl(sampleImage.src);
+                        setAnnotation(null);
+                        setSteps([]);
+                        setEditingStep(null);
+                      }}
+                      className="gap-2"
+                      title="Reset to default image"
+                    >
+                      <RefreshCw className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => setIsFileManagerOpen(true)}
+                      className="gap-2"
+                    >
+                      <Upload className="w-4 h-4" />
+                      Change Image
+                    </Button>
+                  </div>
                 </div>
                 <div className="h-[600px] w-full rounded-lg border border-gray-200 overflow-hidden">
                   <Editor
@@ -657,8 +673,8 @@ export default function ImageAnnotationManager({}: ImageAnnotationManagerProps) 
                   </div>
                 ))}
 
-                {/* Add Step Button - Only show when not editing */}
-                {!editingStep && (
+                {/* Add Step Button - Only show when not editing and no steps are being added */}
+                {!editingStep && steps.length === 0 && (
                   <button
                     onClick={addStep}
                     className="w-full py-2 px-4 border-2 border-dashed border-gray-200 rounded-lg text-gray-500 hover:text-gray-700 hover:border-gray-300 transition-colors"

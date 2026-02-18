@@ -37,6 +37,7 @@ export function StepCarouselView({
 }: StepCarouselViewProps) {
   const [api, setApi] = useState<CarouselApi>();
   const [current, setCurrent] = useState(0);
+  console.log("current step index:", current);
   const [count, setCount] = useState(0);
 
   // Sort and parse steps
@@ -149,7 +150,8 @@ export function StepCarouselView({
                   <div className="bg-white rounded-lg border p-6 space-y-4">
                     <div>
                       <span className="text-sm font-semibold text-gray-600">
-                        Step {current + 1} of {count}
+                        Step {step.step} of{" "}
+                        {sortedSteps[count - 1]?.step || count}
                       </span>
                       {step.title && (
                         <h2 className="text-2xl font-semibold text-gray-900 mt-2">
@@ -201,13 +203,19 @@ export function StepCarouselView({
                           className="h-1 bg-gray-400 rounded-full transition-all"
                           style={{
                             width: `${
-                              count > 0 ? ((current + 1) / count) * 100 : 0
+                              count > 0
+                                ? (step.step /
+                                    (sortedSteps[count - 1]?.step || count)) *
+                                  100
+                                : 0
                             }%`,
                           }}
                         ></div>
                       </div>
                       <span className="text-sm text-gray-600 whitespace-nowrap">
-                        {count > 0 ? `${current + 1} / ${count}` : "0 / 0"}
+                        {count > 0
+                          ? `${step.step} / ${sortedSteps[count - 1]?.step || count}`
+                          : "0 / 0"}
                       </span>
                     </div>
                   </div>
