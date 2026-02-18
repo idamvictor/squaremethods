@@ -174,9 +174,9 @@ export function StepsGridView({
                           {step.title}
                         </h3>
                       )}
-                      <p className="text-sm text-gray-600 line-clamp-3">
+                      {/* <p className="text-sm text-gray-600 line-clamp-3">
                         {step.instruction}
-                      </p>
+                      </p> */}
                     </div>
                   </button>
                 ))}

@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import Image from "next/image";
 import { Edit, Trash2, AlertCircle } from "lucide-react";
 import { ProcedurePrecaution } from "@/services/job-aid/job-aid-types";
