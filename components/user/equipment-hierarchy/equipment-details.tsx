@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { Download, Eye, Plus } from "lucide-react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
@@ -33,6 +33,8 @@ interface EquipmentDetailsProps {
 
 export function EquipmentDetails({ node }: EquipmentDetailsProps) {
   const router = useRouter();
+  const pathname = usePathname();
+  const isInTechnicianRoute = pathname.includes("technician");
   const [isDownloading, setIsDownloading] = useState(false);
   const [fileManagerOpen, setFileManagerOpen] = useState(false);
   const [isUpdatingDocument, setIsUpdatingDocument] = useState(false);
@@ -309,7 +311,13 @@ export function EquipmentDetails({ node }: EquipmentDetailsProps) {
                 <div
                   key={jobAid.id}
                   className="border rounded-lg p-4 hover:shadow-lg transition-shadow cursor-pointer"
-                  onClick={() => router.push(`/job-aids/${jobAid.id}`)}
+                  onClick={() =>
+                    router.push(
+                      isInTechnicianRoute
+                        ? `/technician/job-aids/${jobAid.id}`
+                        : `/job-aids/${jobAid.id}`,
+                    )
+                  }
                 >
                   {jobAid.image && (
                     <div className="relative w-full h-40 mb-4 rounded-lg overflow-hidden">
@@ -371,7 +379,13 @@ export function EquipmentDetails({ node }: EquipmentDetailsProps) {
                 <div
                   key={failureMode.id}
                   className="border rounded-lg p-4 hover:shadow-lg transition-shadow cursor-pointer"
-                  onClick={() => router.push(`/failure-mode/${failureMode.id}`)}
+                  onClick={() =>
+                    router.push(
+                      isInTechnicianRoute
+                        ? `/technician/failure-mode/${failureMode.id}`
+                        : `/failure-mode/${failureMode.id}`,
+                    )
+                  }
                 >
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     {/* Left: Image */}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -24,6 +25,8 @@ interface JobAidDetailsProps {
 }
 
 export function JobAidDetails({ jobAidId }: JobAidDetailsProps) {
+  const pathname = usePathname();
+  const isInTechnicianRoute = pathname.includes("technician");
   const { data: jobAidResponse, isLoading, error } = useJobAidDetails(jobAidId);
   // const [searchQuery, setSearchQuery] = useState("");
   const [showAnnotating, setShowAnnotating] = useState(false);
@@ -33,7 +36,10 @@ export function JobAidDetails({ jobAidId }: JobAidDetailsProps) {
   const setCurrentJobAid = useJobAidStore((state) => state.setCurrentJobAid);
 
   const handleCopyUrl = useCallback(() => {
-    const url = `${window.location.origin}/job-aids/${jobAidId}`;
+    const path = isInTechnicianRoute
+      ? `/technician/job-aids/${jobAidId}`
+      : `/job-aids/${jobAidId}`;
+    const url = `${window.location.origin}${path}`;
     navigator.clipboard
       .writeText(url)
       .then(() => {
@@ -43,7 +49,7 @@ export function JobAidDetails({ jobAidId }: JobAidDetailsProps) {
       .catch(() => {
         toast.error("Failed to copy URL");
       });
-  }, [jobAidId]);
+  }, [jobAidId, isInTechnicianRoute]);
 
   if (isLoading) {
     return <div className="p-6 text-center text-gray-600">Loading...</div>;
@@ -117,7 +123,7 @@ export function JobAidDetails({ jobAidId }: JobAidDetailsProps) {
         <div className="flex items-center justify-between max-w-7xl mx-auto">
           <div className="flex items-center gap-4">
             <Link
-              href="/job-aids"
+              href={isInTechnicianRoute ? "/technician/job-aids" : "/job-aids"}
               className="text-gray-500 hover:text-gray-700"
             >
               <ArrowLeft className="w-5 h-5" />
@@ -151,7 +157,7 @@ export function JobAidDetails({ jobAidId }: JobAidDetailsProps) {
                   </p>
                   <div className="flex gap-2">
                     <Input
-                      value={`${typeof window !== "undefined" ? window.location.origin : ""}/job-aids/${jobAidId}`}
+                      value={`${typeof window !== "undefined" ? window.location.origin : ""}${isInTechnicianRoute ? `/technician/job-aids/${jobAidId}` : `/job-aids/${jobAidId}`}`}
                       readOnly
                       className="text-sm"
                     />
@@ -167,7 +173,9 @@ export function JobAidDetails({ jobAidId }: JobAidDetailsProps) {
                 </div>
               </DropdownMenuContent>
             </DropdownMenu>
-            <Link href="/job-aids">
+            <Link
+              href={isInTechnicianRoute ? "/technician/job-aids" : "/job-aids"}
+            >
               <Button variant="ghost" size="icon">
                 <X className="w-5 h-5" />
               </Button>

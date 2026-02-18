@@ -109,7 +109,10 @@ export default function StepsGrid({ steps, onEdit, onRemove }: StepsGridProps) {
             {/* Actions */}
             <div className="flex items-center justify-end gap-2 px-4 py-3 bg-gray-50 border-t border-gray-200">
               <button
-                onClick={() => onEdit?.(index)}
+                onClick={() => {
+                  window.scrollTo({ top: 120, behavior: "smooth" });
+                  onEdit?.(index);
+                }}
                 className="text-gray-600 hover:text-gray-900 p-1"
               >
                 <Edit className="w-4 h-4" />
