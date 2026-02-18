@@ -3,7 +3,7 @@
 import { useParams } from "next/navigation";
 import { FailureModeDetails } from "@/components/user/failure-mode/failure-mode-details";
 
-export default function FailureModeDetailPage() {
+export default function TechnicianFailureModeDetailPage() {
   const params = useParams();
   const id = params?.id as string;
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -38,6 +38,8 @@ const getStatusColor = (status: FailureMode["status"]) => {
 
 export function FailureModeList() {
   const router = useRouter();
+  const pathname = usePathname();
+  const isInTechnicianRoute = pathname.includes("technician");
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -76,7 +78,11 @@ export function FailureModeList() {
   };
 
   const handleViewDetails = (mode: FailureMode) => {
-    router.push(`/failure-mode/${mode.id}`);
+    router.push(
+      isInTechnicianRoute
+        ? `/technician/failure-mode/${mode.id}`
+        : `/failure-mode/${mode.id}`,
+    );
   };
 
   return (
