@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import { useRouter } from "next/navigation";
 import {
   Search,
   Plus,
@@ -50,7 +49,6 @@ interface TreeNodeProps {
 }
 
 function TreeNode({ node, level }: TreeNodeProps) {
-  const router = useRouter();
   const { expandedNodes, toggleExpanded, setSelectedNode, selectedNode } =
     useEquipmentStore();
 
@@ -66,7 +64,6 @@ function TreeNode({ node, level }: TreeNodeProps) {
 
   const handleSelect = () => {
     setSelectedNode(node);
-    router.push(`/equipment-hierarchy/${node.id}`);
   };
 
   // Removed unused handleAddClick

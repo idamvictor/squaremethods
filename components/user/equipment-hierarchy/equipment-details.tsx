@@ -120,7 +120,7 @@ export function EquipmentDetails({ node }: EquipmentDetailsProps) {
       await updateEquipmentMutation.mutateAsync({
         id: equipmentId,
         data: {
-          documents: [fileUrl],
+          documents: [...(equipment.documents || []), fileUrl],
         },
       });
 

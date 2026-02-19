@@ -65,7 +65,7 @@ export function EditEquipmentModal() {
         notes: equipment.notes || "",
         status: equipment.status,
         image: equipment.image || "",
-        documents: [],
+        documents: equipment.documents || [],
       });
     }
   }, [editingEquipment, equipmentData]);
@@ -96,6 +96,7 @@ export function EditEquipmentModal() {
           name: formData.name,
           notes: formData.notes,
           status: formData.status,
+          image: formData.image,
           documents: formData.documents,
         },
       });
