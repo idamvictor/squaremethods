@@ -590,7 +590,10 @@ export default function ImageAnnotationManager({}: ImageAnnotationManagerProps) 
                 {steps.map((step, index) => (
                   <div key={index} className="">
                     <div>
-                      <div className="mb-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                      <div
+                        className="mb-3 p-3 bg-blue-50 border border-blue-2
+               0            0 rounded-lg"
+                      >
                         <p className="text-sm text-blue-900 font-medium">
                           Step{" "}
                           {editingStep
@@ -630,36 +633,38 @@ export default function ImageAnnotationManager({}: ImageAnnotationManagerProps) 
                         {step.precautions && step.precautions.length > 0 ? (
                           <div className="space-y-3">
                             {step.precautions.map((precaution, precIdx) => (
-                              <div
-                                key={precIdx}
-                                className="p-3 bg-white rounded border border-amber-100"
-                              >
-                                <div className="flex items-start justify-between mb-2">
-                                  <p className="text-xs font-medium text-amber-900">
-                                    Precaution {precIdx + 1}
-                                  </p>
-                                  <button
-                                    onClick={() =>
-                                      removePrecautionFromStep(index, precIdx)
+                              <>
+                                <div
+                                  key={precIdx}
+                                  className="p-3 bg-white rounded border border-amber-100"
+                                >
+                                  <div className="flex items-start justify-between mb-2">
+                                    <p className="text-xs font-medium text-amber-900">
+                                      Precaution {precIdx + 1}
+                                    </p>
+                                    <button
+                                      onClick={() =>
+                                        removePrecautionFromStep(index, precIdx)
+                                      }
+                                      className="text-red-500 hover:text-red-700"
+                                    >
+                                      <Trash2 className="w-4 h-4" />
+                                    </button>
+                                  </div>
+                                  <textarea
+                                    value={precaution.instruction}
+                                    onChange={(e) =>
+                                      updatePrecautionInstruction(
+                                        index,
+                                        precIdx,
+                                        e.target.value,
+                                      )
                                     }
-                                    className="text-red-500 hover:text-red-700"
-                                  >
-                                    <Trash2 className="w-4 h-4" />
-                                  </button>
+                                    className="w-full min-h-[60px] p-2 text-sm border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-amber-500 resize-none"
+                                    placeholder="Enter precaution instruction"
+                                  />
                                 </div>
-                                <textarea
-                                  value={precaution.instruction}
-                                  onChange={(e) =>
-                                    updatePrecautionInstruction(
-                                      index,
-                                      precIdx,
-                                      e.target.value,
-                                    )
-                                  }
-                                  className="w-full min-h-[60px] p-2 text-sm border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-amber-500 resize-none"
-                                  placeholder="Enter precaution instruction"
-                                />
-                              </div>
+                              </>
                             ))}
                           </div>
                         ) : (
