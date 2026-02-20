@@ -10,6 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ArrowRight, Minus } from "lucide-react";
 import { SelectableJobAidTable } from "../job-aids/selectable-job-aid-table";
@@ -107,12 +108,12 @@ export function NewTaskDialog({ isOpen, onClose }: NewTaskDialogProps) {
             <Label htmlFor="task-instruction" className="text-sm font-medium">
               Instruction <span className="text-red-500">*</span>
             </Label>
-            <Input
+            <Textarea
               id="task-instruction"
               placeholder="Enter task instruction"
               value={taskInstruction}
               onChange={(e) => setTaskInstruction(e.target.value)}
-              className="w-full"
+              className="w-full min-h-32 resize-none"
             />
           </div>
 

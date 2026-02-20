@@ -668,10 +668,7 @@ export default function ImageAnnotationManager({}: ImageAnnotationManagerProps) 
                             ))}
                           </div>
                         ) : (
-                          <p className="text-sm text-amber-700">
-                            No precautions added. Click &quot;Add
-                            Precaution&quot; to add safety warnings.
-                          </p>
+                          <p className="text-sm text-amber-700"></p>
                         )}
                       </div>
                     </div>
@@ -684,7 +681,7 @@ export default function ImageAnnotationManager({}: ImageAnnotationManagerProps) 
                     onClick={addStep}
                     className="w-full py-2 px-4 border-2 border-dashed border-gray-200 rounded-lg text-gray-500 hover:text-gray-700 hover:border-gray-300 transition-colors"
                   >
-                    + Add Another Step
+                    + Add Step
                   </button>
                 )}
 
@@ -757,8 +754,6 @@ export default function ImageAnnotationManager({}: ImageAnnotationManagerProps) 
           console.log("New image selected:", fileUrl);
           setSelectedImageUrl(fileUrl);
           setAnnotation(null); // Reset annotation when changing image
-          setSteps([]); // Clear any unsaved steps
-          setEditingStep(null); // Clear editing mode
         }}
       />
     </div>

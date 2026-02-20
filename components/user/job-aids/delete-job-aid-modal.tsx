@@ -1,11 +1,5 @@
 "use client";
 
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogFooter,
-} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 
 interface DeleteJobAidModalProps {
@@ -21,17 +15,32 @@ export function DeleteJobAidModal({
   onClose,
   onConfirm,
 }: DeleteJobAidModalProps) {
+  if (!open) return null;
+
   return (
-    <Dialog open={open} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent>
-        <DialogHeader>
-          <h2 className="text-lg font-semibold">Delete Job Aid</h2>
-          <p className="text-sm text-gray-500">
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      {/* Backdrop */}
+      <div
+        className="absolute inset-0 bg-black/50"
+        onClick={onClose}
+        aria-hidden="true"
+      />
+
+      {/* Modal Content */}
+      <div className="relative bg-white rounded-lg shadow-lg p-6 max-w-sm w-full mx-4">
+        {/* Header */}
+        <div className="mb-4">
+          <h2 className="text-lg font-semibold text-gray-900">
+            Delete Job Aid
+          </h2>
+          <p className="text-sm text-gray-500 mt-2">
             Are you sure you want to delete this job aid? This action cannot be
             undone.
           </p>
-        </DialogHeader>
-        <DialogFooter>
+        </div>
+
+        {/* Footer */}
+        <div className="flex gap-3 justify-end">
           <Button variant="outline" onClick={onClose} disabled={isDeleting}>
             Cancel
           </Button>
@@ -42,8 +51,8 @@ export function DeleteJobAidModal({
           >
             {isDeleting ? "Deleting..." : "Delete"}
           </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </div>
+      </div>
+    </div>
   );
 }
