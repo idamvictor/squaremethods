@@ -23,6 +23,7 @@ import {
   useEquipmentDetails,
   useEquipmentQRCode,
   useUpdateEquipment,
+  useGenerateEquipmentQRCode,
 } from "@/services/equipment/equipment-queries";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
@@ -38,6 +39,7 @@ export function EquipmentDetails({ node }: EquipmentDetailsProps) {
   const [isDownloading, setIsDownloading] = useState(false);
   const [fileManagerOpen, setFileManagerOpen] = useState(false);
   const [isUpdatingDocument, setIsUpdatingDocument] = useState(false);
+  const [isRegeneratingQR, setIsRegeneratingQR] = useState(false);
   const {
     data: equipmentData,
     isLoading,
@@ -47,6 +49,7 @@ export function EquipmentDetails({ node }: EquipmentDetailsProps) {
   const equipmentId = node.type !== "location" ? node.id : undefined;
   const { data: qrCodeData } = useEquipmentQRCode(equipmentId);
   const updateEquipmentMutation = useUpdateEquipment();
+  const generateQRMutation = useGenerateEquipmentQRCode();
 
   if (node.type === "location") {
     return (
@@ -133,6 +136,27 @@ export function EquipmentDetails({ node }: EquipmentDetailsProps) {
       }
     } finally {
       setIsUpdatingDocument(false);
+    }
+  };
+
+  const handleRegenerateQRCode = async () => {
+    if (!equipmentId) {
+      toast.error("Equipment ID is missing");
+      return;
+    }
+
+    try {
+      setIsRegeneratingQR(true);
+      await generateQRMutation.mutateAsync(equipmentId);
+      toast.success("QR Code regenerated successfully");
+    } catch (error) {
+      if (error instanceof Error) {
+        toast.error(error.message);
+      } else {
+        toast.error("Failed to regenerate QR code");
+      }
+    } finally {
+      setIsRegeneratingQR(false);
     }
   };
 
@@ -289,10 +313,22 @@ export function EquipmentDetails({ node }: EquipmentDetailsProps) {
                     </div>
                   )}
                 </div>
+                {!qrCodeData?.data?.url ? (
+                  <Button
+                    onClick={handleRegenerateQRCode}
+                    disabled={isRegeneratingQR}
+                    className="w-full bg-orange-600 text-white hover:bg-orange-700 mb-2"
+                    size="sm"
+                  >
+                    {isRegeneratingQR
+                      ? "Regenerating..."
+                      : "Regenerate QR Code"}
+                  </Button>
+                ) : null}
                 <Button
                   variant="outline"
                   size="sm"
-                  className="bg-blue-800 text-white hover:bg-blue-700"
+                  className="bg-blue-800 text-white hover:bg-blue-700 w-full"
                   disabled={!qrCodeData?.data?.url || isDownloading}
                   onClick={handleDownloadQRCode}
                 >

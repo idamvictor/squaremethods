@@ -124,7 +124,7 @@ export function AddEquipmentModal() {
       } catch (error) {
         console.error("QR code generation failed:", error);
         toast.warning(
-          "Equipment created but QR code generation failed. Try again?"
+          "Equipment created but QR code generation failed. Try again?",
         );
       } finally {
         setIsGeneratingQR(false);
@@ -306,7 +306,7 @@ export function AddEquipmentModal() {
                             </button>
                           </li>
                         );
-                      }
+                      },
                     )}
                   </ul>
                 )}
@@ -331,7 +331,7 @@ export function AddEquipmentModal() {
                             {(() => {
                               const equipmentType = equipmentTypes.find(
                                 (t: { value: string; icon: string | null }) =>
-                                  t.value === formData.equipment_type_id
+                                  t.value === formData.equipment_type_id,
                               );
                               return equipmentType?.icon ? (
                                 <Image
@@ -349,7 +349,7 @@ export function AddEquipmentModal() {
                               {
                                 equipmentTypes.find(
                                   (t: { value: string; label: string }) =>
-                                    t.value === formData.equipment_type_id
+                                    t.value === formData.equipment_type_id,
                                 )?.label
                               }
                             </span>
@@ -382,7 +382,7 @@ export function AddEquipmentModal() {
                               <span>{type.label}</span>
                             </div>
                           </SelectItem>
-                        )
+                        ),
                       )}
                     </SelectContent>
                   </Select>
@@ -456,7 +456,7 @@ export function AddEquipmentModal() {
             <div className="border rounded-lg p-4 text-center">
               <h3 className="text-sm font-semibold mb-4">QR Code</h3>
               <div className="w-40 h-40 mx-auto mb-4">
-                {qrGenerated && qrCodeData?.data?.url ? (
+                {qrCodeData?.data?.url ? (
                   <Image
                     src={qrCodeData.data.url}
                     alt="Equipment QR Code"
@@ -473,15 +473,15 @@ export function AddEquipmentModal() {
                   </div>
                 )}
               </div>
-              {equipmentId && !qrGenerated && (
+              {equipmentId && !qrCodeData?.data?.url && (
                 <Button
                   onClick={handleGenerateQRCode}
                   disabled={isGeneratingQR}
-                  className="w-full bg-blue-600 text-white hover:bg-blue-700 mb-3"
+                  className="w-full bg-orange-600 text-white hover:bg-orange-700 mb-3"
                 >
                   {isGeneratingQR
                     ? "Generating QR Code..."
-                    : "Retry QR Code Generation"}
+                    : "Generate QR Code"}
                 </Button>
               )}
               <Button
@@ -489,7 +489,7 @@ export function AddEquipmentModal() {
                 variant="outline"
                 size="sm"
                 className="bg-blue-800 text-white hover:bg-blue-700 w-full"
-                disabled={!qrGenerated || isGeneratingQR}
+                disabled={!qrCodeData?.data?.url || isGeneratingQR}
               >
                 <Download className="h-4 w-4 mr-2" />
                 Download QR (PNG)
