@@ -40,7 +40,10 @@ export function FileManagerModal({
       size: file.size,
     })) || [];
 
-  const allFiles = [...uploadedFiles, ...apiFiles];
+  // Deduplicate files by id to avoid React key warnings
+  const allFiles = [...uploadedFiles, ...apiFiles].filter(
+    (file, index, self) => self.findIndex((f) => f.id === file.id) === index,
+  );
 
   const handleDelete = async (id: string) => {
     try {

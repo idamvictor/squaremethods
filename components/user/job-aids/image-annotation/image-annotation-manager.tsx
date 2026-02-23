@@ -89,13 +89,24 @@ export default function ImageAnnotationManager({}: ImageAnnotationManagerProps) 
           let parsedPrecautions: ProcedurePrecaution[] = [];
           if (proc.precautions && proc.precautions.length > 0) {
             parsedPrecautions = proc.precautions.map((prec) => {
-              // If precaution is a string, parse it
+              // If precaution is a string, try to parse it
               if (typeof prec === "string") {
                 try {
-                  return JSON.parse(prec) as ProcedurePrecaution;
-                } catch (e) {
-                  console.error("Failed to parse precaution:", prec, e);
-                  return { id: "", instruction: "" };
+                  const trimmed = (prec as string).trim();
+                  // Check if it looks like valid JSON
+                  if (trimmed.startsWith("{") || trimmed.startsWith("[")) {
+                    return JSON.parse(prec as string) as ProcedurePrecaution;
+                  } else {
+                    // If it's just a plain string, treat it as an instruction
+                    return { id: "", instruction: prec as string };
+                  }
+                } catch {
+                  console.warn(
+                    "Failed to parse precaution, treating as plain text:",
+                    prec,
+                  );
+                  // Treat as plain instruction string if parsing fails
+                  return { id: "", instruction: prec as string };
                 }
               }
               // Otherwise it's already an object

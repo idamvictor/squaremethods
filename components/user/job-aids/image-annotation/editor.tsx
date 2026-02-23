@@ -309,8 +309,8 @@ const Editor = forwardRef(
           editorAreaWidth < 400
             ? 400
             : editorAreaWidth < 2000
-            ? Math.round((editorAreaWidth * 0.9) / 10) * 10
-            : -1;
+              ? Math.round((editorAreaWidth * 0.9) / 10) * 10
+              : -1;
 
         editor.current.addEventListener("areastatechange", () => {
           updateCalculatedEditorState();
@@ -356,7 +356,11 @@ const Editor = forwardRef(
         : `${targetImageSrc}?t=${Date.now()}`;
 
       const newTargetImg = document.createElement("img");
-      newTargetImg.crossOrigin = "anonymous";
+
+      // Only set crossOrigin for non-data URLs
+      if (!targetImageSrc.startsWith("data:")) {
+        newTargetImg.crossOrigin = "anonymous";
+      }
 
       newTargetImg.onload = () => {
         console.log("New image loaded, updating editor");
@@ -402,7 +406,7 @@ const Editor = forwardRef(
         </div>
       </div>
     );
-  }
+  },
 );
 
 Editor.displayName = "Editor";
