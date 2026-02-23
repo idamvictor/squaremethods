@@ -40,17 +40,24 @@ export function StepsGridView({
   const parsedSteps = useMemo(() => {
     return steps.map((step) => {
       if (type === "procedure" && "precautions" in step && step.precautions) {
-        const parsedPrecautions = step.precautions.map((prec) => {
-          if (typeof prec === "string") {
-            try {
-              return JSON.parse(prec) as ProcedurePrecaution;
-            } catch (e) {
-              console.error("Failed to parse precaution:", prec, e);
-              return { id: "", instruction: "" };
+        const parsedPrecautions = step.precautions.map(
+          (prec: string | ProcedurePrecaution) => {
+            if (typeof prec === "string") {
+              // Check if it looks like JSON before parsing
+              if (prec.trim().startsWith("{")) {
+                try {
+                  return JSON.parse(prec) as ProcedurePrecaution;
+                } catch (e) {
+                  console.error("Failed to parse precaution:", prec, e);
+                  return { id: "", instruction: prec };
+                }
+              }
+              // Treat as plain instruction string
+              return { id: "", instruction: prec };
             }
-          }
-          return prec as ProcedurePrecaution;
-        });
+            return prec as ProcedurePrecaution;
+          },
+        );
         return { ...step, precautions: parsedPrecautions };
       }
       return step;
@@ -112,7 +119,11 @@ export function StepsGridView({
                   >
                     {/* Image Container */}
                     <div className="aspect-video relative bg-gray-100 overflow-hidden">
-                      {step.image ? (
+                      {step.image &&
+                      typeof step.image === "string" &&
+                      step.image !== "string" &&
+                      (step.image.startsWith("/") ||
+                        step.image.startsWith("http")) ? (
                         <Image
                           src={step.image}
                           alt={`Step ${step.step}`}
@@ -137,11 +148,11 @@ export function StepsGridView({
                           step.precautions &&
                           step.precautions.length > 0 && (
                             <Popover>
-                              <PopoverTrigger
-                                asChild
-                                onClick={(e) => e.stopPropagation()}
-                              >
-                                <button className="flex items-center gap-1 px-2 py-1 text-xs font-medium text-amber-700 bg-amber-50 border border-amber-200 rounded hover:bg-amber-100 transition-colors flex-shrink-0">
+                              <PopoverTrigger asChild>
+                                <button
+                                  onClick={(e) => e.stopPropagation()}
+                                  className="flex items-center gap-1 px-2 py-1 text-xs font-medium text-amber-700 bg-amber-50 border border-amber-200 rounded hover:bg-amber-100 transition-colors flex-shrink-0"
+                                >
                                   <AlertCircle className="w-3 h-3" />
                                   {step.precautions.length}
                                 </button>
