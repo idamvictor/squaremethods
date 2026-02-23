@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -24,6 +25,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -47,7 +49,6 @@ interface Equipment {
 const formSchema = z.object({
   title: z.string().min(1, "Title is required"),
   status: z.enum(["open", "resolved", "in_progress"] as const),
-  priority: z.enum(["low", "medium", "high"] as const),
   due_date: z.string(),
   image: z.string().nullable().optional(),
   resolutions: z.array(z.string()).optional(),
@@ -72,6 +73,7 @@ export function EditFailureModeModal({
   open,
   onOpenChange,
 }: EditFailureModeModalProps) {
+  const queryClient = useQueryClient();
   const { mutate: updateFailureMode, isPending } = useUpdateFailureMode(
     failureMode.id,
   );
@@ -98,7 +100,6 @@ export function EditFailureModeModal({
     defaultValues: {
       title: failureMode.title || "",
       status: failureMode.status,
-      priority: failureMode.priority || "low",
       due_date: failureMode.due_date
         ? format(new Date(failureMode.due_date), "yyyy-MM-dd")
         : "",
@@ -107,6 +108,42 @@ export function EditFailureModeModal({
       equipment_ids: failureMode.equipment_id ? [failureMode.equipment_id] : [],
     },
   });
+
+  // Update form when failureMode changes
+  useEffect(() => {
+    form.reset({
+      title: failureMode.title || "",
+      status: failureMode.status,
+      due_date: failureMode.due_date
+        ? format(new Date(failureMode.due_date), "yyyy-MM-dd")
+        : "",
+      image: failureMode.image || null,
+      resolutions: failureMode.resolutions || [],
+      equipment_ids: failureMode.equipment_id ? [failureMode.equipment_id] : [],
+    });
+    setImagePreview(failureMode.image || null);
+    setResolutions(
+      (failureMode.resolutions || []).map((r, idx) => ({
+        id: String(idx),
+        text: r,
+      })),
+    );
+    setEquipmentList(
+      failureMode.equipment_id && failureMode.equipment
+        ? [{ id: failureMode.equipment_id, name: failureMode.equipment.name }]
+        : [],
+    );
+  }, [
+    failureMode.id,
+    failureMode.title,
+    failureMode.status,
+    failureMode.due_date,
+    failureMode.image,
+    failureMode.resolutions,
+    failureMode.equipment_id,
+    failureMode.equipment,
+    form,
+  ]);
 
   const handleRemoveImage = () => {
     setImagePreview(null);
@@ -156,7 +193,6 @@ export function EditFailureModeModal({
     const updateData: UpdateFailureModeInput = {
       title: data.title,
       status: data.status,
-      priority: data.priority,
       due_date: data.due_date || undefined,
       image: imagePreview || undefined,
       resolutions: resolutions.map((r) => r.text),
@@ -165,6 +201,12 @@ export function EditFailureModeModal({
 
     updateFailureMode(updateData, {
       onSuccess: () => {
+        // Invalidate queries to refresh data
+        queryClient.invalidateQueries({ queryKey: ["failureModes"] });
+        queryClient.invalidateQueries({
+          queryKey: ["failureMode", failureMode.id],
+        });
+
         onOpenChange(false);
         form.reset();
         setImagePreview(null);
@@ -269,32 +311,6 @@ export function EditFailureModeModal({
 
                 <FormField
                   control={form.control}
-                  name="priority"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Priority</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select priority" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="low">Low</SelectItem>
-                          <SelectItem value="medium">Medium</SelectItem>
-                          <SelectItem value="high">High</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
                   name="due_date"
                   render={({ field }) => (
                     <FormItem>
@@ -358,22 +374,24 @@ export function EditFailureModeModal({
                 <div className="space-y-2">
                   <FormLabel>Resolutions</FormLabel>
                   <div className="flex gap-2">
-                    <Input
+                    <Textarea
                       value={newResolution}
                       onChange={(e) => setNewResolution(e.target.value)}
-                      placeholder="Click to add resolution"
+                      placeholder="Enter resolution (press Enter to add)"
                       onKeyDown={(e) => {
-                        if (e.key === "Enter") {
+                        if (e.key === "Enter" && !e.shiftKey) {
                           e.preventDefault();
                           handleAddResolution();
                         }
                       }}
+                      className="min-h-20 resize-none"
                     />
                     <Button
                       type="button"
                       size="icon"
                       variant="outline"
                       onClick={handleAddResolution}
+                      className="self-start mt-1"
                     >
                       <Plus className="h-4 w-4" />
                     </Button>

@@ -112,10 +112,9 @@ export function FailureModeList() {
       {/* Table */}
       <div className="rounded-lg border border-border bg-card">
         {/* Table Header */}
-        <div className="grid grid-cols-[2fr_1fr_1fr_1.5fr_1fr_0.5fr] gap-4 border-b border-border bg-muted/50 px-6 py-3 text-sm font-medium text-muted-foreground">
+        <div className="grid grid-cols-[2fr_1fr_1.5fr_1fr_0.5fr] gap-4 border-b border-border bg-muted/50 px-6 py-3 text-sm font-medium text-muted-foreground">
           <div>Failure Mode Title</div>
           <div>Status</div>
-          <div>Priority</div>
           <div>Reported By</div>
           <div>Due Date</div>
           <div>Actions</div>
@@ -137,7 +136,7 @@ export function FailureModeList() {
             failureModes.map((mode) => (
               <div
                 key={mode.id}
-                className="grid grid-cols-[2fr_1fr_1fr_1.5fr_1fr_0.5fr] gap-4 px-6 py-4 text-sm hover:bg-muted/50 transition-colors"
+                className="grid grid-cols-[2fr_1fr_1.5fr_1fr_0.5fr] gap-4 px-6 py-4 text-sm hover:bg-muted/50 transition-colors"
               >
                 <div className="flex items-center gap-2 font-medium text-foreground">
                   {mode.title}
@@ -149,21 +148,6 @@ export function FailureModeList() {
                   >
                     <span className="mr-1.5 inline-block h-1.5 w-1.5 rounded-full bg-current" />
                     {mode.status.charAt(0).toUpperCase() + mode.status.slice(1)}
-                  </Badge>
-                </div>
-                <div className="flex items-center">
-                  <Badge
-                    variant="outline"
-                    className={
-                      mode.priority === "high"
-                        ? "border-red-500 text-red-500"
-                        : mode.priority === "medium"
-                          ? "border-yellow-500 text-yellow-500"
-                          : "border-blue-500 text-blue-500"
-                    }
-                  >
-                    {(mode.priority || "low").charAt(0).toUpperCase() +
-                      (mode.priority || "low").slice(1)}
                   </Badge>
                 </div>
                 <div className="flex items-center gap-2">

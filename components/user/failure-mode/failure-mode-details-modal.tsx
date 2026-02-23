@@ -30,7 +30,7 @@ export function FailureModeDetailsModal({
   const failureMode = response?.data;
 
   const getStatusColor = (
-    status: "open" | "resolved" | "in_progress" | undefined
+    status: "open" | "resolved" | "in_progress" | undefined,
   ) => {
     switch (status) {
       case "resolved":
@@ -45,7 +45,7 @@ export function FailureModeDetailsModal({
   };
 
   const getPriorityColor = (
-    priority: "low" | "medium" | "high" | undefined
+    priority: "low" | "medium" | "high" | undefined,
   ) => {
     switch (priority) {
       case "high":

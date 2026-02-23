@@ -3,6 +3,7 @@
 import type React from "react";
 
 import { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import Image from "next/image";
 import {
   Dialog,
@@ -16,6 +17,7 @@ import { CreateFailureModeInput } from "@/services/failure-mode/failure-mode-typ
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 
 import { Plus, Trash2, X, Calendar } from "lucide-react";
 import { EquipmentHierarchyModal } from "@/components/user/jobs/equipment-hierarchy-modal";
@@ -54,6 +56,7 @@ export function AddFailureModeModal({
   onOpenChange,
   onSubmit,
 }: AddFailureModeModalProps) {
+  const queryClient = useQueryClient();
   const [title, setTitle] = useState("");
   const [resolutions, setResolutions] = useState<Resolution[]>([]);
   const [newResolution, setNewResolution] = useState("");
@@ -63,6 +66,7 @@ export function AddFailureModeModal({
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isEquipmentModalOpen, setEquipmentModalOpen] = useState(false);
   const [isFileManagerOpen, setIsFileManagerOpen] = useState(false);
+  const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
 
   const { data: profileData } = useProfile();
   const createFailureModeMutation = useCreateFailureMode();
@@ -119,6 +123,9 @@ export function AddFailureModeModal({
 
     try {
       await createFailureModeMutation.mutateAsync(failureModeInput);
+
+      // Invalidate queries to refresh data
+      queryClient.invalidateQueries({ queryKey: ["failureModes"] });
 
       // Reset form
       setTitle("");
@@ -217,22 +224,24 @@ export function AddFailureModeModal({
               <div className="space-y-2">
                 <Label>Resolutions</Label>
                 <div className="flex gap-2">
-                  <Input
+                  <Textarea
                     value={newResolution}
                     onChange={(e) => setNewResolution(e.target.value)}
-                    placeholder="Click to add resolution"
+                    placeholder="Enter resolution (press Enter to add)"
                     onKeyDown={(e) => {
-                      if (e.key === "Enter") {
+                      if (e.key === "Enter" && !e.shiftKey) {
                         e.preventDefault();
                         handleAddResolution();
                       }
                     }}
+                    className="min-h-20 resize-none"
                   />
                   <Button
                     type="button"
                     size="icon"
                     variant="outline"
                     onClick={handleAddResolution}
+                    className="self-start mt-1"
                   >
                     <Plus className="h-4 w-4" />
                   </Button>
@@ -312,13 +321,17 @@ export function AddFailureModeModal({
               {/* Due Date */}
               <div className="space-y-2">
                 <Label htmlFor="dueDate">Due date</Label>
-                <Popover modal={true}>
+                <Popover
+                  modal={true}
+                  open={isDatePickerOpen}
+                  onOpenChange={setIsDatePickerOpen}
+                >
                   <PopoverTrigger asChild>
                     <Button
                       variant="outline"
                       className={cn(
                         "w-full justify-start text-left font-normal",
-                        !dueDate && "text-muted-foreground"
+                        !dueDate && "text-muted-foreground",
                       )}
                     >
                       <Calendar className="mr-2 h-4 w-4" />
@@ -333,9 +346,10 @@ export function AddFailureModeModal({
                     <CalendarComponent
                       mode="single"
                       selected={dueDate ? new Date(dueDate) : undefined}
-                      onSelect={(date) =>
-                        setDueDate(date ? date.toISOString() : "")
-                      }
+                      onSelect={(date) => {
+                        setDueDate(date ? date.toISOString() : "");
+                        setIsDatePickerOpen(false);
+                      }}
                       initialFocus
                     />
                   </PopoverContent>
