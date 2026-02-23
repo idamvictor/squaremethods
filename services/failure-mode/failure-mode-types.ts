@@ -81,6 +81,7 @@ export interface UpdateFailureModeInput {
   resolutions?: string[];
   due_date?: string;
   image?: string | null;
+  equipment_id?: string;
 }
 
 export interface DeleteFailureModeResponse {
