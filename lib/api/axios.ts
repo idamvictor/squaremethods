@@ -18,7 +18,7 @@ declare module "axios" {
   }
 }
 
-const COMPANY_ID = "ben";
+const COMPANY_ID = "chowdeck";
 
 // Create axios instance with default config
 const axiosInstance = axios.create({
@@ -44,7 +44,7 @@ axiosInstance.interceptors.request.use(
   },
   (error: AxiosError) => {
     return Promise.reject(error);
-  }
+  },
 );
 
 // Response interceptor
@@ -73,7 +73,7 @@ axiosInstance.interceptors.response.use(
     }
 
     return Promise.reject(error);
-  }
+  },
 );
 
 export default axiosInstance;
