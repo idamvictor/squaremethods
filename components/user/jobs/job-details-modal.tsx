@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Loader2 } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { JobActions } from "./job-actions";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 
 interface JobDetailsModalProps {
   jobId: string | null;
@@ -27,9 +27,14 @@ export function JobDetailsModal({
   const { data: job, isLoading } = useJobById(jobId || undefined);
   const queryClient = useQueryClient();
   const router = useRouter();
+  const pathname = usePathname();
+  const isInTechnicianRoute = pathname.includes("technician");
 
   const handleTaskClick = (taskId: string) => {
-    router.push(`/tasks?taskId=${taskId}`);
+    const taskRoute = isInTechnicianRoute
+      ? `/technician/tasks?taskId=${taskId}`
+      : `/tasks?taskId=${taskId}`;
+    router.push(taskRoute);
     onClose();
   };
 
@@ -91,7 +96,7 @@ export function JobDetailsModal({
                       <Badge
                         variant="secondary"
                         className={`${getStatusColor(
-                          job.status || "pending"
+                          job.status || "pending",
                         )} text-white`}
                       >
                         {(job.status || "pending")
@@ -103,7 +108,7 @@ export function JobDetailsModal({
                       <Badge
                         variant="secondary"
                         className={`${getPriorityColor(
-                          job.priority
+                          job.priority,
                         )} text-white`}
                       >
                         {job.priority.toUpperCase()}
@@ -156,6 +161,12 @@ export function JobDetailsModal({
                     <p>{job.team.name}</p>
                   </div>
                 )}
+                {job.equipment && (
+                  <div>
+                    <h3 className="text-lg font-semibold mb-2">Equipment</h3>
+                    <p>{job.equipment.name}</p>
+                  </div>
+                )}
               </div>
 
               {/* Timing Details */}
@@ -178,9 +189,9 @@ export function JobDetailsModal({
               {job.estimated_duration && (
                 <div>
                   <h3 className="text-lg font-semibold mb-2">Duration</h3>
-                  <p>Estimated: {job.estimated_duration} hours</p>
+                  <p>Estimated: {job.estimated_duration} mins</p>
                   {job.actual_duration && (
-                    <p>Actual: {job.actual_duration} hours</p>
+                    <p>Actual: {job.actual_duration} mins</p>
                   )}
                 </div>
               )}

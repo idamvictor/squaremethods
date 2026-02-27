@@ -197,14 +197,25 @@ export function EquipmentDetails({ node }: EquipmentDetailsProps) {
   return (
     <div className="space-y-6">
       <Tabs defaultValue="equipment-details" className="w-full">
-        <TabsList className="grid w-full grid-cols-5">
-          <TabsTrigger value="equipment-details" className="text-blue-600">
+        <TabsList className="w-full flex flex-wrap">
+          <TabsTrigger
+            value="equipment-details"
+            className="text-blue-600 text-xs sm:text-sm"
+          >
             Equipment details
           </TabsTrigger>
-          <TabsTrigger value="job-aids">Attached Job Aids</TabsTrigger>
-          <TabsTrigger value="tasks">Attached Tasks</TabsTrigger>
-          <TabsTrigger value="failure-mode">Failure Mode</TabsTrigger>
-          <TabsTrigger value="documents">Documents</TabsTrigger>
+          <TabsTrigger value="job-aids" className="text-xs sm:text-sm">
+            Attached Job Aids
+          </TabsTrigger>
+          <TabsTrigger value="tasks" className="text-xs sm:text-sm">
+            Attached Tasks
+          </TabsTrigger>
+          <TabsTrigger value="failure-mode" className="text-xs sm:text-sm">
+            Failure Mode
+          </TabsTrigger>
+          <TabsTrigger value="documents" className="text-xs sm:text-sm">
+            Documents
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="equipment-details" className="space-y-6">
@@ -531,20 +542,9 @@ export function EquipmentDetails({ node }: EquipmentDetailsProps) {
         </TabsContent>
 
         <TabsContent value="documents" className="space-y-4">
-          <div className="flex justify-end">
-            <Button
-              onClick={() => setFileManagerOpen(true)}
-              disabled={isUpdatingDocument}
-              variant="secondary"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Add Document
-            </Button>
-          </div>
-
-          {equipment.documents && equipment.documents.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
-              {equipment.documents.map((document, index) => {
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {equipment.documents &&
+              equipment.documents.map((document, index) => {
                 const fileType = getFileTypeIcon(document);
                 const fileName = extractFileName(document);
 
@@ -573,10 +573,28 @@ export function EquipmentDetails({ node }: EquipmentDetailsProps) {
                   </div>
                 );
               })}
-            </div>
-          ) : (
-            <div className="text-center text-gray-500 py-12">
-              <p>No documents attached to this equipment.</p>
+
+            {/* Add Document Card */}
+            <button
+              onClick={() => setFileManagerOpen(true)}
+              disabled={isUpdatingDocument}
+              className="border rounded-lg p-4 hover:shadow-lg transition-shadow flex flex-col items-center justify-center text-center cursor-pointer hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <div className="mb-4">
+                <Plus className="h-12 w-12 text-gray-400" />
+              </div>
+              <span className="text-gray-600 font-semibold text-sm">
+                Add Document
+              </span>
+            </button>
+          </div>
+
+          {(!equipment.documents || equipment.documents.length === 0) && (
+            <div className="text-center text-gray-500 py-8">
+              <p>
+                No documents attached yet. Click the &quot;Add Document&quot;
+                card above to upload one.
+              </p>
             </div>
           )}
 

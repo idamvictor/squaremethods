@@ -86,6 +86,7 @@ export function AddJobModal() {
         estimated_duration: Math.round(parseFloat(newJobData.duration) * 60),
         safety_notes: newJobData.safety_notes || "No safety notes provided",
         task_ids: newJobData.task_ids,
+        equipment_id: newJobData.equipment || null,
       };
       await createJobMutation.mutateAsync(jobInput);
       closeAddModal();
@@ -117,6 +118,20 @@ export function AddJobModal() {
               />
             </div>
 
+            {/* Description */}
+            <div className="space-y-2">
+              <Label htmlFor="description" className="text-sm font-medium">
+                Description
+              </Label>
+              <Textarea
+                id="description"
+                placeholder="Enter job description"
+                value={newJob.description}
+                onChange={(e) => updateNewJob("description", e.target.value)}
+                rows={3}
+              />
+            </div>
+
             {/* Task Selection */}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
@@ -142,7 +157,7 @@ export function AddJobModal() {
                           onClick={() => {
                             updateNewJob(
                               "task_ids",
-                              newJob.task_ids.filter((taskId) => taskId !== id)
+                              newJob.task_ids.filter((taskId) => taskId !== id),
                             );
                           }}
                           className="hover:text-red-500"
@@ -234,7 +249,7 @@ export function AddJobModal() {
               </div>
               <Select
                 value={newJob.priority}
-                onValueChange={(value: "low" | "medium" | "urgent") =>
+                onValueChange={(value: "low" | "medium" | "high" | "urgent") =>
                   updateNewJob("priority", value)
                 }
               >
@@ -245,6 +260,7 @@ export function AddJobModal() {
                   <SelectItem value="low">Low</SelectItem>
                   <SelectItem value="medium">Medium</SelectItem>
                   <SelectItem value="high">High</SelectItem>
+                  <SelectItem value="urgent">Urgent</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -345,7 +361,7 @@ export function AddJobModal() {
                     variant="outline"
                     className={cn(
                       "w-full justify-start text-left font-normal",
-                      !newJob.dueDate && "text-muted-foreground"
+                      !newJob.dueDate && "text-muted-foreground",
                     )}
                   >
                     <Calendar className="mr-2 h-4 w-4" />

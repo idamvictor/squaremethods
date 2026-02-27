@@ -1,4 +1,4 @@
-export type JobPriority = "urgent" | "medium" | "low";
+export type JobPriority = "urgent" | "medium" | "low" | "high";
 export type JobStatus =
   | "on_hold"
   | "pending"
@@ -92,6 +92,7 @@ export interface CreateJobInput {
   estimated_duration: number;
   safety_notes: string;
   task_ids: string[];
+  equipment_id?: string | null;
 }
 
 export interface JobAid {

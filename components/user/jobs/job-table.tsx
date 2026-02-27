@@ -35,7 +35,11 @@ import { DeleteDialog } from "./delete-dialog";
 import { JobDetailsModal } from "./job-details-modal";
 import { JobEditModal } from "./job-edit-modal";
 
-import { JobStatus, DeleteJobResponse } from "@/services/jobs/jobs-types";
+import {
+  JobStatus,
+  DeleteJobResponse,
+  JobPriority,
+} from "@/services/jobs/jobs-types";
 import { avatarImage } from "@/constants/images";
 
 export function JobTable() {
@@ -43,6 +47,11 @@ export function JobTable() {
   const [inputValue, setInputValue] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<JobStatus | "all">("all");
+  const [priorityFilter, setPriorityFilter] = useState<JobPriority | "all">(
+    "all",
+  );
+  const [teamFilter, setTeamFilter] = useState<string | "all">("all");
+  const [assignedFilter, setAssignedFilter] = useState<string | "all">("all");
   const [deleteJobId, setDeleteJobId] = useState<string | null>(null);
   const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
   const [editJobId, setEditJobId] = useState<string | null>(null);
@@ -57,11 +66,20 @@ export function JobTable() {
     return () => clearTimeout(timer);
   }, [inputValue]);
 
+  // Reset page when filters change
+  useEffect(() => {
+    setPage(1);
+  }, [statusFilter, priorityFilter, teamFilter, assignedFilter]);
+
   const { data } = useJobs({
     page,
     limit: 20,
     search: searchQuery || undefined,
     status: statusFilter === "all" ? undefined : statusFilter,
+    priority:
+      priorityFilter === "all" ? undefined : (priorityFilter as JobPriority),
+    team_id: teamFilter === "all" ? undefined : teamFilter,
+    assigned_to: assignedFilter === "all" ? undefined : assignedFilter,
   });
   const jobs = data?.data || [];
   const pagination = data?.pagination;
@@ -81,11 +99,6 @@ export function JobTable() {
     // Debouncing is handled by useEffect above
   };
 
-  const handleStatusFilter = (status: JobStatus | "all") => {
-    setStatusFilter(status);
-    setPage(1); // Reset to first page when filtering
-  };
-
   const handleDelete = async (jobId: string) => {
     await deleteJobMutation.mutateAsync(jobId);
     setDeleteJobId(null);
@@ -95,6 +108,9 @@ export function JobTable() {
     setInputValue("");
     setSearchQuery("");
     setStatusFilter("all");
+    setPriorityFilter("all");
+    setTeamFilter("all");
+    setAssignedFilter("all");
     setPage(1);
   };
 
@@ -106,12 +122,12 @@ export function JobTable() {
             status === "pending"
               ? "bg-blue-500"
               : status === "completed"
-              ? "bg-green-500"
-              : status === "in_progress"
-              ? "bg-yellow-500"
-              : status === "on_hold"
-              ? "bg-orange-500"
-              : "bg-red-500"
+                ? "bg-green-500"
+                : status === "in_progress"
+                  ? "bg-yellow-500"
+                  : status === "on_hold"
+                    ? "bg-orange-500"
+                    : "bg-red-500"
           }`}
         />
         <span className="capitalize text-sm">{status}</span>
@@ -143,7 +159,7 @@ export function JobTable() {
           currentPage,
           currentPage + 1,
           "...",
-          totalPages
+          totalPages,
         );
       }
     }
@@ -155,7 +171,13 @@ export function JobTable() {
     <div className="space-y-4">
       <JobFilters
         statusFilter={statusFilter}
-        onStatusChange={handleStatusFilter}
+        onStatusChange={setStatusFilter}
+        priorityFilter={priorityFilter}
+        onPriorityChange={setPriorityFilter}
+        teamFilter={teamFilter}
+        onTeamChange={setTeamFilter}
+        assignedFilter={assignedFilter}
+        onAssignedChange={setAssignedFilter}
         searchQuery={inputValue}
         onSearchChange={handleSearch}
         onReset={resetFilters}
@@ -166,10 +188,9 @@ export function JobTable() {
             <TableRow>
               <TableHead>Job Title</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead>Team</TableHead>
+              <TableHead>Equipment</TableHead>
               <TableHead>Assigned To</TableHead>
               <TableHead>Due Date</TableHead>
-              <TableHead>Duration (hrs)</TableHead>
               <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -188,7 +209,7 @@ export function JobTable() {
                 <TableCell>{getStatusBadge(job.status)}</TableCell>
                 <TableCell>
                   <span className="text-sm text-muted-foreground">
-                    {job.team.name}
+                    {job.equipment?.name || "N/A"}
                   </span>
                 </TableCell>
                 <TableCell>
@@ -205,11 +226,6 @@ export function JobTable() {
                 <TableCell>
                   <span className="text-sm text-muted-foreground">
                     {new Date(job.due_date).toLocaleDateString()}
-                  </span>
-                </TableCell>
-                <TableCell>
-                  <span className="text-sm text-muted-foreground">
-                    {job.estimated_duration}
                   </span>
                 </TableCell>
                 <TableCell onClick={(e) => e.stopPropagation()}>
