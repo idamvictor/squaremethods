@@ -26,7 +26,7 @@ export const JOBS_QUERY_KEY = "jobs";
 
 // Separate fetch function
 export const fetchJobs = async (
-  params: JobsQueryParams = {}
+  params: JobsQueryParams = {},
 ): Promise<JobsResponse> => {
   const { data } = await axiosInstance.get<JobsResponse>("/jobs", {
     params: {
@@ -60,7 +60,7 @@ export const getJobsQueryKey = (params: JobsQueryParams = {}) => [
 
 // Separate fetch function
 export const createJob = async (
-  input: CreateJobInput
+  input: CreateJobInput,
 ): Promise<CreateJobResponse> => {
   const { data } = await axiosInstance.post<CreateJobResponse>("/jobs", input);
   return data;
@@ -83,7 +83,7 @@ export const useCreateJob = () => {
 
 // Separate fetch function
 export const fetchOverdueJobs = async (
-  params: OverdueJobsQueryParams = {}
+  params: OverdueJobsQueryParams = {},
 ): Promise<JobsResponse> => {
   const { data } = await axiosInstance.get<JobsResponse>("/jobs/overdue", {
     params: {
@@ -114,11 +114,11 @@ export const getOverdueJobsQueryKey = (params: OverdueJobsQueryParams = {}) => [
 // Separate fetch function
 export const assignJob = async (
   jobId: string,
-  input: AssignJobInput
+  input: AssignJobInput,
 ): Promise<AssignJobResponse> => {
   const { data } = await axiosInstance.post<AssignJobResponse>(
     `/jobs/${jobId}/assign`,
-    input
+    input,
   );
   return data;
 };
@@ -147,7 +147,7 @@ export const useAssignJob = () => {
 // Separate fetch function
 export const startJob = async (jobId: string): Promise<StartJobResponse> => {
   const { data } = await axiosInstance.post<StartJobResponse>(
-    `/jobs/${jobId}/start`
+    `/jobs/${jobId}/start`,
   );
   return data;
 };
@@ -170,11 +170,11 @@ export const useStartJob = () => {
 // Separate fetch function
 export const completeJob = async (
   jobId: string,
-  input: CompleteJobInput
+  input: CompleteJobInput,
 ): Promise<CompleteJobResponse> => {
   const { data } = await axiosInstance.post<CompleteJobResponse>(
     `/jobs/${jobId}/complete`,
-    input
+    input,
   );
   return data;
 };
@@ -204,11 +204,11 @@ export const useCompleteJob = () => {
 export const updateTaskStatus = async (
   jobId: string,
   taskId: string,
-  input: UpdateTaskInput
+  input: UpdateTaskInput,
 ): Promise<UpdateTaskResponse> => {
   const { data } = await axiosInstance.patch<UpdateTaskResponse>(
     `/jobs/${jobId}/tasks/${taskId}`,
-    input
+    input,
   );
   return data;
 };
@@ -242,7 +242,7 @@ export const useUpdateTaskStatus = () => {
 
 // Separate fetch function
 export const fetchJobById = async (
-  jobId: string
+  jobId: string,
 ): Promise<JobWithRelations> => {
   const { data } = await axiosInstance.get<{
     success: boolean;
@@ -269,11 +269,11 @@ export const getJobByIdQueryKey = (jobId: string) => [JOBS_QUERY_KEY, jobId];
 // Separate fetch function
 export const updateJob = async (
   jobId: string,
-  input: UpdateJobInput
+  input: UpdateJobInput,
 ): Promise<UpdateJobResponse> => {
-  const { data } = await axiosInstance.patch<UpdateJobResponse>(
+  const { data } = await axiosInstance.put<UpdateJobResponse>(
     `/jobs/${jobId}`,
-    input
+    input,
   );
   return data;
 };
@@ -304,7 +304,7 @@ export const useUpdateJob = () => {
 // Separate fetch function
 export const fetchUserJobs = async (
   userId: string,
-  params: UserJobsQueryParams = {}
+  params: UserJobsQueryParams = {},
 ): Promise<JobsResponse> => {
   const { data } = await axiosInstance.get<JobsResponse>(
     `/jobs/user/${userId}`,
@@ -314,7 +314,7 @@ export const fetchUserJobs = async (
         limit: params.limit || 20,
         status: params.status,
       },
-    }
+    },
   );
   return data;
 };
@@ -322,7 +322,7 @@ export const fetchUserJobs = async (
 // React Query hook for user jobs
 export const useUserJobs = (
   userId: string | undefined,
-  params: UserJobsQueryParams = {}
+  params: UserJobsQueryParams = {},
 ) => {
   return useQuery({
     queryKey: [JOBS_QUERY_KEY, "user", userId, params],
@@ -334,7 +334,7 @@ export const useUserJobs = (
 // Helper function to construct the query key for user jobs
 export const getUserJobsQueryKey = (
   userId: string,
-  params: UserJobsQueryParams = {}
+  params: UserJobsQueryParams = {},
 ) => [JOBS_QUERY_KEY, "user", userId, params];
 
 // ============================== Delete Job ==============================
@@ -342,7 +342,7 @@ export const getUserJobsQueryKey = (
 // Separate fetch function
 export const deleteJob = async (jobId: string): Promise<DeleteJobResponse> => {
   const { data } = await axiosInstance.delete<DeleteJobResponse>(
-    `/jobs/${jobId}`
+    `/jobs/${jobId}`,
   );
   return data;
 };

@@ -201,8 +201,15 @@ export interface UpdateTaskResponse {
 
 export interface UpdateJobInput {
   title?: string;
+  description?: string;
   priority?: JobPriority;
   due_date?: string;
+  estimated_duration?: number;
+  safety_notes?: string;
+  equipment_id?: string | null;
+  team_id?: string;
+  assigned_to?: string;
+  task_ids?: string[];
 }
 
 export interface UpdateJobResponse {

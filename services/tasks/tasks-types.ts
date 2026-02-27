@@ -53,6 +53,7 @@ export interface Task {
 
 export interface TasksQueryParams extends BaseQueryParams {
   search?: string;
+  equipment_id?: string;
 }
 
 export interface CreateTaskInput {

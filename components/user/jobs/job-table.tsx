@@ -181,6 +181,7 @@ export function JobTable() {
         searchQuery={inputValue}
         onSearchChange={handleSearch}
         onReset={resetFilters}
+        jobs={jobs}
       />
       <div className="rounded-md border">
         <Table>

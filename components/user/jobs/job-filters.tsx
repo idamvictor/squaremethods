@@ -8,9 +8,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Search } from "lucide-react";
+import { Search, Download } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { JobStatus, JobPriority } from "@/services/jobs/jobs-types";
+import { JobStatus, JobPriority, Job } from "@/services/jobs/jobs-types";
 import { useTeams } from "@/services/teams/teams";
 
 interface JobFiltersProps {
@@ -25,6 +25,7 @@ interface JobFiltersProps {
   searchQuery: string;
   onSearchChange: (query: string) => void;
   onReset: () => void;
+  jobs: Job[];
 }
 
 export function JobFilters({
@@ -39,8 +40,55 @@ export function JobFilters({
   searchQuery,
   onSearchChange,
   onReset,
+  jobs,
 }: JobFiltersProps) {
   const { data: teamsData } = useTeams();
+
+  const handleExportToExcel = () => {
+    if (!jobs || jobs.length === 0) {
+      alert("No data to export");
+      return;
+    }
+
+    // Prepare data for Excel
+    const csvContent = [
+      ["Title", "Status", "Priority", "Equipment", "Assigned To", "Due Date"],
+      ...jobs.map((job) => [
+        job.title,
+        job.status,
+        job.priority,
+        job.equipment?.name || "N/A",
+        `${job.assignedUser.first_name} ${job.assignedUser.last_name}`,
+        new Date(job.due_date).toLocaleDateString(),
+      ]),
+    ];
+
+    // Create CSV string
+    const csvString = csvContent
+      .map((row) =>
+        row
+          .map((cell) => {
+            // Escape quotes and wrap in quotes if contains comma
+            const cellStr = String(cell);
+            return cellStr.includes(",") || cellStr.includes('"')
+              ? `"${cellStr.replace(/"/g, '""')}"`
+              : cellStr;
+          })
+          .join(","),
+      )
+      .join("\n");
+
+    // Create blob and download
+    const blob = new Blob([csvString], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute("download", `jobs-export-${new Date().getTime()}.csv`);
+    link.style.visibility = "hidden";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
   return (
     <div className="space-y-4">
       <div className="flex flex-col lg:flex-row gap-2 lg:items-center">
@@ -106,6 +154,15 @@ export function JobFilters({
 
           <Button variant="outline" onClick={onReset}>
             Reset
+          </Button>
+
+          <Button
+            variant="outline"
+            onClick={handleExportToExcel}
+            className="flex items-center gap-2"
+          >
+            <Download className="h-4 w-4" />
+            Export
           </Button>
         </div>
       </div>

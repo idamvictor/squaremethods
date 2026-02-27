@@ -17,13 +17,14 @@ export const TASKS_QUERY_KEY = "tasks";
 
 // Separate fetch function
 export const fetchTasks = async (
-  params: TasksQueryParams = {}
+  params: TasksQueryParams = {},
 ): Promise<TasksResponse> => {
   const { data } = await axiosInstance.get<TasksResponse>("/tasks", {
     params: {
       page: params.page || 1,
       limit: params.limit || 20,
       search: params.search,
+      equipment_id: params.equipment_id,
     },
   });
   return data;
@@ -41,11 +42,11 @@ export const useTasks = (params: TasksQueryParams = {}) => {
 
 // Separate fetch function
 export const createTask = async (
-  input: CreateTaskInput
+  input: CreateTaskInput,
 ): Promise<CreateTaskResponse> => {
   const { data } = await axiosInstance.post<CreateTaskResponse>(
     "/tasks",
-    input
+    input,
   );
   return data;
 };
@@ -85,11 +86,11 @@ export const useTaskById = (id: string | undefined) => {
 // Separate fetch function
 export const updateTask = async (
   id: string,
-  input: UpdateTaskInput
+  input: UpdateTaskInput,
 ): Promise<UpdateTaskResponse> => {
   const { data } = await axiosInstance.patch<UpdateTaskResponse>(
     `/tasks/${id}`,
-    input
+    input,
   );
   return data;
 };
@@ -120,7 +121,7 @@ export const useUpdateTask = () => {
 // Separate fetch function
 export const deleteTask = async (id: string): Promise<DeleteTaskResponse> => {
   const { data } = await axiosInstance.delete<DeleteTaskResponse>(
-    `/tasks/${id}`
+    `/tasks/${id}`,
   );
   return data;
 };
