@@ -14,7 +14,7 @@ import {
   PaginationItem,
   PaginationLink,
 } from "@/components/ui/pagination";
-import { Search, Pencil, Trash2, Eye } from "lucide-react";
+import { Search, Pencil, Trash2 } from "lucide-react";
 import { AddFailureModeModal } from "./add-failure-mode-modal";
 import { EditFailureModeModal } from "./edit-failure-mode-modal";
 import { DeleteConfirmationModal } from "./delete-confirmation-modal";
@@ -136,7 +136,8 @@ export function FailureModeList() {
             failureModes.map((mode) => (
               <div
                 key={mode.id}
-                className="grid grid-cols-[2fr_1fr_1.5fr_1fr_0.5fr] gap-4 px-6 py-4 text-sm hover:bg-muted/50 transition-colors"
+                className="grid grid-cols-[2fr_1fr_1.5fr_1fr_0.5fr] gap-4 px-6 py-4 text-sm hover:bg-muted/50 transition-colors cursor-pointer"
+                onClick={() => handleViewDetails(mode)}
               >
                 <div className="flex items-center gap-2 font-medium text-foreground">
                   {mode.title}
@@ -175,15 +176,10 @@ export function FailureModeList() {
                     variant="ghost"
                     size="icon"
                     className="h-8 w-8"
-                    onClick={() => handleViewDetails(mode)}
-                  >
-                    <Eye className="h-4 w-4 text-muted-foreground hover:text-foreground" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8"
-                    onClick={() => handleEdit(mode)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleEdit(mode);
+                    }}
                   >
                     <Pencil className="h-4 w-4 text-muted-foreground hover:text-foreground" />
                   </Button>
@@ -191,7 +187,10 @@ export function FailureModeList() {
                     variant="ghost"
                     size="icon"
                     className="h-8 w-8"
-                    onClick={() => handleDeleteClick(mode)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDeleteClick(mode);
+                    }}
                   >
                     <Trash2 className="h-4 w-4 text-muted-foreground hover:text-destructive" />
                   </Button>

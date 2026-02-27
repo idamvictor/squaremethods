@@ -377,13 +377,7 @@ export function EditFailureModeModal({
                     <Textarea
                       value={newResolution}
                       onChange={(e) => setNewResolution(e.target.value)}
-                      placeholder="Enter resolution (press Enter to add)"
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" && !e.shiftKey) {
-                          e.preventDefault();
-                          handleAddResolution();
-                        }
-                      }}
+                      placeholder="Enter resolution"
                       className="min-h-20 resize-none"
                     />
                     <Button
