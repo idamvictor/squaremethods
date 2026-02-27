@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/table";
 import { Job } from "@/services/jobs/jobs-types";
 import { Pencil, Trash2 } from "lucide-react";
-import { Avatar, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import {
   Pagination,
   PaginationContent,
@@ -40,7 +40,6 @@ import {
   DeleteJobResponse,
   JobPriority,
 } from "@/services/jobs/jobs-types";
-import { avatarImage } from "@/constants/images";
 
 export function JobTable() {
   const [page, setPage] = useState(1);
@@ -217,9 +216,13 @@ export function JobTable() {
                   <div className="flex items-center gap-2">
                     <Avatar className="h-8 w-8">
                       <AvatarImage
-                        src={avatarImage.image1}
+                        src={job.assignedUser.avatar}
                         alt={`${job.assignedUser.first_name} ${job.assignedUser.last_name}`}
                       />
+                      <AvatarFallback>
+                        {job.assignedUser.first_name[0]}
+                        {job.assignedUser.last_name[0]}
+                      </AvatarFallback>
                     </Avatar>
                     <span className="text-sm">{`${job.assignedUser.first_name} ${job.assignedUser.last_name}`}</span>
                   </div>

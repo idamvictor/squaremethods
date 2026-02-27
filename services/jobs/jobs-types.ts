@@ -52,6 +52,7 @@ export interface AssignedUser {
   first_name: string;
   last_name: string;
   email: string;
+  avatar?: string;
 }
 
 export interface Creator {
@@ -59,6 +60,7 @@ export interface Creator {
   first_name: string;
   last_name: string;
   email: string;
+  avatar?: string;
 }
 
 export interface JobsResponse {
