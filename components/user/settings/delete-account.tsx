@@ -1,7 +1,24 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
-export default function DeleteAccount() {
+interface DeleteAccountProps {
+  onCancel?: () => void;
+}
+
+export default function DeleteAccount({ onCancel }: DeleteAccountProps) {
+  const router = useRouter();
+
+  const handleCancel = () => {
+    if (onCancel) {
+      onCancel();
+    } else {
+      router.push("/");
+    }
+  };
+
   return (
     <div className="min-h-full bg-gray-50 flex items-center justify-center p-4">
       <div className="max-w-md w-full text-center">
@@ -28,7 +45,10 @@ export default function DeleteAccount() {
 
         {/* Buttons */}
         <div className="flex gap-3">
-          <Button className="flex-1 bg-blue-800 hover:bg-blue-900 text-white font-medium py-3 px-6 rounded-lg">
+          <Button
+            className="flex-1 bg-blue-800 hover:bg-blue-900 text-white font-medium py-3 px-6 rounded-lg"
+            onClick={handleCancel}
+          >
             Cancel
           </Button>
           <Button
