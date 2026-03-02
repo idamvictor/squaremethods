@@ -35,6 +35,7 @@ export function StepsGridView({
 }: StepsGridViewProps) {
   const [showCarousel, setShowCarousel] = useState(false);
   const [selectedStepIndex, setSelectedStepIndex] = useState(0);
+  const [hoveredStepIndex, setHoveredStepIndex] = useState<number | null>(null);
 
   // Parse precautions if they're stringified
   const parsedSteps = useMemo(() => {
@@ -180,14 +181,24 @@ export function StepsGridView({
                             </Popover>
                           )}
                       </div>
-                      {step.title && (
-                        <h3 className="font-medium text-gray-900 mb-2">
-                          {step.title}
-                        </h3>
+                      {step.instruction && (
+                        <Popover open={hoveredStepIndex === index}>
+                          <PopoverTrigger asChild>
+                            <p
+                              className="text-sm text-gray-600 line-clamp-2 cursor-help"
+                              onMouseEnter={() => setHoveredStepIndex(index)}
+                              onMouseLeave={() => setHoveredStepIndex(null)}
+                            >
+                              {step.instruction}
+                            </p>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-64 z-50">
+                            <p className="text-sm text-gray-700">
+                              {step.instruction}
+                            </p>
+                          </PopoverContent>
+                        </Popover>
                       )}
-                      {/* <p className="text-sm text-gray-600 line-clamp-3">
-                        {step.instruction}
-                      </p> */}
                     </div>
                   </button>
                 ))}

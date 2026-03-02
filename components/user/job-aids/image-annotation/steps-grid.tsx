@@ -40,7 +40,7 @@ export default function StepsGrid({ steps, onEdit, onRemove }: StepsGridProps) {
         {steps.map((step, index) => (
           <div
             key={index}
-            className="bg-white rounded-lg border border-gray-200 overflow-hidden relative"
+            className="bg-white rounded-lg border border-gray-200 overflow-hidden relative flex flex-col"
           >
             {/* Step Number Banner */}
             <div className="bg-white py-2 border-b border-gray-200">
@@ -118,8 +118,10 @@ export default function StepsGrid({ steps, onEdit, onRemove }: StepsGridProps) {
             </div>
 
             {/* Description */}
-            <div className="p-4">
-              <p className="text-sm text-gray-600">{step.description}</p>
+            <div className="p-4 flex-1">
+              <p className="text-sm text-gray-600 line-clamp-3">
+                {step.description}
+              </p>
             </div>
 
             {/* Actions */}

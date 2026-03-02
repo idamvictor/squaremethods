@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { ArrowLeft, AlertCircle } from "lucide-react";
 import Image from "next/image";
 import {
@@ -28,7 +29,6 @@ interface StepCarouselViewProps {
 }
 
 export function StepCarouselView({
-  title,
   jobAidTitle,
   steps,
   type,
@@ -101,122 +101,98 @@ export function StepCarouselView({
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white border-b px-6 py-4">
-        <div className="flex items-center gap-4">
-          <Button
-            variant="ghost"
-            onClick={onBack}
-            className="text-gray-500 hover:text-gray-700 hover:bg-transparent"
-            size="sm"
-          >
-            <ArrowLeft className="h-5 w-5 mr-2" />
-            Back
-          </Button>
-          <div>
-            <h1 className="text-2xl font-semibold text-gray-900">
-              {jobAidTitle}
-            </h1>
-            <p className="text-sm text-gray-500 mt-1">{title}</p>
-          </div>
-        </div>
-      </div>
+      {/* Floating Back Button */}
+      <Button
+        variant="ghost"
+        onClick={onBack}
+        className="fixed top-20 left-2 z-50 text-gray-500 hover:text-gray-700 hover:bg-white hover:shadow-md rounded-full"
+        size="sm"
+      >
+        <ArrowLeft className="h-5 w-5" />
+      </Button>
 
       {/* Content */}
-      <div className="p-6 max-w-5xl mx-auto">
+      <div className="p-4 md:p-6 max-w-6xl mx-auto pt-10">
         <Carousel setApi={setApi} className="w-full relative">
           <CarouselContent>
             {sortedSteps.map((step) => (
               <CarouselItem key={step.id}>
                 <div className="space-y-6">
-                  {/* Image */}
-                  <div className="relative w-full h-96 rounded-lg overflow-hidden bg-gray-100 border">
-                    {step.image ? (
-                      <Image
-                        src={step.image}
-                        alt={`Step ${step.step}`}
-                        fill
-                        className="object-cover"
-                        priority
-                      />
-                    ) : (
-                      <div className="flex items-center justify-center h-full text-gray-400">
-                        No image available
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Step Content */}
-                  <div className="bg-white rounded-lg border p-6 space-y-4">
-                    <div>
-                      <span className="text-sm font-semibold text-gray-600">
-                        Step {step.step} of{" "}
-                        {sortedSteps[count - 1]?.step || count}
-                      </span>
-                      {step.title && (
-                        <h2 className="text-2xl font-semibold text-gray-900 mt-2">
-                          {step.title}
-                        </h2>
-                      )}
-                    </div>
-
-                    {/* Instruction - Always show this */}
-                    <div className="text-gray-700 whitespace-pre-wrap leading-relaxed">
-                      {step.instruction}
-                    </div>
-
-                    {/* Precautions Section */}
-                    {type === "procedure" &&
-                      "precautions" in step &&
-                      step.precautions &&
-                      step.precautions.length > 0 && (
-                        <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg">
-                          <div className="flex items-start gap-2 mb-3">
-                            <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
-                            <div>
-                              <p className="text-sm font-semibold text-amber-900">
-                                ⚠ Precautions
-                              </p>
-                            </div>
-                          </div>
-                          <ul className="space-y-2 ml-7">
-                            {step.precautions.map((precaution, precIdx) => (
-                              <li
-                                key={precIdx}
-                                className="text-sm text-amber-900 flex items-start gap-2"
-                              >
-                                <span className="flex-shrink-0 mt-0.5">•</span>
-                                <span>{precaution.instruction}</span>
-                              </li>
-                            ))}
-                          </ul>
+                  {/* Main Content - Side by Side Layout */}
+                  <div className="flex flex-col md:flex-row gap-4 md:gap-6 bg-white rounded-lg border overflow-hidden shadow-sm hover:shadow-md transition-shadow h-[70vh] md:h-[80vh]">
+                    {/* Image Section - Left */}
+                    <Card className="relative w-full md:w-96 h-64 md:h-96 flex-shrink-0 bg-gray-100 overflow-hidden border-0 shadow-sm">
+                      {step.image &&
+                      typeof step.image === "string" &&
+                      (step.image.startsWith("/") ||
+                        step.image.startsWith("http")) ? (
+                        <Image
+                          src={step.image}
+                          alt={`Step ${step.step}`}
+                          fill
+                          className="object-cover"
+                          priority
+                        />
+                      ) : (
+                        <div className="flex items-center justify-center h-full text-gray-400 text-sm">
+                          No image available
                         </div>
                       )}
-                  </div>
+                    </Card>
 
-                  {/* Navigation */}
-                  <div className="flex items-center justify-center gap-8 mt-8">
-                    {/* Step Indicator */}
-                    <div className="flex items-center gap-2">
-                      <div className="h-1 w-32 bg-gray-300 rounded-full">
-                        <div
-                          className="h-1 bg-gray-400 rounded-full transition-all"
-                          style={{
-                            width: `${
-                              count > 0
-                                ? (step.step /
-                                    (sortedSteps[count - 1]?.step || count)) *
-                                  100
-                                : 0
-                            }%`,
-                          }}
-                        ></div>
+                    {/* Content Section - Right */}
+                    <div className="flex-1 p-6 md:p-8 flex flex-col md:h-full">
+                      {/* Title */}
+                      <div className="mb-4 md:mb-6">
+                        <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2 md:mb-4">
+                          {jobAidTitle}
+                        </h1>
+                        <span className="inline-block text-sm font-semibold text-blue-600 bg-blue-50 px-3 py-1 rounded-full">
+                          Step {step.step} of{" "}
+                          {sortedSteps[count - 1]?.step || count}
+                        </span>
                       </div>
-                      <span className="text-sm text-gray-600 whitespace-nowrap">
-                        {count > 0
-                          ? `${step.step} / ${sortedSteps[count - 1]?.step || count}`
-                          : "0 / 0"}
-                      </span>
+
+                      {/* Scrollable Content Area */}
+                      <div className="flex-1 overflow-y-auto space-y-4 md:space-y-5 md:pr-4">
+                        {/* Instruction */}
+                        <div>
+                          <h3 className="text-xs md:text-sm font-semibold text-gray-600 mb-2 uppercase tracking-wide">
+                            Instructions
+                          </h3>
+                          <p className="text-gray-700 whitespace-pre-wrap leading-relaxed text-sm md:text-base">
+                            {step.instruction}
+                          </p>
+                        </div>
+
+                        {/* Precautions Section */}
+                        {type === "procedure" &&
+                          "precautions" in step &&
+                          step.precautions &&
+                          step.precautions.length > 0 && (
+                            <div className="p-3 md:p-4 bg-amber-50 border border-amber-200 rounded-lg mt-4">
+                              <div className="flex items-start gap-2 mb-3">
+                                <AlertCircle className="w-4 md:w-5 h-4 md:h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                                <p className="text-xs md:text-sm font-semibold text-amber-900">
+                                  ⚠ Precautions
+                                </p>
+                              </div>
+                              <ul className="space-y-2 ml-6 md:ml-7">
+                                {step.precautions.map((precaution, precIdx) => (
+                                  <li
+                                    key={precIdx}
+                                    className="text-xs md:text-sm text-amber-900 flex items-start gap-2"
+                                  >
+                                    <span className="flex-shrink-0 mt-0.5">
+                                      •
+                                    </span>
+                                    <span>{precaution.instruction}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -225,8 +201,8 @@ export function StepCarouselView({
           </CarouselContent>
 
           {/* Navigation Arrows */}
-          <CarouselPrevious className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-12 hover:bg-gray-200 h-10 w-10" />
-          <CarouselNext className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-12 hover:bg-gray-200 h-10 w-10" />
+          <CarouselPrevious className="absolute left-2 md:left-0 top-[100%] -translate-y-1/2 md:-translate-x-12 hover:bg-gray-200 h-9 md:h-10 w-9 md:w-10 z-10" />
+          <CarouselNext className="absolute right-2 md:right-0 top-[100%] -translate-y-1/2 md:translate-x-12 hover:bg-gray-200 h-9 md:h-10 w-9 md:w-10 z-10" />
         </Carousel>
       </div>
     </div>
