@@ -4,6 +4,7 @@ import { useState } from "react";
 import type { FileItem } from "@/lib/static-files";
 import { FileUpload } from "./file-upload";
 import { FileList } from "./file-list";
+import { PhotoCapture } from "./photo-capture";
 import { useFiles } from "@/services/files/files-queries";
 import { useUploadFile, useDeleteFile } from "@/services/upload/upload-queries";
 import {
@@ -82,9 +83,10 @@ export function FileManagerModal({
         </DialogHeader>
 
         <Tabs defaultValue="browse" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="browse">Browse Files</TabsTrigger>
             <TabsTrigger value="upload">Upload New</TabsTrigger>
+            <TabsTrigger value="camera">Take Photo</TabsTrigger>
           </TabsList>
 
           <TabsContent value="browse" className="space-y-4">
@@ -115,6 +117,10 @@ export function FileManagerModal({
                 />
               </div>
             )}
+          </TabsContent>
+
+          <TabsContent value="camera" className="space-y-4">
+            <PhotoCapture onCapture={handleUpload} />
           </TabsContent>
         </Tabs>
       </DialogContent>
