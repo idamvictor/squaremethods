@@ -36,6 +36,7 @@ export function OverdueJobs() {
   const getPriorityBadge = (priority: Job["priority"]) => {
     const colors = {
       urgent: "bg-red-500",
+      high: "bg-orange-500",
       medium: "bg-yellow-500",
       low: "bg-green-500",
     };
