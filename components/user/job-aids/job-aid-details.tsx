@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, X, Plus, Copy, Share2 } from "lucide-react";
+import { ArrowLeft, Plus, Copy, Share2 } from "lucide-react";
 import { useJobAidDetails } from "@/services/job-aid/job-aid-queries";
 import { useJobAidStore } from "@/store/job-aid-store";
 import Link from "next/link";
@@ -173,13 +173,13 @@ export function JobAidDetails({ jobAidId }: JobAidDetailsProps) {
                 </div>
               </DropdownMenuContent>
             </DropdownMenu>
-            <Link
+            {/* <Link
               href={isInTechnicianRoute ? "/technician/job-aids" : "/job-aids"}
             >
               <Button variant="ghost" size="icon">
                 <X className="w-5 h-5" />
               </Button>
-            </Link>
+            </Link> */}
           </div>
         </div>
       </div>
@@ -270,12 +270,9 @@ export function JobAidDetails({ jobAidId }: JobAidDetailsProps) {
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-lg font-medium">Procedures</h3>
                     {jobAid.procedures && jobAid.procedures.length > 0 && (
-                      <button
-                        onClick={handleViewMoreProcedures}
-                        className="text-sm text-blue-600 hover:text-blue-700 font-medium"
-                      >
+                      <Button onClick={handleViewMoreProcedures} size="sm">
                         View All
-                      </button>
+                      </Button>
                     )}
                   </div>
                   {jobAid.procedures && jobAid.procedures.length > 0 ? (

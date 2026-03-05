@@ -65,87 +65,89 @@ export function JobAidsManagement({
   return (
     <div className="p-6 max-w-7xl mx-auto">
       {/* Header */}
-      <div className="flex items-center justify-between mb-8">
-        <h1 className="text-2xl font-semibold text-gray-900">Job Aids</h1>
-        <div className="flex items-center gap-4">
-          <div className="relative">
+      <div className="mb-8">
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="text-2xl font-semibold text-gray-900">Job Aids</h1>
+        </div>
+        <div className="flex flex-col md:flex-row gap-4">
+          <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
             <Input
               placeholder="Search..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 w-64"
+              className="pl-10 w-full"
             />
           </div>
-          <Button onClick={onCreateClick}>Create</Button>
+          <Button onClick={onCreateClick} className="w-full md:w-auto">
+            Create
+          </Button>
         </div>
       </div>
 
       {/* Filters */}
-      <div className="flex items-center justify-between mb-8">
-        <div className="flex items-center gap-4">
-          {/* View Mode Toggle */}
-          <div className="flex items-center gap-1 border rounded-lg p-1">
-            <Button
-              variant={viewMode === "grid" ? "default" : "ghost"}
-              size="sm"
-              onClick={() => setViewMode("grid")}
-              className="h-8 w-8 p-0"
-            >
-              <Grid3X3 className="w-4 h-4" />
-            </Button>
-            <Button
-              variant={viewMode === "list" ? "default" : "ghost"}
-              size="sm"
-              onClick={() => setViewMode("list")}
-              className="h-8 w-8 p-0"
-            >
-              <List className="w-4 h-4" />
-            </Button>
-          </div>
-
-          <Select
-            value={status}
-            onValueChange={(value: JobAidStatus) => setStatus(value)}
+      <div className="flex flex-wrap items-center gap-4 mb-8">
+        {/* View Mode Toggle */}
+        <div className="flex items-center gap-1 border rounded-lg p-1">
+          <Button
+            variant={viewMode === "grid" ? "default" : "ghost"}
+            size="sm"
+            onClick={() => setViewMode("grid")}
+            className="h-8 w-8 p-0"
           >
-            <SelectTrigger className="w-32">
-              <SelectValue placeholder="Status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="draft">Draft</SelectItem>
-              <SelectItem value="published">Published</SelectItem>
-            </SelectContent>
-          </Select>
-
-          <Select
-            value={equipmentId || "all"}
-            onValueChange={(value) =>
-              setEquipmentId(value === "all" ? undefined : value)
-            }
+            <Grid3X3 className="w-4 h-4" />
+          </Button>
+          <Button
+            variant={viewMode === "list" ? "default" : "ghost"}
+            size="sm"
+            onClick={() => setViewMode("list")}
+            className="h-8 w-8 p-0"
           >
-            <SelectTrigger className="w-48">
-              <SelectValue placeholder="Equipment" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Equipment</SelectItem>
-              {equipmentData?.data && equipmentData.data.length > 0 ? (
-                equipmentData.data.map((equipment) => (
-                  <SelectItem key={equipment.id} value={equipment.id}>
-                    {equipment.name}
-                  </SelectItem>
-                ))
-              ) : (
-                <SelectItem value="none" disabled>
-                  No equipment available
-                </SelectItem>
-              )}
-            </SelectContent>
-          </Select>
+            <List className="w-4 h-4" />
+          </Button>
         </div>
+
+        <Select
+          value={status}
+          onValueChange={(value: JobAidStatus) => setStatus(value)}
+        >
+          <SelectTrigger className="w-32">
+            <SelectValue placeholder="Status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="draft">Draft</SelectItem>
+            <SelectItem value="published">Published</SelectItem>
+          </SelectContent>
+        </Select>
+
+        <Select
+          value={equipmentId || "all"}
+          onValueChange={(value) =>
+            setEquipmentId(value === "all" ? undefined : value)
+          }
+        >
+          <SelectTrigger className="w-48">
+            <SelectValue placeholder="Equipment" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Equipment</SelectItem>
+            {equipmentData?.data && equipmentData.data.length > 0 ? (
+              equipmentData.data.map((equipment) => (
+                <SelectItem key={equipment.id} value={equipment.id}>
+                  {equipment.name}
+                </SelectItem>
+              ))
+            ) : (
+              <SelectItem value="none" disabled>
+                No equipment available
+              </SelectItem>
+            )}
+          </SelectContent>
+        </Select>
 
         <Button
           variant="ghost"
-          className="text-gray-500 hover:text-gray-700"
+          className="text-gray-500 hover:text-gray-700 ml-auto"
           onClick={() => {
             setSearchQuery("");
             setStatus(undefined);

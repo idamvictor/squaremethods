@@ -30,13 +30,13 @@ export function JobAidCard({
   return (
     <Link href={`/job-aids/${jobAid.id}`} className="block">
       <Card className="relative group hover:shadow-md transition-shadow overflow-hidden py-0">
-        <div className="absolute top-4 right-4 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+        <div className="absolute top-4 right-4 z-10 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
                 size="icon"
                 variant="secondary"
-                className="h-8 w-8 bg-white/90 hover:bg-white"
+                className="h-8 w-8 bg-white/60 md:bg-white/90 hover:bg-white"
               >
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
