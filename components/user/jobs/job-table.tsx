@@ -51,6 +51,7 @@ export function JobTable() {
   );
   const [teamFilter, setTeamFilter] = useState<string | "all">("all");
   const [assignedFilter, setAssignedFilter] = useState<string | "all">("all");
+  const [equipmentFilter, setEquipmentFilter] = useState<string | "all">("all");
   const [deleteJobId, setDeleteJobId] = useState<string | null>(null);
   const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
   const [editJobId, setEditJobId] = useState<string | null>(null);
@@ -68,7 +69,13 @@ export function JobTable() {
   // Reset page when filters change
   useEffect(() => {
     setPage(1);
-  }, [statusFilter, priorityFilter, teamFilter, assignedFilter]);
+  }, [
+    statusFilter,
+    priorityFilter,
+    teamFilter,
+    assignedFilter,
+    equipmentFilter,
+  ]);
 
   const { data } = useJobs({
     page,
@@ -80,7 +87,11 @@ export function JobTable() {
     team_id: teamFilter === "all" ? undefined : teamFilter,
     assigned_to: assignedFilter === "all" ? undefined : assignedFilter,
   });
-  const jobs = data?.data || [];
+
+  const jobs = (data?.data || []).filter((job: Job) => {
+    if (equipmentFilter === "all") return true;
+    return job.equipment?.id === equipmentFilter;
+  });
   const pagination = data?.pagination;
   const queryClient = useQueryClient();
 
@@ -110,6 +121,7 @@ export function JobTable() {
     setPriorityFilter("all");
     setTeamFilter("all");
     setAssignedFilter("all");
+    setEquipmentFilter("all");
     setPage(1);
   };
 
@@ -177,6 +189,8 @@ export function JobTable() {
         onTeamChange={setTeamFilter}
         assignedFilter={assignedFilter}
         onAssignedChange={setAssignedFilter}
+        equipmentFilter={equipmentFilter}
+        onEquipmentChange={setEquipmentFilter}
         searchQuery={inputValue}
         onSearchChange={handleSearch}
         onReset={resetFilters}

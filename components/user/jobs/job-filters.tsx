@@ -11,7 +11,8 @@ import { Button } from "@/components/ui/button";
 import { Search, Download } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { JobStatus, JobPriority, Job } from "@/services/jobs/jobs-types";
-import { useTeams } from "@/services/teams/teams";
+// import { useTeams } from "@/services/teams/teams";
+import { useUsers } from "@/services/users/users-querries";
 
 interface JobFiltersProps {
   statusFilter: JobStatus | "all";
@@ -22,6 +23,8 @@ interface JobFiltersProps {
   onTeamChange: (teamId: string | "all") => void;
   assignedFilter: string | "all";
   onAssignedChange: (userId: string | "all") => void;
+  equipmentFilter: string | "all";
+  onEquipmentChange: (equipmentId: string | "all") => void;
   searchQuery: string;
   onSearchChange: (query: string) => void;
   onReset: () => void;
@@ -33,16 +36,28 @@ export function JobFilters({
   onStatusChange,
   priorityFilter,
   onPriorityChange,
-  teamFilter,
-  onTeamChange,
+  // teamFilter,
+  // onTeamChange,
   assignedFilter,
   onAssignedChange,
+  equipmentFilter,
+  onEquipmentChange,
   searchQuery,
   onSearchChange,
   onReset,
   jobs,
 }: JobFiltersProps) {
-  const { data: teamsData } = useTeams();
+  // const { data: teamsData } = useTeams();
+  const { data: usersData } = useUsers({ page: 1, limit: 1000 });
+
+  // Get unique equipment from jobs
+  const uniqueEquipment = Array.from(
+    new Map(
+      jobs
+        .filter((job) => job.equipment)
+        .map((job) => [job.equipment!.id, job.equipment!]),
+    ).values(),
+  );
 
   const handleExportToExcel = () => {
     if (!jobs || jobs.length === 0) {
@@ -129,7 +144,7 @@ export function JobFilters({
             </SelectContent>
           </Select>
 
-          <Select value={teamFilter} onValueChange={onTeamChange}>
+          {/* <Select value={teamFilter} onValueChange={onTeamChange}>
             <SelectTrigger className="w-[160px]">
               <SelectValue placeholder="Filter by team" />
             </SelectTrigger>
@@ -141,7 +156,7 @@ export function JobFilters({
                 </SelectItem>
               ))}
             </SelectContent>
-          </Select>
+          </Select> */}
 
           <Select value={assignedFilter} onValueChange={onAssignedChange}>
             <SelectTrigger className="w-[160px]">
@@ -149,6 +164,25 @@ export function JobFilters({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Users</SelectItem>
+              {usersData?.data?.map((user) => (
+                <SelectItem key={user.id} value={user.id}>
+                  {user.first_name} {user.last_name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Select value={equipmentFilter} onValueChange={onEquipmentChange}>
+            <SelectTrigger className="w-[160px]">
+              <SelectValue placeholder="Filter by equipment" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Equipment</SelectItem>
+              {uniqueEquipment.map((equipment) => (
+                <SelectItem key={equipment.id} value={equipment.id}>
+                  {equipment.name}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
 
