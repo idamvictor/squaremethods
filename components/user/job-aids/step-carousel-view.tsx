@@ -130,7 +130,7 @@ export function StepCarouselView({
                           src={step.image}
                           alt={`Step ${step.step}`}
                           fill
-                          className="object-cover"
+                          className="object-contain"
                           priority
                         />
                       ) : (

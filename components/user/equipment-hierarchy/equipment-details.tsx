@@ -163,36 +163,40 @@ export function EquipmentDetails({ node }: EquipmentDetailsProps) {
   const getFileTypeIcon = (url: string) => {
     const extension = url.split(".").pop()?.toLowerCase() || "";
 
-    const iconMap: Record<string, { icon: string; color: string }> = {
-      pdf: { icon: "📄", color: "text-red-600" },
-      doc: { icon: "📝", color: "text-blue-600" },
-      docx: { icon: "📝", color: "text-blue-600" },
-      xls: { icon: "📊", color: "text-green-600" },
-      xlsx: { icon: "📊", color: "text-green-600" },
-      ppt: { icon: "🎯", color: "text-orange-600" },
-      pptx: { icon: "🎯", color: "text-orange-600" },
-      txt: { icon: "📋", color: "text-gray-600" },
-      jpg: { icon: "🖼️", color: "text-purple-600" },
-      jpeg: { icon: "🖼️", color: "text-purple-600" },
-      png: { icon: "🖼️", color: "text-purple-600" },
-      gif: { icon: "🖼️", color: "text-purple-600" },
-      zip: { icon: "📦", color: "text-yellow-600" },
-      rar: { icon: "📦", color: "text-yellow-600" },
+    const iconMap: Record<string, { label: string }> = {
+      pdf: { label: "PDF" },
+      doc: { label: "DOC" },
+      docx: { label: "DOCX" },
+      xls: { label: "XLS" },
+      xlsx: { label: "XLSX" },
+      ppt: { label: "PPT" },
+      pptx: { label: "PPTX" },
+      txt: { label: "TXT" },
+      jpg: { label: "JPG" },
+      jpeg: { label: "JPEG" },
+      png: { label: "PNG" },
+      gif: { label: "GIF" },
+      zip: { label: "ZIP" },
+      rar: { label: "RAR" },
     };
 
-    return iconMap[extension] || { icon: "📎", color: "text-gray-600" };
+    const defaultIcon = {
+      label: extension.toUpperCase() || "FILE",
+    };
+
+    return iconMap[extension] || defaultIcon;
   };
 
-  const extractFileName = (url: string) => {
-    try {
-      const urlObj = new URL(url);
-      const pathname = urlObj.pathname;
-      const filename = pathname.split("/").pop() || "Document";
-      return decodeURIComponent(filename);
-    } catch {
-      return url.split("/").pop() || "Document";
-    }
-  };
+  // const extractFileName = (url: string) => {
+  //   try {
+  //     const urlObj = new URL(url);
+  //     const pathname = urlObj.pathname;
+  //     const filename = pathname.split("/").pop() || "Document";
+  //     return decodeURIComponent(filename);
+  //   } catch {
+  //     return url.split("/").pop() || "Document";
+  //   }
+  // };
 
   return (
     <div className="space-y-6">
@@ -546,22 +550,15 @@ export function EquipmentDetails({ node }: EquipmentDetailsProps) {
             {equipment.documents &&
               equipment.documents.map((document, index) => {
                 const fileType = getFileTypeIcon(document);
-                const fileName = extractFileName(document);
 
                 return (
                   <div
                     key={index}
                     className="border rounded-lg p-4 hover:shadow-lg transition-shadow flex flex-col items-center justify-center text-center"
                   >
-                    <div className="mb-4 text-4xl">{fileType.icon}</div>
-                    <a
-                      href={document}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-600 hover:text-blue-800 font-semibold text-sm break-all underline mb-3"
-                    >
-                      {fileName}
-                    </a>
+                    <div className="mb-4 text-3xl font-bold text-blue-600">
+                      {fileType.label}
+                    </div>
                     <Button
                       variant="outline"
                       size="sm"

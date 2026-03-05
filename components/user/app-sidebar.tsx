@@ -41,7 +41,7 @@ const mainNavItems = [
     icon: LayoutDashboard,
   },
   {
-    title: "Equipment Hierarchy",
+    title: "Equipment",
     url: "/equipment-hierarchy",
     icon: Layers,
   },
