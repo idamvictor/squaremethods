@@ -50,6 +50,7 @@ export function AddJobModal() {
     error: teamMembersError,
   } = useTeamMembers(newJob.team || ""); // Will only fetch when team ID is not empty
   const [isEquipmentModalOpen, setEquipmentModalOpen] = useState(false);
+  const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
 
   const createJobMutation = useCreateJob();
 
@@ -355,7 +356,11 @@ export function AddJobModal() {
               <div className="flex items-center gap-2">
                 <Label className="text-sm font-medium">Due Date</Label>
               </div>
-              <Popover modal={true}>
+              <Popover
+                open={isDatePickerOpen}
+                onOpenChange={setIsDatePickerOpen}
+                modal={true}
+              >
                 <PopoverTrigger asChild>
                   <Button
                     variant="outline"
@@ -378,9 +383,10 @@ export function AddJobModal() {
                     selected={
                       newJob.dueDate ? new Date(newJob.dueDate) : undefined
                     }
-                    onSelect={(date) =>
-                      updateNewJob("dueDate", date ? date.toISOString() : "")
-                    }
+                    onSelect={(date) => {
+                      updateNewJob("dueDate", date ? date.toISOString() : "");
+                      setIsDatePickerOpen(false);
+                    }}
                     initialFocus
                   />
                 </PopoverContent>

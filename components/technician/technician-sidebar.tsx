@@ -1,7 +1,9 @@
 "use client";
 
 import type * as React from "react";
+import { useEffect } from "react";
 import { usePathname } from "next/navigation";
+import { useSidebar } from "@/components/ui/sidebar";
 import {
   LayoutDashboard,
   Layers,
@@ -92,6 +94,13 @@ export function TechnicianSidebar({
   ...props
 }: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname();
+  const { setOpenMobile, isMobile } = useSidebar();
+
+  useEffect(() => {
+    if (isMobile) {
+      setOpenMobile(false);
+    }
+  }, [pathname, setOpenMobile, isMobile]);
 
   return (
     <Sidebar collapsible="icon" {...props}>
