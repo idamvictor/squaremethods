@@ -7,7 +7,7 @@ export default async function JobAidDetailsPage({
 }) {
   const { jobAidId } = await params;
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className=" ">
       <JobAidDetails jobAidId={jobAidId} />
     </div>
   );
