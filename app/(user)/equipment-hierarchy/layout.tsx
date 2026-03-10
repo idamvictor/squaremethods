@@ -10,8 +10,10 @@ import {
   FolderOpen,
   Loader2,
   ArrowLeft,
+  Menu,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import {
   useEquipmentStore,
   equipmentTypeIcons,
@@ -131,6 +133,7 @@ export default function EquipmentHierarchyLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const [sheetOpen, setSheetOpen] = React.useState(true);
   const {
     hierarchy,
     searchQuery,
@@ -178,18 +181,66 @@ export default function EquipmentHierarchyLayout({
     <div className="flex flex-col h-screen bg-white p-4">
       {/* Header */}
       <div className="p-3">
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-semibold text-gray-900">
+        <div className="flex items-center justify-between gap-2 sm:gap-4">
+          <h1 className="text-xl sm:text-2xl font-semibold text-gray-900">
             Equipment Hierarchy
           </h1>
-          <div className="flex items-center gap-4">
-            <div className="relative">
+          <div className="flex items-center gap-2 sm:gap-4">
+            <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon" className="lg:hidden">
+                  <Menu className="h-5 w-5" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-80 p-0">
+                <div className="flex-1 overflow-auto h-full">
+                  <div className="p-4">
+                    <div className="flex items-center gap-2 mb-4">
+                      <span className="text-sm font-medium text-blue-600">
+                        Location
+                      </span>
+                      <button
+                        onClick={() => {
+                          const store = useEquipmentStore.getState();
+                          store.setShowFloatingButtons("root");
+                          store.setParentLocationName(null);
+                          store.setShowAddLocationModal(true);
+                        }}
+                        className="p-1 hover:bg-gray-200 rounded"
+                      >
+                        <Plus className="h-4 w-4 text-blue-600" />
+                      </button>
+                    </div>
+
+                    <div className="space-y-1">
+                      {isLoading ? (
+                        <div className="flex items-center justify-center p-4 text-blue-600">
+                          <Loader2 className="h-6 w-6 animate-spin mr-2" />
+                          <span>Loading hierarchy...</span>
+                        </div>
+                      ) : error ? (
+                        <div className="text-red-600 p-4">{error}</div>
+                      ) : hierarchy.length === 0 ? (
+                        <div className="text-gray-500 p-4">
+                          No locations or equipment found
+                        </div>
+                      ) : (
+                        hierarchy.map((node) => (
+                          <TreeNode key={node.id} node={node} level={0} />
+                        ))
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </SheetContent>
+            </Sheet>
+            <div className="relative hidden sm:block">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               <Input
                 placeholder="Search..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 w-64"
+                className="pl-10 w-40 sm:w-64"
               />
             </div>
           </div>
@@ -197,14 +248,14 @@ export default function EquipmentHierarchyLayout({
       </div>
 
       <div className="flex flex-1">
-        {/* Sidebar */}
-        <div className="w-80 flex flex-col">
+        {/* Sidebar - Hidden on mobile */}
+        <div className="hidden lg:flex w-80 flex-col">
           <div className="flex-1 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
             <div className="flex-1 overflow-auto">
               <div className="p-4">
                 <div className="flex items-center gap-2 mb-4">
                   <span className="text-sm font-medium text-blue-600">
-                    Location
+                    Locationnn
                   </span>
                   <button
                     onClick={() => {

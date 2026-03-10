@@ -119,9 +119,9 @@ export function StepCarouselView({
               <CarouselItem key={step.id}>
                 <div className="space-y-6">
                   {/* Main Content - Side by Side Layout */}
-                  <div className="flex flex-col md:flex-row gap-4 md:gap-6 bg-white rounded-lg border overflow-hidden shadow-sm hover:shadow-md transition-shadow h-[70vh] md:h-[80vh]">
+                  <div className="flex flex-col md:flex-row gap-4 md:gap-6 bg-white rounded-lg border overflow-hidden shadow-sm hover:shadow-md transition-shadow md:h-[80vh]">
                     {/* Image Section - Left */}
-                    <Card className="relative w-full md:w-96 h-64 md:h-96 flex-shrink-0 bg-gray-100 overflow-hidden border-0 shadow-sm">
+                    <Card className="relative w-full md:w-96 h-48 md:h-96 flex-shrink-0 bg-gray-100 overflow-hidden border-0 shadow-sm">
                       {step.image &&
                       typeof step.image === "string" &&
                       (step.image.startsWith("/") ||
